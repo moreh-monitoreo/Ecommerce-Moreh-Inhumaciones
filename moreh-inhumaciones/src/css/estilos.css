@@ -1,0 +1,177 @@
+/* ===== PALETA DE COLORES ===== */
+:root {
+    --color-primary:   #762252;
+    --color-primary-dark: #7E074B;
+    --color-primary-light: #e4d3dc;
+    --color-bg-light:  #FAF8F9;
+    --color-border:    #DDDADA;
+    --color-text:      #212529;
+    --color-footer-bg: #f8f4f0;
+}
+
+/* ===== RESET / BASE ===== */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: 'Lato', sans-serif;
+    color: var(--color-text);
+    background-color: #fff;
+}
+
+/* ===== LINKS ===== */
+a { color: var(--color-primary); }
+a:hover { color: var(--color-primary-dark); }
+
+/* ===== BUTTONS ===== */
+.btn-primary {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+}
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+    color: #fff;
+}
+.btn-primary.active,
+.btn-primary:active {
+    background-color: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+}
+.btn-outline-primary {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+.btn-outline-primary:hover {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+}
+
+/* ===== NAVBAR ===== */
+.navbar {
+    background-color: #fff;
+}
+.navbar-brand.logo img {
+    max-height: 50px;
+    width: auto;
+    object-fit: contain;
+}
+.navbar .nav-link {
+    color: var(--color-text);
+    font-weight: 400;
+    transition: color 0.2s;
+}
+.navbar .nav-link:hover {
+    color: var(--color-primary);
+}
+.navbar .nav-link.active {
+    color: var(--color-primary);
+    font-weight: 700;
+}
+/* Sucursales active link (already in nav) */
+.nav-link[href="sucursales.html"].active {
+    color: var(--color-primary);
+}
+
+/* ===== FOOTER ===== */
+footer {
+    background-color: var(--color-primary);
+    color: #fff;
+}
+footer h5 {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    margin-bottom: 1rem !important;
+}
+.footer-link {
+    display: block;
+    color: rgba(255,255,255,0.65) !important;
+    text-decoration: none !important;
+    font-size: 0.9rem;
+    padding: 0.2rem 0;
+    transition: color 0.2s, padding-left 0.2s;
+}
+.footer-link:hover {
+    color: #fff !important;
+    padding-left: 4px;
+}
+.footer-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: rgba(255,255,255,0.7);
+    font-size: 0.9rem;
+    margin-bottom: 0.6rem;
+    text-decoration: none;
+}
+.footer-contact-item i {
+    width: 18px;
+    color: rgba(255,255,255,0.85);
+    flex-shrink: 0;
+}
+.footer-contact-item:hover {
+    color: #fff;
+}
+.footer-social {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(255,255,255,0.15);
+    color: #fff;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: background-color 0.2s, transform 0.2s;
+}
+.footer-social:hover {
+    background-color: rgba(255,255,255,0.35);
+    color: #fff;
+    transform: translateY(-2px);
+}
+.footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.15);
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.75);
+}
+
+/* ===== SECTION TITLES ===== */
+section h2 { font-weight: 700; }
+section h3 { font-weight: 600; }
+
+/* ===== CARDS ===== */
+.card { transition: box-shadow 0.2s; }
+.card:hover { box-shadow: 0 4px 20px rgba(118,34,82,0.12); }
+
+/* ===== BADGES ===== */
+.badge.bg-danger,
+.badge.bg-primary {
+    background-color: var(--color-primary) !important;
+}
+
+/* ===== UTILITY ===== */
+.oe_img_bg {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.o_bg_img_center { background-position: center center; }
+img { max-width: 100%; height: auto; }
+
+/* ===== OFFCANVAS (mobile menu) ===== */
+.offcanvas { max-width: 280px; }
+
+/* ===== ACTIVE NAV HIGHLIGHT ===== */
+.nav-item .nav-link.active,
+.navbar-nav .nav-link.active {
+    color: var(--color-primary) !important;
+    font-weight: 700;
+}

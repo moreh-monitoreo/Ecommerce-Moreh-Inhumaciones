@@ -1,0 +1,51 @@
+/* ===== ABOUT US PAGE ===== */
+
+#aboutCarousel { border-radius: 8px; overflow: hidden; }
+#aboutCarousel .carousel-item img {
+    width: 100%;
+    height: 420px;
+    object-fit: cover;
+}
+@media (max-width: 768px) {
+    #aboutCarousel .carousel-item img { height: 55vw; min-height: 200px; }
+}
+
+.mv-card { border: 1px solid #DDDADA; border-radius: 8px; overflow: hidden; height: 100%; }
+.mv-card img { width: 100%; height: 200px; object-fit: cover; }
+.mv-card .card-title { color: #762252; font-weight: 700; }
+
+.sucursales-thumb { width: 180px; height: 180px; object-fit: cover; }
+
+/* ===== GALERÍA CON PUNTITOS ===== */
+.galeria-about-section {
+    min-height: 560px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    background: #fff radial-gradient(circle, rgba(118,34,82,0.5) 2px, transparent 2px);
+    background-size: 38px 38px;
+    animation: dots-move 20s linear infinite;
+}
+
+@keyframes dots-move {
+    0%   { background-position: 0 0; }
+    100% { background-position: 38px 38px; }
+}
+
+/* Flechas externas */
+.galeria-arrow {
+    background: none;
+    border: none;
+    color: #762252;
+    font-size: 1.8rem;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    line-height: 1;
+}
+.galeria-arrow:hover { color: #4a1535; }
+
+@media (max-width: 767px) {
+    .galeria-about-section { min-height: auto; }
+    #galeriaAbout .carousel-item img { height: 55vw !important; min-height: 200px; }
+}

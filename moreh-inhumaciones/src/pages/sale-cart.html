@@ -1,0 +1,337 @@
+﻿<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Carrito de compras - Moreh Inhumaciones S.A de C.V">
+    <title>Carrito | Moreh Inhumaciones S.A de C.V</title>
+    <link rel="shortcut icon" type="image/x-icon" href="../img/icon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/estilos.css">
+    <link rel="stylesheet" href="../css/sale-cart.css">
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header id="top">
+    <nav aria-label="Main" class="navbar navbar-expand-lg navbar-light shadow-sm d-none d-lg-block">
+        <div class="container">
+            <a href="home.html" class="navbar-brand logo me-4">
+                <img src="../img/Moreh Inhumaciones S.A de C.V.v" width="95" height="40" alt="Moreh Inhumaciones" loading="lazy">
+            </a>
+            <ul class="nav navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" href="home.html">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link" href="about-us.html">Sobre nosotros</a></li>
+                <li class="nav-item"><a class="nav-link" href="our-services.html">Servicios</a></li>
+                <li class="nav-item"><a class="nav-link" href="sale-products.html">Tienda</a></li>
+                <li class="nav-item"><a class="nav-link" href="sucursales.html">Sucursales</a></li>
+            </ul>
+            <ul class="navbar-nav align-items-center gap-2 ps-3">
+                <li>
+                    <a href="sale-cart.html" class="btn position-relative rounded-circle p-1">
+                        <i class="fa fa-shopping-cart"></i>
+                        <span id="cart-badge-desktop" class="badge bg-danger cart-badge" style="display:none;">0</span>
+                    </a>
+                </li>
+                <li><a href="tel:+6677125030" class="nav-link p-2"><i class="fa fa-phone me-1"></i><small>+ 667 712 5030</small></a></li>
+                <li><a href="contactus.html" class="btn btn-primary">Contáctenos</a></li>
+            </ul>
+        </div>
+    </nav>
+    <nav aria-label="Mobile" class="navbar navbar-light shadow-sm d-block d-lg-none">
+        <div class="container flex-wrap justify-content-between">
+            <a href="home.html" class="navbar-brand logo">
+                <img src="../img/Moreh Inhumaciones S.A de C.V.v" width="95" height="40" alt="Moreh Inhumaciones" loading="lazy">
+            </a>
+            <ul class="navbar-nav flex-row align-items-center gap-2 mb-0">
+                <li>
+                    <a href="sale-cart.html" class="btn rounded-circle border-0 p-1 position-relative">
+                        <i class="fa fa-shopping-cart"></i>
+                        <span id="cart-badge-mobile" class="badge bg-danger cart-badge" style="display:none;">0</span>
+                    </a>
+                </li>
+                <li>
+                    <button class="nav-link btn p-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuMobile">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                </li>
+            </ul>
+            <div id="menuMobile" class="offcanvas offcanvas-end">
+                <div class="offcanvas-header justify-content-end">
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+                </div>
+                <div class="offcanvas-body d-flex flex-column justify-content-between h-100">
+                    <ul class="navbar-nav">
+                        <li class="nav-item"><a class="nav-link" href="home.html">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link" href="about-us.html">Sobre nosotros</a></li>
+                        <li class="nav-item"><a class="nav-link" href="our-services.html">Servicios</a></li>
+                        <li class="nav-item"><a class="nav-link" href="sale-products.html">Tienda</a></li>
+                        <li class="nav-item"><a class="nav-link" href="sucursales.html">Sucursales</a></li>
+                    </ul>
+                    <ul class="navbar-nav gap-2 mt-3 w-100">
+                        <li><a href="tel:+6677125030" class="nav-link p-2"><i class="fa fa-phone me-1"></i><small>+ 667 712 5030</small></a></li>
+                        <li><a href="contactus.html" class="btn btn-primary w-100">Contáctenos</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main>
+
+    <!-- ===== HERO ===== -->
+    <section class="cart-hero text-white py-4">
+        <div class="container">
+            <h1 class="mb-0 h3">Mi Carrito</h1>
+        </div>
+    </section>
+
+    <!-- ===== CART CONTENT ===== -->
+    <section class="py-5" style="background-color: #f8f4f0; min-height: 400px;">
+        <div class="container">
+
+            <!-- Empty state -->
+            <div id="empty-cart" style="display:none;">
+                <i class="fa fa-shopping-cart"></i>
+                <h4 class="mb-2">Tu carrito está vacío</h4>
+                <p class="text-muted mb-4">Aún no has agregado productos a tu carrito.</p>
+                <a href="sale-products.html" class="btn btn-primary">Ver productos</a>
+            </div>
+
+            <!-- Cart items -->
+            <div id="cart-content" style="display:none;">
+                <div class="row g-4">
+
+                    <!-- Table -->
+                    <div class="col-lg-8">
+                        <div class="bg-white rounded shadow-sm p-3">
+                            <table class="table align-middle mb-0" id="cart-table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" colspan="2">Producto</th>
+                                        <th scope="col" class="text-center">Cantidad</th>
+                                        <th scope="col" class="text-end">Subtotal</th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cart-tbody">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-3 d-flex gap-2">
+                            <a href="sale-products.html" class="btn btn-outline-secondary btn-sm">
+                                <i class="fa fa-arrow-left me-1"></i>Continuar comprando
+                            </a>
+                            <button id="btn-clear-cart" class="btn btn-outline-danger btn-sm ms-auto">
+                                <i class="fa fa-trash me-1"></i>Vaciar carrito
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Summary -->
+                    <div class="col-lg-4">
+                        <div class="order-summary shadow-sm">
+                            <h5 class="fw-bold mb-3">Resumen del pedido</h5>
+                            <div class="summary-row">
+                                <span>Subtotal</span>
+                                <span id="summary-subtotal">$0.00</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Envío</span>
+                                <span class="text-muted">A calcular</span>
+                            </div>
+                            <div class="summary-row summary-total">
+                                <span>Total</span>
+                                <span id="summary-total">$0.00</span>
+                            </div>
+                            <div class="mt-4 d-grid gap-2">
+                                <button class="btn btn-primary" id="btn-request-quote">
+                                    Solicitar cotización por WhatsApp
+                                </button>
+                                <a href="contactus.html" class="btn btn-outline-secondary">
+                                    Contáctenos
+                                </a>
+                            </div>
+                            <p class="text-muted text-center mt-3" style="font-size:0.8rem;">
+                                ¿Dudas? Llámenos: <a href="tel:+6677125030">+667 712 5030</a>
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer id="bottom">
+    <div class="container py-5">
+        <div class="row g-5">
+            <div class="col-lg-3 col-md-6">
+                <h5>Enlaces útiles</h5>
+                <ul class="list-unstyled mb-0">
+                    <li><a href="home.html" class="footer-link">Inicio</a></li>
+                    <li><a href="about-us.html" class="footer-link">Sobre nosotros</a></li>
+                    <li><a href="sale-products.html" class="footer-link">Productos</a></li>
+                    <li><a href="our-services.html" class="footer-link">Servicios</a></li>
+                    <li><a href="privacidad.html" class="footer-link">Política de privacidad</a></li>
+                    <li><a href="contactus.html" class="footer-link">Contáctenos</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-5 col-md-6">
+                <h5>Sobre nosotros</h5>
+                <p style="color:rgba(255,255,255,0.65); font-size:0.9rem; text-align:justify; line-height:1.7;">
+                    En <strong style="color:#fff;">Moreh Inhumaciones</strong>, somos una empresa comprometida con brindar un servicio funerario integral, humano y digno, respaldado por muchos años de experiencia a través de Hernández Grupo Funerario.
+                </p>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <h5>Contáctenos</h5>
+                <a href="contactus.html" class="footer-contact-item">
+                    <i class="fa fa-comment"></i> Contáctenos
+                </a>
+                <a href="mailto:info@moreh.com.mx" class="footer-contact-item">
+                    <i class="fa fa-envelope"></i> info@moreh.com.mx
+                </a>
+                <a href="tel:+6677125030" class="footer-contact-item">
+                    <i class="fa fa-phone"></i> + 667 712 5030
+                </a>
+                <div class="d-flex gap-2 mt-4">
+                    <a href="#" target="_blank" aria-label="Facebook" class="footer-social"><i class="fa fa-facebook"></i></a>
+                    <a href="#" target="_blank" aria-label="Twitter" class="footer-social"><i class="fa fa-twitter"></i></a>
+                    <a href="#" target="_blank" aria-label="LinkedIn" class="footer-social"><i class="fa fa-linkedin"></i></a>
+                    <a href="home.html" aria-label="Inicio" class="footer-social"><i class="fa fa-home"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom py-3">
+        <div class="container">
+            <p class="text-center mb-0">&copy; 2025 Moreh Inhumaciones S.A de C.V</p>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function () {
+    'use strict';
+
+    function getCart() {
+        try { return JSON.parse(localStorage.getItem('moreh_cart') || '[]'); } catch (e) { return []; }
+    }
+
+    function saveCart(cart) {
+        localStorage.setItem('moreh_cart', JSON.stringify(cart));
+    }
+
+    function formatPrice(n) {
+        return '$' + n.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function updateBadges(count) {
+        ['cart-badge-desktop', 'cart-badge-mobile'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            el.style.display = count > 0 ? 'flex' : 'none';
+            el.textContent = count;
+        });
+    }
+
+    function renderCart() {
+        var cart = getCart();
+        var totalItems = cart.reduce(function (s, i) { return s + i.qty; }, 0);
+        updateBadges(totalItems);
+
+        if (cart.length === 0) {
+            document.getElementById('empty-cart').style.display = 'block';
+            document.getElementById('cart-content').style.display = 'none';
+            return;
+        }
+
+        document.getElementById('empty-cart').style.display = 'none';
+        document.getElementById('cart-content').style.display = 'block';
+
+        var tbody = document.getElementById('cart-tbody');
+        tbody.innerHTML = '';
+
+        var subtotal = 0;
+        cart.forEach(function (item, idx) {
+            var lineTotal = item.price * item.qty;
+            subtotal += lineTotal;
+            var tr = document.createElement('tr');
+            tr.innerHTML =
+                '<td style="width:90px;">' +
+                    '<img src="' + (item.image || '../img/placeholder_thumbnail1.png') + '" class="item-img" alt="' + item.name + '">' +
+                '</td>' +
+                '<td>' +
+                    '<div class="fw-semibold" style="font-size:0.9rem;">' + item.name + '</div>' +
+                    '<div class="text-muted" style="font-size:0.8rem;">' + formatPrice(item.price) + ' c/u</div>' +
+                '</td>' +
+                '<td class="text-center">' +
+                    '<input type="number" class="form-control qty-input" value="' + item.qty + '" min="1" max="99" data-idx="' + idx + '">' +
+                '</td>' +
+                '<td class="text-end fw-semibold">' + formatPrice(lineTotal) + '</td>' +
+                '<td class="text-center">' +
+                    '<button class="btn-remove" data-idx="' + idx + '" title="Eliminar"><i class="fa fa-times"></i></button>' +
+                '</td>';
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('summary-subtotal').textContent = formatPrice(subtotal);
+        document.getElementById('summary-total').textContent = formatPrice(subtotal);
+    }
+
+    document.addEventListener('change', function (e) {
+        if (e.target && e.target.classList.contains('qty-input')) {
+            var cart = getCart();
+            var idx = parseInt(e.target.dataset.idx, 10);
+            var val = parseInt(e.target.value, 10);
+            if (!isNaN(val) && val >= 1) {
+                cart[idx].qty = val;
+                saveCart(cart);
+                renderCart();
+            }
+        }
+    });
+
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest('.btn-remove');
+        if (btn) {
+            var cart = getCart();
+            var idx = parseInt(btn.dataset.idx, 10);
+            cart.splice(idx, 1);
+            saveCart(cart);
+            renderCart();
+        }
+    });
+
+    document.getElementById('btn-clear-cart').addEventListener('click', function () {
+        if (confirm('¿Vaciar el carrito?')) {
+            saveCart([]);
+            renderCart();
+        }
+    });
+
+    document.getElementById('btn-request-quote').addEventListener('click', function () {
+        var cart = getCart();
+        if (cart.length === 0) return;
+        var lines = cart.map(function (i) { return i.qty + 'x ' + i.name; }).join(', ');
+        var msg = 'Hola, me gustaría cotizar los siguientes productos: ' + lines;
+        window.open('https://wa.me/526677125030?text=' + encodeURIComponent(msg), '_blank');
+    });
+
+    renderCart();
+})();
+</script>
+</body>
+</html>
+

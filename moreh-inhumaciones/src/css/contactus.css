@@ -1,0 +1,42 @@
+/* ===== CONTACT US PAGE ===== */
+
+.contact-hero {
+    background: linear-gradient(135deg, #762252 0%, #7E074B 100%);
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+}
+
+#contactus_form .form-control {
+    border-color: #DDDADA;
+    border-radius: 4px;
+    font-size: 0.95rem;
+}
+#contactus_form .form-control:focus {
+    border-color: #762252;
+    box-shadow: 0 0 0 0.2rem rgba(118,34,82,0.15);
+}
+#contactus_form label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+}
+#contactus_form .btn-primary {
+    background-color: #762252;
+    border-color: #762252;
+}
+#contactus_form .btn-primary:hover {
+    background-color: #7E074B;
+    border-color: #7E074B;
+}
+
+.contact-info li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+}
+.contact-info .fa { color: #762252; margin-top: 3px; flex-shrink: 0; }
+.contact-info a { color: #333; text-decoration: none; }
+.contact-info a:hover { color: #762252; text-decoration: underline; }

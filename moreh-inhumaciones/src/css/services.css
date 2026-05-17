@@ -1,0 +1,22 @@
+/* ===== SERVICES PAGE ===== */
+
+.service-section { padding: 4rem 0; }
+.service-section img {
+    width: 100%;
+    height: 340px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+@media (max-width: 991px) {
+    .service-section img { height: 260px; margin-bottom: 1.5rem; }
+}
+
+.feature-icon { font-size: 2rem; color: #762252; margin-bottom: 0.75rem; }
+
+.urnas-gallery img { width: 100%; height: 280px; object-fit: cover; border-radius: 4px; }
+@media (max-width: 768px) {
+    .urnas-gallery img { height: 55vw; }
+}
+
+/* Bullet highlights */
+.service-section ul li::marker { color: #762252; }

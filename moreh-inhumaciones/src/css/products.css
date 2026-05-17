@@ -1,0 +1,54 @@
+/* Estilos para el carrusel en escritorio y dispositivos grandes */
+@media (min-width: 769px) {
+    #myCarousel1742922476630 {
+        height: 770px !important; 
+        overflow: hidden;
+    }
+    
+    #myCarousel1742922476630 .carousel-item {
+        height: 100%;
+        background-size: cover !important;
+        background-position: center center !important;
+    }
+    
+    .s_carousel {
+        width: 100%;
+        height: 770px !important; 
+    }
+}
+
+/* Estilos para el carrusel en dispositivos móviles */
+@media only screen and (max-width: 768px) {
+    body #myCarousel1742922476630.carousel.slide,
+    body .s_carousel.s_carousel_default {
+        height: auto !important;
+        width: 100% !important;
+        max-height: none !important;
+        min-height: auto !important;
+    }
+    
+    body #myCarousel1742922476630 .carousel-item,
+    body #myCarousel1742922476630 .carousel-item.oe_img_bg,
+    body .s_carousel .carousel-item,
+    body .s_carousel .carousel-item.oe_img_bg {
+        height: 100vw !important;
+        width: 100% !important;
+        max-height: none !important;
+        background-size: 100% 100% !important;
+        background-position: center center !important;
+        background-repeat: no-repeat !important;
+        min-height: auto !important;
+    }
+}
+/* Estilos para la galería de imágenes */
+.s_image_gallery img {
+    width: 100%; 
+    height: 480px; 
+    object-fit: cover; 
+}
+
+.img-altura-600 {
+    height: 770px;
+    background-size: cover;
+    background-position: center;
+}

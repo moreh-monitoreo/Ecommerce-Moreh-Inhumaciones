@@ -1,0 +1,47 @@
+/* ===== SUCURSALES PAGE ===== */
+
+.branch-card {
+    border: 1px solid #DDDADA;
+    border-radius: 8px;
+    overflow: hidden;
+    height: 100%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+.branch-card:hover {
+    box-shadow: 0 6px 20px rgba(118,34,82,0.18);
+    transform: translateY(-2px);
+}
+.branch-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+.branch-card .card-body { padding: 1rem; }
+.branch-card .card-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #762252;
+}
+.branch-card .card-text {
+    font-size: 0.85rem;
+    color: #555;
+    line-height: 1.4;
+}
+.branch-card a {
+    color: #762252;
+    font-size: 0.85rem;
+}
+.branch-card a:hover { color: #7E074B; }
+
+.branch-open-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    background-color: #e4d3dc;
+    color: #762252;
+    border-radius: 4px;
+    padding: 2px 8px;
+    margin-top: 4px;
+    font-weight: 600;
+}

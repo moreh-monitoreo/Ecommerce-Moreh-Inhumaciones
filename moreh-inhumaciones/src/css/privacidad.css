@@ -1,0 +1,12 @@
+/* ===== PRIVACIDAD PAGE ===== */
+
+.privacy-content h3 {
+    color: #762252;
+    border-bottom: 2px solid #762252;
+    padding-bottom: 6px;
+    margin-bottom: 1rem;
+}
+.privacy-content p,
+.privacy-content li { font-size: 0.95rem; line-height: 1.7; }
+.privacy-content ul { padding-left: 1.25rem; }
+.privacy-content ul li { margin-bottom: 0.5rem; }
