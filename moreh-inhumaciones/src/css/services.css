@@ -1,5 +1,15 @@
 /* ===== SERVICES PAGE ===== */
 
+.letter-spacing-wide { letter-spacing: 0.08em; text-shadow: 2px 2px 8px rgba(0,0,0,0.6); }
+
+/* Fallback para móviles donde fixed no funciona bien */
+@media (max-width: 768px) {
+    section[style*="background-attachment: fixed"] {
+        background-attachment: scroll;
+        min-height: 50vh !important;
+    }
+}
+
 .service-section { padding: 4rem 0; }
 .service-section img {
     width: 100%;
@@ -20,3 +30,103 @@
 
 /* Bullet highlights */
 .service-section ul li::marker { color: #762252; }
+
+/* ===== URNAS ===== */
+.urnas-section {
+    background: #fff radial-gradient(circle, rgba(118,34,82,0.5) 2px, transparent 2px);
+    background-size: 38px 38px;
+    animation: dots-move 20s linear infinite;
+}
+
+@keyframes dots-move {
+    0%   { background-position: 0 0; }
+    100% { background-position: 38px 38px; }
+}
+
+/* ===== OTROS SERVICIOS ===== */
+.otros-servicios-section {
+    background: #f1ebe4;
+    position: relative;
+    overflow: hidden;
+}
+
+.otros-servicios-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(ellipse at 20% 50%, rgba(118,34,82,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(118,34,82,0.04) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.otros-servicios-eyebrow {
+    color: #c9956b;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.otros-servicios-title {
+    color: #2c1a22;
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+}
+
+.otros-servicios-divider {
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(90deg, #762252, #c9956b);
+    border-radius: 2px;
+}
+
+.otros-card {
+    background: #fff;
+    border: 1px solid rgba(118,34,82,0.15);
+    border-radius: 12px;
+    padding: 2rem 1.75rem;
+    height: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    box-shadow: 0 2px 12px rgba(118,34,82,0.06);
+}
+
+.otros-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(118,34,82,0.15);
+    border-color: rgba(118,34,82,0.35);
+}
+
+.otros-card-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #762252, #c9956b);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+}
+
+.otros-card-icon .fa {
+    font-size: 1.4rem;
+    color: #fff;
+}
+
+.otros-card h5 {
+    color: #2c1a22;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.02em;
+}
+
+.otros-card p {
+    color: #6b5460;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    margin: 0;
+}
