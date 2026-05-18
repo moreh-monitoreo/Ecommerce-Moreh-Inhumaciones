@@ -1,0 +1,36 @@
+{
+  "name": "moreh-inhumaciones-backend",
+  "version": "1.0.0",
+  "description": "Backend API para el sitio Moreh Inhumaciones (Express + TypeScript + Sequelize + SQL Server)",
+  "main": "dist/backend/index.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/backend/index.ts",
+    "build": "rimraf dist && tsc",
+    "start": "node dist/backend/index.js",
+    "db:sync": "ts-node src/backend/scripts/sync.ts",
+    "db:seed": "ts-node src/backend/scripts/seed.ts"
+  },
+  "keywords": ["express", "sequelize", "sqlserver", "typescript"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "express-validator": "^7.2.0",
+    "helmet": "^8.0.0",
+    "morgan": "^1.10.0",
+    "sequelize": "^6.37.5",
+    "tedious": "^18.6.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^22.10.2",
+    "rimraf": "^6.0.1",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.7.2"
+  }
+}
