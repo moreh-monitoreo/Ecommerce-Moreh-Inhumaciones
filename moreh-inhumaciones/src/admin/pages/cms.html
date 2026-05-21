@@ -1,94 +1,170 @@
 <!DOCTYPE html>
 <html lang="es-MX">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CMS | Moreh Admin</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/admin.css">
-  <script src="../js/api.js"></script><script src="../js/layout.js"></script><script src="../js/auth.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CMS · Moreh Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/admin.css" />
+  <script src="../js/api.js"></script>
+  <script src="../js/layout.js" defer></script>
+  <script src="../js/auth.js"></script>
+  <style>
+    .tabs {
+      display: flex; gap: 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .tab {
+      padding: 10px 14px;
+      border: 0; background: transparent;
+      font-size: 12.5px; font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color .12s, border-color .12s;
+    }
+    .tab:hover { color: var(--ink); }
+    .tab.on { color: var(--ink); border-bottom-color: var(--ink); font-weight: 600; }
+    .banner-card {
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      background: var(--surface);
+      overflow: hidden;
+      transition: border-color .12s, box-shadow .12s;
+    }
+    .banner-card:hover { border-color: var(--faint); box-shadow: 0 4px 14px rgba(0,0,0,0.04); }
+    .banner-img-wrap {
+      height: 140px;
+      background: linear-gradient(135deg, #1e293b, #475569);
+      position: relative;
+      overflow: hidden;
+    }
+    .banner-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .banner-img-empty {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.4);
+      font-size: 11px;
+      background: repeating-linear-gradient(45deg, #27272a 0 8px, #18181b 8px 16px);
+    }
+    .banner-card-body { padding: 12px 14px; }
+    .banner-card-foot {
+      padding: 8px 10px;
+      border-top: 1px solid var(--border-soft);
+      display: flex; gap: 6px;
+    }
+    .banner-card-foot .btn { flex: 1; justify-content: center; }
+    .setting-row {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 18px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .setting-row:last-child { border-bottom: 0; }
+    .setting-label { padding-top: 7px; font-size: 12.5px; font-weight: 500; }
+    .setting-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  </style>
 </head>
 <body>
-<div class="admin-main"><div class="admin-content">
-  <div style="margin-bottom:24px;">
-    <h1 class="page-title">CMS del Sitio</h1>
-    <p class="page-subtitle">Banners, textos y configuraciones del sitio público</p>
-  </div>
 
-  <!-- Tabs -->
-  <div style="display:flex;gap:4px;margin-bottom:24px;border-bottom:2px solid var(--border);padding-bottom:0;">
-    <button class="cms-tab active" onclick="switchTab('banners')">Banners</button>
-    <button class="cms-tab" onclick="switchTab('settings')">Configuración</button>
-  </div>
+<div class="admin-main">
+  <div class="admin-content">
 
-  <!-- Banners Tab -->
-  <div id="tab-banners">
-    <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
-      <button class="btn-admin btn-primary" onclick="openBannerModal()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Nuevo banner
-      </button>
-    </div>
-    <div id="banners-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;"></div>
-  </div>
-
-  <!-- Settings Tab -->
-  <div id="tab-settings" style="display:none;">
-    <div class="card" style="padding:24px;max-width:720px;">
-      <div style="font-weight:700;font-size:.85rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:20px;">Información del Sitio</div>
-      <div id="settings-form"></div>
-      <div style="margin-top:20px;">
-        <button class="btn-admin btn-primary" onclick="saveSettings()">Guardar configuración</button>
+    <div class="page-h">
+      <div>
+        <h1 class="page-title">CMS del sitio</h1>
+        <div class="page-meta">
+          <span>Banners, textos y configuración del sitio público</span>
+        </div>
       </div>
     </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab on" data-tab="banners" onclick="switchTab('banners')">Banners</button>
+      <button class="tab" data-tab="settings" onclick="switchTab('settings')">Configuración</button>
+    </div>
+
+    <!-- Banners -->
+    <div id="tab-banners">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <div>
+          <div class="section-title">Banners del home</div>
+          <div class="section-sub" id="banner-count">0 banners</div>
+        </div>
+        <button class="btn btn-primary" onclick="openBannerModal()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo banner</button>
+      </div>
+      <div id="banners-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px;"></div>
+    </div>
+
+    <!-- Settings -->
+    <div id="tab-settings" style="display:none; max-width:760px;">
+      <div class="section-title">Información del sitio</div>
+      <div class="section-sub" style="margin-bottom:14px;">Datos públicos que aparecen en el header, footer y SEO</div>
+      <div id="settings-form" class="card" style="padding: 4px 18px;"></div>
+      <div style="margin-top:14px; display:flex; gap:6px;">
+        <button class="btn" onclick="loadSettings()">Descartar cambios</button>
+        <button class="btn btn-primary" onclick="saveSettings()">Guardar configuración</button>
+      </div>
+    </div>
+
   </div>
-</div></div>
+</div>
 
 <!-- Modal Banner -->
 <div class="modal-overlay" id="modal-banner">
   <div class="modal-box modal-lg">
-    <div class="modal-header"><h4 class="modal-title" id="banner-modal-title">Nuevo Banner</h4><button class="modal-close" onclick="closeBannerModal()">✕</button></div>
+    <div class="modal-head">
+      <h4 class="modal-title" id="banner-modal-title">Nuevo banner</h4>
+      <button class="modal-close" onclick="closeBannerModal()">✕</button>
+    </div>
     <div class="modal-body">
-      <input type="hidden" id="banner-field-id">
-      <div class="form-group"><label class="form-label">Título</label><input class="form-control" id="banner-field-titulo" placeholder="Texto principal del banner"></div>
-      <div class="form-group"><label class="form-label">Subtítulo</label><input class="form-control" id="banner-field-subtitulo" placeholder="Texto secundario opcional"></div>
-      <div class="form-group"><label class="form-label">URL de imagen *</label><input class="form-control" id="banner-field-imagen_url" placeholder="https://..."></div>
-      <div class="form-group"><label class="form-label">Enlace (botón CTA)</label><input class="form-control" id="banner-field-enlace" placeholder="/contacto o https://..."></div>
+      <input type="hidden" id="banner-field-id" />
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Orden</label><input class="form-control" type="number" id="banner-field-orden" value="1" min="1"></div>
-        <div class="form-group"><label class="form-label">Estado</label>
-          <select class="form-select" id="banner-field-activo"><option value="true">Activo</option><option value="false">Inactivo</option></select>
+        <div class="form-group"><label class="form-label">Título</label><input class="form-control" id="banner-field-titulo" placeholder="Texto principal" /></div>
+        <div class="form-group"><label class="form-label">Subtítulo</label><input class="form-control" id="banner-field-subtitulo" placeholder="Texto secundario" /></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">URL de imagen *</label>
+        <input class="form-control" id="banner-field-imagen_url" placeholder="https://..." />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Enlace (CTA)</label>
+        <input class="form-control" id="banner-field-enlace" placeholder="/contacto o https://..." />
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Orden</label><input class="form-control" type="number" id="banner-field-orden" value="1" min="1" /></div>
+        <div class="form-group">
+          <label class="form-label">Estado</label>
+          <select class="form-select" id="banner-field-activo">
+            <option value="true">Activo</option>
+            <option value="false">Inactivo</option>
+          </select>
         </div>
       </div>
       <!-- Preview -->
-      <div id="banner-preview" style="display:none;margin-top:12px;border-radius:10px;overflow:hidden;position:relative;min-height:120px;background:#0d1b2a;">
-        <img id="preview-img" style="width:100%;height:160px;object-fit:cover;opacity:.7;" src="">
-        <div style="position:absolute;bottom:16px;left:20px;">
-          <div id="preview-title" style="color:#fff;font-weight:800;font-size:1.2rem;"></div>
-          <div id="preview-sub" style="color:rgba(255,255,255,.75);font-size:.85rem;"></div>
+      <div style="margin-top:14px;">
+        <div class="form-label">Vista previa</div>
+        <div id="banner-preview" style="position:relative; height:160px; border-radius:var(--r-lg); overflow:hidden; background:#0a0a0a;">
+          <img id="preview-img" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.7;" />
+          <div style="position:absolute; bottom:16px; left:20px; right:20px;">
+            <div id="preview-title" style="color:#fff; font-weight:700; font-size:18px; letter-spacing:-0.01em;"></div>
+            <div id="preview-sub" style="color:rgba(255,255,255,0.75); font-size:12.5px; margin-top:2px;"></div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-admin btn-outline" onclick="closeBannerModal()">Cancelar</button>
-      <button class="btn-admin btn-primary" onclick="saveBanner()">Guardar</button>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeBannerModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveBanner()">Guardar</button>
     </div>
   </div>
 </div>
-
-<style>
-.cms-tab { padding:10px 20px;border:none;background:none;cursor:pointer;font-size:.9rem;font-weight:600;color:var(--text-muted);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s; }
-.cms-tab.active { color:var(--navy);border-bottom-color:var(--navy); }
-.cms-tab:hover:not(.active) { color:var(--text); }
-.banner-card { background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden; }
-.banner-card img { width:100%;height:140px;object-fit:cover; }
-.banner-card-body { padding:14px 16px; }
-.banner-card-footer { padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:8px; }
-.setting-row { display:grid;grid-template-columns:200px 1fr;align-items:start;gap:16px;padding:14px 0;border-bottom:1px solid var(--border); }
-.setting-row:last-child { border-bottom:none; }
-.setting-label { font-weight:600;font-size:.85rem;padding-top:8px; }
-.setting-desc { font-size:.75rem;color:var(--text-muted);margin-top:2px; }
-</style>
 
 <script>
 let banners = [];
@@ -96,19 +172,19 @@ let settings = {};
 let editingBannerId = null;
 
 const SETTINGS_SCHEMA = [
-  { key:'site_name', label:'Nombre del sitio', desc:'Nombre que aparece en el <title>', default:'Moreh Inhumaciones' },
-  { key:'site_phone', label:'Teléfono principal', desc:'Número de contacto en el header', default:'' },
-  { key:'site_email', label:'Email de contacto', desc:'Email público en el footer', default:'' },
-  { key:'site_address', label:'Dirección corporativa', desc:'Dirección en el footer', default:'' },
-  { key:'whatsapp_number', label:'WhatsApp', desc:'Número para el botón flotante (sin +)', default:'' },
-  { key:'facebook_url', label:'Facebook URL', desc:'Enlace a la página de Facebook', default:'' },
-  { key:'instagram_url', label:'Instagram URL', desc:'Enlace a Instagram', default:'' },
-  { key:'meta_description', label:'Meta description', desc:'Descripción SEO para buscadores (max 160 chars)', default:'', textarea:true },
-  { key:'footer_text', label:'Texto del footer', desc:'Aviso legal o texto inferior', default:'', textarea:true },
+  { key:'site_name',       label:'Nombre del sitio',     desc:'Aparece en el <title>', default:'Moreh Inhumaciones' },
+  { key:'site_phone',      label:'Teléfono principal',   desc:'Contacto en el header', default:'' },
+  { key:'site_email',      label:'Email de contacto',    desc:'Email público en el footer', default:'' },
+  { key:'site_address',    label:'Dirección',            desc:'Dirección corporativa en el footer', default:'' },
+  { key:'whatsapp_number', label:'WhatsApp',             desc:'Número para el botón flotante (sin +)', default:'' },
+  { key:'facebook_url',    label:'Facebook URL',         desc:'Enlace a la página de Facebook', default:'' },
+  { key:'instagram_url',   label:'Instagram URL',        desc:'Enlace a Instagram', default:'' },
+  { key:'meta_description',label:'Meta description',    desc:'Descripción SEO (máx. 160 chars)', default:'', textarea:true },
+  { key:'footer_text',     label:'Texto del footer',     desc:'Aviso legal o texto inferior', default:'', textarea:true },
 ];
 
 async function init() {
-  document.getElementById('topbar-page-title').textContent = 'CMS';
+  if (window.AdminLayout) window.AdminLayout.setPageTitle('CMS');
   await Promise.all([loadBanners(), loadSettings()]);
 }
 
@@ -116,46 +192,59 @@ async function loadBanners() {
   try {
     banners = await Api.get('/admin/banners');
     renderBanners();
-  } catch(e) { document.getElementById('banners-grid').innerHTML = `<p style="color:var(--danger);">${e.message}</p>`; }
+  } catch (e) {
+    document.getElementById('banners-grid').innerHTML = `<div style="color:var(--red); grid-column:1/-1;">${e.message}</div>`;
+  }
 }
 
 function renderBanners() {
+  document.getElementById('banner-count').textContent = `${banners.length} ${banners.length === 1 ? 'banner' : 'banners'}`;
   const grid = document.getElementById('banners-grid');
-  if (!banners.length) { grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Sin banners. Crea el primero.</div>'; return; }
+  if (!banners.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;"><div class="empty-state"><h3>Sin banners</h3><p>Crea el primero para personalizar el home del sitio.</p></div></div>`;
+    return;
+  }
   grid.innerHTML = banners.map(b => `
     <div class="banner-card">
-      ${b.imagen_url ? `<img src="${b.imagen_url}" alt="${b.titulo ?? ''}" onerror="this.style.display='none'">` : `<div style="height:140px;background:linear-gradient(135deg,#0d1b2a,#1a2f47);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);font-size:.8rem;">Sin imagen</div>`}
+      <div class="banner-img-wrap">
+        ${b.imagen_url ? `<img src="${b.imagen_url}" alt="${b.titulo ?? ''}" onerror="this.outerHTML='<div class=banner-img-empty>Imagen no disponible</div>'">` : `<div class="banner-img-empty">Sin imagen</div>`}
+      </div>
       <div class="banner-card-body">
-        <div style="font-weight:700;margin-bottom:4px;">${b.titulo ?? '(Sin título)'}</div>
-        ${b.subtitulo ? `<div style="font-size:.8rem;color:var(--text-muted);">${b.subtitulo}</div>` : ''}
-        <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
-          <span class="pill ${b.activo?'pill-green':'pill-gray'}">${b.activo?'Activo':'Inactivo'}</span>
-          <span style="font-size:.75rem;color:var(--text-muted);">Orden: ${b.orden}</span>
+        <div style="font-weight:600; font-size:13px; color:var(--ink);">${b.titulo ?? '<span style="color:var(--muted);">(Sin título)</span>'}</div>
+        ${b.subtitulo ? `<div style="font-size:11.5px; color:var(--muted); margin-top:2px;">${b.subtitulo}</div>` : ''}
+        <div style="display:flex; align-items:center; gap:8px; margin-top:8px;">
+          ${b.activo ? '<span class="status status-ok">Activo</span>' : '<span class="status status-off">Inactivo</span>'}
+          <span style="font-size:11px; color:var(--muted);">Orden ${b.orden}</span>
         </div>
       </div>
-      <div class="banner-card-footer">
-        <button class="btn-admin btn-outline" style="flex:1;justify-content:center;font-size:.78rem;padding:6px;" onclick="editBanner(${b.id})">Editar</button>
-        <button class="btn-admin" style="flex:1;justify-content:center;font-size:.78rem;padding:6px;background:#fee2e2;border-color:#fca5a5;color:#b91c1c;" onclick="deleteBanner(${b.id},'${(b.titulo??'').replace(/'/g,"\\'")}')">Eliminar</button>
+      <div class="banner-card-foot">
+        <button class="btn" onclick="editBanner(${b.id})">Editar</button>
+        <button class="btn" onclick="deleteBanner(${b.id},'${(b.titulo??'').replace(/'/g,"\\'")}')" style="color:var(--red); border-color:var(--red-bg); background:var(--red-bg);">Eliminar</button>
       </div>
     </div>`).join('');
 }
 
 async function loadSettings() {
+  settings = {};
   try {
     const data = await Api.get('/admin/settings');
     data.forEach(s => settings[s.clave] = s.valor);
-    renderSettingsForm();
   } catch {}
+  renderSettingsForm();
 }
 
 function renderSettingsForm() {
   document.getElementById('settings-form').innerHTML = SETTINGS_SCHEMA.map(s => `
     <div class="setting-row">
-      <div><div class="setting-label">${s.label}</div><div class="setting-desc">${s.desc}</div></div>
-      <div>${s.textarea
-        ? `<textarea class="form-control" id="setting-${s.key}" rows="3">${settings[s.key] ?? s.default}</textarea>`
-        : `<input class="form-control" id="setting-${s.key}" value="${settings[s.key] ?? s.default}">`
-      }</div>
+      <div>
+        <div class="setting-label">${s.label}</div>
+        <div class="setting-desc">${s.desc}</div>
+      </div>
+      <div>
+        ${s.textarea
+          ? `<textarea class="form-control" id="setting-${s.key}" rows="3">${settings[s.key] ?? s.default}</textarea>`
+          : `<input class="form-control" id="setting-${s.key}" value="${settings[s.key] ?? s.default}" />`}
+      </div>
     </div>`).join('');
 }
 
@@ -164,18 +253,18 @@ async function saveSettings() {
   try {
     await Promise.all(updates.map(u => Api.put(`/admin/settings/${u.clave}`, { valor: u.valor })));
     Toast.show('Configuración guardada', 'success');
-  } catch(e) { Toast.show(e.message, 'error'); }
+  } catch (e) { Toast.show(e.message, 'error'); }
 }
 
 function switchTab(tab) {
-  document.querySelectorAll('.cms-tab').forEach((t,i) => t.classList.toggle('active', ['banners','settings'][i] === tab));
-  document.getElementById('tab-banners').style.display = tab==='banners' ? '' : 'none';
-  document.getElementById('tab-settings').style.display = tab==='settings' ? '' : 'none';
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.tab === tab));
+  document.getElementById('tab-banners').style.display = tab === 'banners' ? '' : 'none';
+  document.getElementById('tab-settings').style.display = tab === 'settings' ? '' : 'none';
 }
 
 function openBannerModal(data = null) {
   editingBannerId = data?.id ?? null;
-  document.getElementById('banner-modal-title').textContent = editingBannerId ? 'Editar Banner' : 'Nuevo Banner';
+  document.getElementById('banner-modal-title').textContent = editingBannerId ? 'Editar banner' : 'Nuevo banner';
   document.getElementById('banner-field-id').value = editingBannerId ?? '';
   document.getElementById('banner-field-titulo').value = data?.titulo ?? '';
   document.getElementById('banner-field-subtitulo').value = data?.subtitulo ?? '';
@@ -187,18 +276,14 @@ function openBannerModal(data = null) {
   document.getElementById('modal-banner').classList.add('open');
 }
 function closeBannerModal() { document.getElementById('modal-banner').classList.remove('open'); }
-
-function editBanner(id) { const b = banners.find(x => x.id === id); if(b) openBannerModal(b); }
+function editBanner(id) { const b = banners.find(x => x.id === id); if (b) openBannerModal(b); }
 
 function updateBannerPreview() {
   const url = document.getElementById('banner-field-imagen_url').value;
-  const preview = document.getElementById('banner-preview');
-  if (url) {
-    preview.style.display = '';
-    document.getElementById('preview-img').src = url;
-    document.getElementById('preview-title').textContent = document.getElementById('banner-field-titulo').value;
-    document.getElementById('preview-sub').textContent = document.getElementById('banner-field-subtitulo').value;
-  } else { preview.style.display = 'none'; }
+  document.getElementById('preview-img').src = url || '';
+  document.getElementById('preview-img').style.display = url ? '' : 'none';
+  document.getElementById('preview-title').textContent = document.getElementById('banner-field-titulo').value;
+  document.getElementById('preview-sub').textContent = document.getElementById('banner-field-subtitulo').value;
 }
 
 document.addEventListener('input', e => {
@@ -220,16 +305,16 @@ async function saveBanner() {
     if (editingBannerId) await Api.put(`/admin/banners/${editingBannerId}`, body);
     else await Api.post('/admin/banners', body);
     closeBannerModal(); await loadBanners(); Toast.show('Banner guardado', 'success');
-  } catch(e) { Toast.show(e.message, 'error'); }
+  } catch (e) { Toast.show(e.message, 'error'); }
 }
 
 async function deleteBanner(id, titulo) {
   if (!confirm(`¿Eliminar el banner "${titulo}"?`)) return;
   try { await Api.delete(`/admin/banners/${id}`); await loadBanners(); Toast.show('Banner eliminado', 'success'); }
-  catch(e) { Toast.show(e.message, 'error'); }
+  catch (e) { Toast.show(e.message, 'error'); }
 }
 
-document.getElementById('modal-banner').addEventListener('click', e => { if(e.target===e.currentTarget) closeBannerModal(); });
+document.getElementById('modal-banner').addEventListener('click', e => { if (e.target === e.currentTarget) closeBannerModal(); });
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>

@@ -1,62 +1,96 @@
 <!DOCTYPE html>
 <html lang="es-MX">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Contratos | Moreh Admin</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/admin.css">
-  <script src="../js/api.js"></script><script src="../js/layout.js"></script><script src="../js/auth.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Contratos · Moreh Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/admin.css" />
+  <script src="../js/api.js"></script>
+  <script src="../js/layout.js" defer></script>
+  <script src="../js/auth.js"></script>
 </head>
 <body>
-<div class="admin-main"><div class="admin-content">
-  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
-    <div><h1 class="page-title">Contratos Funerarios</h1><p class="page-subtitle">Velaciones, inhumaciones, cremaciones y planes</p></div>
-    <button class="btn-admin btn-primary" onclick="openModal()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Nuevo contrato
-    </button>
-  </div>
 
-  <div class="toolbar">
-    <div class="toolbar-search">
-      <svg class="toolbar-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="search" id="search-input" placeholder="Buscar responsable...">
+<div class="admin-main">
+  <div class="admin-content">
+
+    <div class="page-h">
+      <div>
+        <h1 class="page-title">Contratos funerarios</h1>
+        <div class="page-meta">
+          <span>Velaciones, inhumaciones, cremaciones y planes</span>
+          <span class="dot"></span>
+          <span><b id="meta-total">0</b> contratos</span>
+          <span class="dot"></span>
+          <span><b id="meta-active" style="color:var(--green);">0</b> en curso</span>
+        </div>
+      </div>
+      <div style="display:flex; gap:6px;">
+        <button class="btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Exportar</button>
+        <button class="btn btn-primary" onclick="openModal()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo contrato</button>
+      </div>
     </div>
-    <select class="form-select" id="filter-tipo" style="max-width:200px;">
-      <option value="">Todos los tipos</option>
-      <option value="velacion_funeraria">Velación Funeraria</option>
-      <option value="velacion_domicilio">Velación Domicilio</option>
-      <option value="inhumacion">Inhumación</option>
-      <option value="exhumacion">Exhumación</option>
-      <option value="cremacion">Cremación</option>
-      <option value="plan_futuro">Plan a Futuro</option>
-    </select>
-    <select class="form-select" id="filter-status" style="max-width:160px;">
-      <option value="">Todos los estados</option>
-      <option value="cotizado">Cotizado</option>
-      <option value="firmado">Firmado</option>
-      <option value="en_curso">En curso</option>
-      <option value="finalizado">Finalizado</option>
-      <option value="cancelado">Cancelado</option>
-    </select>
-  </div>
 
-  <div class="table-wrapper">
+    <div class="table-toolbar">
+      <label class="search">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" id="search-input" placeholder="Buscar responsable o fallecido..." />
+      </label>
+      <select class="form-select" id="filter-tipo" style="max-width:220px; padding:5px 9px; font-size:11.5px;">
+        <option value="">Todos los tipos</option>
+        <option value="velacion_funeraria">Velación Funeraria</option>
+        <option value="velacion_domicilio">Velación Domicilio</option>
+        <option value="inhumacion">Inhumación</option>
+        <option value="exhumacion">Exhumación</option>
+        <option value="cremacion">Cremación</option>
+        <option value="plan_futuro">Plan a Futuro</option>
+      </select>
+      <select class="form-select" id="filter-status" style="max-width:180px; padding:5px 9px; font-size:11.5px;">
+        <option value="">Todos los estados</option>
+        <option value="cotizado">Cotizado</option>
+        <option value="firmado">Firmado</option>
+        <option value="en_curso">En curso</option>
+        <option value="finalizado">Finalizado</option>
+        <option value="cancelado">Cancelado</option>
+      </select>
+    </div>
+
     <table class="admin-table">
-      <thead><tr><th>#</th><th>Tipo</th><th>Responsable</th><th>Fallecido</th><th>Sucursal</th><th>Inicio</th><th>Total</th><th>Estado</th><th class="actions">Acciones</th></tr></thead>
-      <tbody id="table-body"><tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted);">Cargando...</td></tr></tbody>
+      <thead>
+        <tr>
+          <th style="width:60px;">#</th>
+          <th style="width:160px;">Tipo</th>
+          <th>Responsable</th>
+          <th>Fallecido</th>
+          <th>Sucursal</th>
+          <th style="width:110px;">Inicio</th>
+          <th style="width:110px; text-align:right;">Total</th>
+          <th style="width:120px;">Estado</th>
+          <th style="width:60px; text-align:right;">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <tr><td colspan="9" style="text-align:center; padding:40px; color:var(--muted);">Cargando...</td></tr>
+      </tbody>
     </table>
+
   </div>
-</div></div>
+</div>
 
 <!-- Modal Contrato -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal-box modal-lg">
-    <div class="modal-header"><h4 class="modal-title">Nuevo Contrato</h4><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-head">
+      <h4 class="modal-title">Nuevo contrato</h4>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
     <div class="modal-body">
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Tipo de servicio *</label>
+        <div class="form-group">
+          <label class="form-label">Tipo de servicio *</label>
           <select class="form-select" id="field-tipo">
             <option value="velacion_funeraria">Velación en Funeraria</option>
             <option value="velacion_domicilio">Velación en Domicilio</option>
@@ -66,36 +100,48 @@
             <option value="plan_futuro">Plan a Futuro</option>
           </select>
         </div>
-        <div class="form-group"><label class="form-label">Sucursal</label><select class="form-select" id="field-branch_id"><option value="">Seleccionar...</option></select></div>
-      </div>
-      <div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px;">
-        <div style="font-weight:700;font-size:.82rem;margin-bottom:12px;color:var(--text-muted);">RESPONSABLE DEL SERVICIO</div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Nombre completo *</label><input class="form-control" id="field-responsable_nombre"></div>
-          <div class="form-group"><label class="form-label">Teléfono</label><input class="form-control" id="field-responsable_telefono"></div>
-        </div>
-        <div class="form-group"><label class="form-label">Email</label><input class="form-control" type="email" id="field-responsable_email"></div>
-      </div>
-      <div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px;">
-        <div style="font-weight:700;font-size:.82rem;margin-bottom:12px;color:var(--text-muted);">DATOS DEL FALLECIDO (si aplica)</div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Nombre</label><input class="form-control" id="field-fallecido_nombre"></div>
-          <div class="form-group"><label class="form-label">Capilla</label><select class="form-select" id="field-chapel_id"><option value="">Ninguna</option></select></div>
+        <div class="form-group">
+          <label class="form-label">Sucursal</label>
+          <select class="form-select" id="field-branch_id"><option value="">Seleccionar...</option></select>
         </div>
       </div>
+
+      <div style="background:var(--surface-alt); border:1px solid var(--border-soft); border-radius:var(--r-md); padding:14px 16px; margin-bottom:14px;">
+        <div class="eyebrow" style="margin-bottom:10px;">Responsable del servicio</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Nombre completo *</label><input class="form-control" id="field-responsable_nombre" /></div>
+          <div class="form-group"><label class="form-label">Teléfono</label><input class="form-control" id="field-responsable_telefono" /></div>
+        </div>
+        <div class="form-group" style="margin-bottom:0;"><label class="form-label">Email</label><input class="form-control" type="email" id="field-responsable_email" /></div>
+      </div>
+
+      <div style="background:var(--surface-alt); border:1px solid var(--border-soft); border-radius:var(--r-md); padding:14px 16px; margin-bottom:14px;">
+        <div class="eyebrow" style="margin-bottom:10px;">Datos del fallecido (si aplica)</div>
+        <div class="form-row" style="margin-bottom:0;">
+          <div class="form-group" style="margin-bottom:0;"><label class="form-label">Nombre</label><input class="form-control" id="field-fallecido_nombre" /></div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Capilla</label>
+            <select class="form-select" id="field-chapel_id"><option value="">Ninguna</option></select>
+          </div>
+        </div>
+      </div>
+
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Fecha inicio</label><input class="form-control" type="datetime-local" id="field-fecha_inicio"></div>
-        <div class="form-group"><label class="form-label">Fecha fin</label><input class="form-control" type="datetime-local" id="field-fecha_fin"></div>
+        <div class="form-group"><label class="form-label">Fecha inicio</label><input class="form-control" type="datetime-local" id="field-fecha_inicio" /></div>
+        <div class="form-group"><label class="form-label">Fecha fin</label><input class="form-control" type="datetime-local" id="field-fecha_fin" /></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Total (MXN) *</label><input class="form-control" type="number" id="field-total" min="0" step="0.01"></div>
-        <div class="form-group"><label class="form-label">Anticipo (MXN)</label><input class="form-control" type="number" id="field-anticipo" min="0" step="0.01" value="0"></div>
+        <div class="form-group"><label class="form-label">Total (MXN) *</label><input class="form-control" type="number" id="field-total" min="0" step="0.01" /></div>
+        <div class="form-group"><label class="form-label">Anticipo (MXN)</label><input class="form-control" type="number" id="field-anticipo" min="0" step="0.01" value="0" /></div>
       </div>
-      <div class="form-group"><label class="form-label">Notas adicionales</label><textarea class="form-control" id="field-notas" rows="3"></textarea></div>
+      <div class="form-group">
+        <label class="form-label">Notas adicionales</label>
+        <textarea class="form-control" id="field-notas" rows="2"></textarea>
+      </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-admin btn-outline" onclick="closeModal()">Cancelar</button>
-      <button class="btn-admin btn-primary" onclick="save()">Crear contrato</button>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="save()">Crear contrato</button>
     </div>
   </div>
 </div>
@@ -103,63 +149,80 @@
 <script>
 let contratos = [];
 let sucursales = [];
-const TIPO_LABEL = { velacion_funeraria:'Velación Funeraria',velacion_domicilio:'Velación Domicilio',inhumacion:'Inhumación',exhumacion:'Exhumación',cremacion:'Cremación',plan_futuro:'Plan a Futuro' };
-const STATUS_PILL = { cotizado:'pill-gray',firmado:'pill-blue',en_curso:'pill-yellow',finalizado:'pill-green',cancelado:'pill-red' };
-const STATUS_LABEL = { cotizado:'Cotizado',firmado:'Firmado',en_curso:'En curso',finalizado:'Finalizado',cancelado:'Cancelado' };
+const TIPO_LABEL = { velacion_funeraria:'Velación Funeraria', velacion_domicilio:'Velación Domicilio', inhumacion:'Inhumación', exhumacion:'Exhumación', cremacion:'Cremación', plan_futuro:'Plan a Futuro' };
+const TIPO_SHORT = { velacion_funeraria:'Vel. Funeraria', velacion_domicilio:'Vel. Domicilio', inhumacion:'Inhumación', exhumacion:'Exhumación', cremacion:'Cremación', plan_futuro:'Plan Futuro' };
+const STATUS_PILL = { cotizado:'gray', firmado:'blue', en_curso:'amber', finalizado:'green', cancelado:'red' };
+const STATUS_LABEL = { cotizado:'Cotizado', firmado:'Firmado', en_curso:'En curso', finalizado:'Finalizado', cancelado:'Cancelado' };
 
 async function init() {
-  document.getElementById('topbar-page-title').textContent = 'Contratos';
-  sucursales = await Api.get('/sucursales');
+  if (window.AdminLayout) window.AdminLayout.setPageTitle('Contratos');
+  sucursales = await Api.get('/sucursales').catch(() => []);
   const sel = document.getElementById('field-branch_id');
   sel.innerHTML = '<option value="">Seleccionar...</option>' + sucursales.map(b => `<option value="${b.id}">${b.nombre} (${b.ciudad})</option>`).join('');
   load();
 }
 
 async function loadChapels(branchId) {
-  const chapelSel = document.getElementById('field-chapel_id');
-  chapelSel.innerHTML = '<option value="">Ninguna</option>';
+  const sel = document.getElementById('field-chapel_id');
+  sel.innerHTML = '<option value="">Ninguna</option>';
   if (!branchId) return;
   try {
     const chapels = await Api.get(`/admin/sucursales/${branchId}/capillas`);
-    chapelSel.innerHTML = '<option value="">Ninguna</option>' + chapels.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+    sel.innerHTML = '<option value="">Ninguna</option>' + chapels.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
   } catch {}
 }
 
 async function load() {
   const tipo = document.getElementById('filter-tipo').value;
   const status = document.getElementById('filter-status').value;
-  const search = document.getElementById('search-input').value.toLowerCase();
+  const search = (document.getElementById('search-input').value || '').toLowerCase();
   let url = '/admin/contratos?';
   if (tipo) url += `tipo=${tipo}&`;
   if (status) url += `status=${status}&`;
   const tbody = document.getElementById('table-body');
   try {
     contratos = await Api.get(url);
-    let filtered = search ? contratos.filter(c => c.responsable_nombre?.toLowerCase().includes(search) || c.fallecido_nombre?.toLowerCase().includes(search)) : contratos;
-    if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted);">Sin contratos</td></tr>'; return; }
+    let filtered = search ? contratos.filter(c =>
+      c.responsable_nombre?.toLowerCase().includes(search) ||
+      c.fallecido_nombre?.toLowerCase().includes(search)
+    ) : contratos;
+
+    document.getElementById('meta-total').textContent = contratos.length;
+    document.getElementById('meta-active').textContent = contratos.filter(c => c.status === 'en_curso' || c.status === 'firmado').length;
+
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><h3>Sin contratos</h3><p>No hay contratos para los filtros seleccionados.</p></div></td></tr>`;
+      return;
+    }
+    const editIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`;
     tbody.innerHTML = filtered.map(c => `
       <tr>
-        <td style="color:var(--text-muted);font-size:.8rem;">#${c.id}</td>
-        <td><span style="font-size:.78rem;font-weight:600;">${TIPO_LABEL[c.tipo] ?? c.tipo}</span></td>
-        <td><div style="font-weight:600;">${c.responsable_nombre}</div><div style="font-size:.72rem;color:var(--text-muted);">${c.responsable_telefono ?? ''}</div></td>
-        <td>${c.fallecido_nombre ?? <span style="color:var(--text-muted)">—</span>}</td>
-        <td>${c.sucursal?.nombre ?? '—'}</td>
-        <td>${fmt.date(c.fecha_inicio)}</td>
-        <td style="font-weight:700;">${fmt.currency(c.total)}</td>
-        <td><span class="pill ${STATUS_PILL[c.status] ?? 'pill-gray'}">${STATUS_LABEL[c.status] ?? c.status}</span></td>
-        <td class="actions">
-          <button class="btn-icon" onclick="changeStatus(${c.id},'${c.status}')" title="Estado"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></button>
+        <td><span class="row-id">#${c.id}</span></td>
+        <td><span class="pill pill-${c.tipo === 'plan_futuro' ? 'gold' : 'blue'}">${TIPO_SHORT[c.tipo] ?? c.tipo}</span></td>
+        <td>
+          <div class="row-name">${c.responsable_nombre}</div>
+          <div class="row-sub">${c.responsable_telefono ?? ''}</div>
+        </td>
+        <td style="color:var(--ink-soft);">${c.fallecido_nombre ?? '<span style="color:var(--light);">—</span>'}</td>
+        <td style="color:var(--muted);">${c.sucursal?.nombre ?? '—'}</td>
+        <td style="color:var(--muted); font-variant-numeric:tabular-nums;">${fmt.date(c.fecha_inicio)}</td>
+        <td style="text-align:right; font-variant-numeric:tabular-nums; font-weight:600;">${fmt.currency(c.total)}</td>
+        <td><span class="pill pill-${STATUS_PILL[c.status] ?? 'gray'}">${STATUS_LABEL[c.status] ?? c.status}</span></td>
+        <td style="text-align:right;">
+          <button class="icon-btn" onclick="changeStatus(${c.id},'${c.status}')" title="Cambiar estado">${editIcon}</button>
         </td>
       </tr>`).join('');
-  } catch(e) { tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--danger);padding:30px;">${e.message}</td></tr>`; }
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--red); padding:30px;">${e.message}</td></tr>`;
+  }
 }
 
 document.getElementById('field-branch_id')?.addEventListener('change', e => loadChapels(e.target.value));
 
 function openModal() {
-  ['responsable_nombre','responsable_telefono','responsable_email','fallecido_nombre','field-notas'].forEach(id => {
-    const el = document.getElementById(id) ?? document.getElementById('field-'+id.replace('field-',''));
-    if(el) el.value = '';
+  ['responsable_nombre','responsable_telefono','responsable_email','fallecido_nombre','notas'].forEach(f => {
+    const el = document.getElementById('field-'+f);
+    if (el) el.value = '';
   });
   document.getElementById('field-total').value = '';
   document.getElementById('field-anticipo').value = '0';
@@ -183,27 +246,25 @@ async function save() {
       fallecido_nombre: document.getElementById('field-fallecido_nombre').value || null,
       fecha_inicio: document.getElementById('field-fecha_inicio').value || null,
       fecha_fin: document.getElementById('field-fecha_fin').value || null,
-      total,
-      anticipo,
-      saldo: total - anticipo,
+      total, anticipo, saldo: total - anticipo,
       notas: document.getElementById('field-notas').value || null,
     });
     closeModal(); load(); Toast.show('Contrato creado', 'success');
-  } catch(e) { Toast.show(e.message, 'error'); }
+  } catch (e) { Toast.show(e.message, 'error'); }
 }
 
 async function changeStatus(id, current) {
-  const nuevos = Object.keys(STATUS_LABEL).filter(s => s !== current);
-  const status = prompt(`Estado actual: ${STATUS_LABEL[current]}\nNuevo estado (${nuevos.join('/')}):`, nuevos[0]);
+  const opts = Object.keys(STATUS_LABEL).filter(s => s !== current);
+  const status = prompt(`Estado actual: ${STATUS_LABEL[current]}\nNuevo estado (${opts.join('/')}):`, opts[0]);
   if (!status || !STATUS_LABEL[status]) return;
   try { await Api.patch(`/admin/contratos/${id}/status`, { status }); load(); Toast.show('Estado actualizado', 'success'); }
-  catch(e) { Toast.show(e.message, 'error'); }
+  catch (e) { Toast.show(e.message, 'error'); }
 }
 
 document.getElementById('filter-tipo').addEventListener('change', load);
 document.getElementById('filter-status').addEventListener('change', load);
 document.getElementById('search-input').addEventListener('input', load);
-document.getElementById('modal-overlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>

@@ -1,102 +1,165 @@
 <!DOCTYPE html>
 <html lang="es-MX">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Leads | Moreh Admin</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/admin.css">
-  <script src="../js/api.js"></script><script src="../js/layout.js"></script><script src="../js/auth.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Leads · Moreh Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/admin.css" />
+  <script src="../js/api.js"></script>
+  <script src="../js/layout.js" defer></script>
+  <script src="../js/auth.js"></script>
+  <style>
+    .kanban {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .kanban-col {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 10px;
+      min-height: 200px;
+    }
+    .kanban-col-h {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 11px; font-weight: 600;
+      color: var(--ink-soft);
+      letter-spacing: 0.04em; text-transform: uppercase;
+      padding: 4px 4px 10px;
+      margin-bottom: 4px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .kanban-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 10px 12px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: border-color .12s, box-shadow .12s, transform .12s;
+    }
+    .kanban-card:hover {
+      border-color: var(--faint);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+      transform: translateY(-1px);
+    }
+    .kanban-card-name { font-size: 12.5px; font-weight: 600; color: var(--ink); }
+    .kanban-card-meta { font-size: 11px; color: var(--muted); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+  </style>
 </head>
 <body>
-<div class="admin-main"><div class="admin-content">
-  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
-    <div><h1 class="page-title">Leads / CRM</h1><p class="page-subtitle">Prospectos y solicitudes de contacto</p></div>
-    <button class="btn-admin btn-primary" onclick="openModal()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Nuevo lead
-    </button>
-  </div>
 
-  <!-- Pipeline Kanban -->
-  <div id="kanban-view" style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px;overflow-x:auto;">
-    <div class="kanban-col" data-status="nuevo" style="min-width:180px;">
-      <div class="kanban-header" style="background:#e2e8f0;border-radius:8px;padding:10px 14px;font-weight:700;font-size:.8rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <span>Nuevo</span><span class="kanban-count pill pill-gray">0</span>
-      </div>
-      <div class="kanban-cards" id="col-nuevo"></div>
-    </div>
-    <div class="kanban-col" data-status="contactado" style="min-width:180px;">
-      <div class="kanban-header" style="background:#dbeafe;border-radius:8px;padding:10px 14px;font-weight:700;font-size:.8rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <span>Contactado</span><span class="kanban-count pill pill-blue">0</span>
-      </div>
-      <div class="kanban-cards" id="col-contactado"></div>
-    </div>
-    <div class="kanban-col" data-status="calificado" style="min-width:180px;">
-      <div class="kanban-header" style="background:#fef3c7;border-radius:8px;padding:10px 14px;font-weight:700;font-size:.8rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <span>Calificado</span><span class="kanban-count pill pill-yellow">0</span>
-      </div>
-      <div class="kanban-cards" id="col-calificado"></div>
-    </div>
-    <div class="kanban-col" data-status="convertido" style="min-width:180px;">
-      <div class="kanban-header" style="background:#dcfce7;border-radius:8px;padding:10px 14px;font-weight:700;font-size:.8rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <span>Convertido</span><span class="kanban-count pill pill-green">0</span>
-      </div>
-      <div class="kanban-cards" id="col-convertido"></div>
-    </div>
-    <div class="kanban-col" data-status="descartado" style="min-width:180px;">
-      <div class="kanban-header" style="background:#fee2e2;border-radius:8px;padding:10px 14px;font-weight:700;font-size:.8rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <span>Descartado</span><span class="kanban-count pill pill-red">0</span>
-      </div>
-      <div class="kanban-cards" id="col-descartado"></div>
-    </div>
-  </div>
+<div class="admin-main">
+  <div class="admin-content">
 
-  <!-- Tabla de todos los leads -->
-  <div class="toolbar">
-    <div class="toolbar-search">
-      <svg class="toolbar-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="search" id="search-input" placeholder="Buscar lead...">
+    <div class="page-h">
+      <div>
+        <h1 class="page-title">Leads / CRM</h1>
+        <div class="page-meta">
+          <span>Prospectos y solicitudes de contacto</span>
+          <span class="dot"></span>
+          <span><b id="meta-total">0</b> leads</span>
+          <span class="dot"></span>
+          <span><b id="meta-new" style="color:var(--accent);">0</b> nuevos sin contactar</span>
+        </div>
+      </div>
+      <div style="display:flex; gap:6px;">
+        <button class="btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Exportar</button>
+        <button class="btn btn-primary" onclick="openModal()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo lead</button>
+      </div>
     </div>
-    <select class="form-select" id="filter-status" style="max-width:180px;">
-      <option value="">Todos los estados</option>
-      <option value="nuevo">Nuevo</option>
-      <option value="contactado">Contactado</option>
-      <option value="calificado">Calificado</option>
-      <option value="convertido">Convertido</option>
-      <option value="descartado">Descartado</option>
-    </select>
-    <select class="form-select" id="filter-fuente" style="max-width:180px;">
-      <option value="">Todas las fuentes</option>
-      <option value="web">Web</option>
-      <option value="telefono">Teléfono</option>
-      <option value="whatsapp">WhatsApp</option>
-      <option value="referido">Referido</option>
-      <option value="presencial">Presencial</option>
-    </select>
-  </div>
 
-  <div class="table-wrapper">
+    <!-- Pipeline -->
+    <div class="kanban" id="kanban">
+      <div class="kanban-col">
+        <div class="kanban-col-h"><span>Nuevo</span><span class="pill" id="ct-nuevo">0</span></div>
+        <div id="col-nuevo"></div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-col-h"><span>Contactado</span><span class="pill pill-blue" id="ct-contactado">0</span></div>
+        <div id="col-contactado"></div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-col-h"><span>Calificado</span><span class="pill pill-amber" id="ct-calificado">0</span></div>
+        <div id="col-calificado"></div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-col-h"><span>Convertido</span><span class="pill pill-green" id="ct-convertido">0</span></div>
+        <div id="col-convertido"></div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-col-h"><span>Descartado</span><span class="pill pill-red" id="ct-descartado">0</span></div>
+        <div id="col-descartado"></div>
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="table-toolbar">
+      <label class="search">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" id="search-input" placeholder="Buscar lead..." />
+      </label>
+      <select class="form-select" id="filter-status" style="max-width:160px; padding:5px 9px; font-size:11.5px;">
+        <option value="">Todos los estados</option>
+        <option value="nuevo">Nuevo</option>
+        <option value="contactado">Contactado</option>
+        <option value="calificado">Calificado</option>
+        <option value="convertido">Convertido</option>
+        <option value="descartado">Descartado</option>
+      </select>
+      <select class="form-select" id="filter-fuente" style="max-width:160px; padding:5px 9px; font-size:11.5px;">
+        <option value="">Todas las fuentes</option>
+        <option value="web">Web</option>
+        <option value="telefono">Teléfono</option>
+        <option value="whatsapp">WhatsApp</option>
+        <option value="referido">Referido</option>
+        <option value="presencial">Presencial</option>
+      </select>
+    </div>
+
     <table class="admin-table">
-      <thead><tr><th>Lead</th><th>Teléfono</th><th>Fuente</th><th>Mensaje</th><th>Asignado a</th><th>Estado</th><th>Fecha</th><th class="actions">Acciones</th></tr></thead>
-      <tbody id="table-body"><tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);">Cargando...</td></tr></tbody>
+      <thead>
+        <tr>
+          <th>Lead</th>
+          <th style="width:130px;">Teléfono</th>
+          <th style="width:110px;">Fuente</th>
+          <th>Mensaje</th>
+          <th style="width:140px;">Asignado a</th>
+          <th style="width:120px;">Estado</th>
+          <th style="width:110px;">Fecha</th>
+          <th style="width:90px; text-align:right;">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <tr><td colspan="8" style="text-align:center; padding:40px; color:var(--muted);">Cargando...</td></tr>
+      </tbody>
     </table>
+
   </div>
-</div></div>
+</div>
 
 <!-- Modal Lead -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal-box modal-lg">
-    <div class="modal-header"><h4 class="modal-title" id="modal-title">Nuevo Lead</h4><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-head">
+      <h4 class="modal-title" id="modal-title">Nuevo lead</h4>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
     <div class="modal-body">
-      <input type="hidden" id="field-id">
+      <input type="hidden" id="field-id" />
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Nombre *</label><input class="form-control" id="field-nombre"></div>
-        <div class="form-group"><label class="form-label">Email</label><input class="form-control" type="email" id="field-email"></div>
+        <div class="form-group"><label class="form-label">Nombre *</label><input class="form-control" id="field-nombre" /></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-control" type="email" id="field-email" /></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Teléfono</label><input class="form-control" id="field-telefono"></div>
-        <div class="form-group"><label class="form-label">Fuente</label>
+        <div class="form-group"><label class="form-label">Teléfono</label><input class="form-control" id="field-telefono" /></div>
+        <div class="form-group">
+          <label class="form-label">Fuente</label>
           <select class="form-select" id="field-fuente">
             <option value="web">Web</option>
             <option value="telefono">Teléfono</option>
@@ -106,9 +169,13 @@
           </select>
         </div>
       </div>
-      <div class="form-group"><label class="form-label">Mensaje / Solicitud</label><textarea class="form-control" id="field-mensaje" rows="3"></textarea></div>
+      <div class="form-group">
+        <label class="form-label">Mensaje / Solicitud</label>
+        <textarea class="form-control" id="field-mensaje" rows="3"></textarea>
+      </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Estado</label>
+        <div class="form-group">
+          <label class="form-label">Estado</label>
           <select class="form-select" id="field-status">
             <option value="nuevo">Nuevo</option>
             <option value="contactado">Contactado</option>
@@ -117,97 +184,101 @@
             <option value="descartado">Descartado</option>
           </select>
         </div>
-        <div class="form-group"><label class="form-label">Asignado a (usuario)</label>
+        <div class="form-group">
+          <label class="form-label">Asignado a</label>
           <select class="form-select" id="field-assigned_to"><option value="">Sin asignar</option></select>
         </div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-admin btn-outline" onclick="closeModal()">Cancelar</button>
-      <button class="btn-admin btn-primary" onclick="save()">Guardar</button>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="save()">Guardar</button>
     </div>
   </div>
 </div>
-
-<style>
-.kanban-card {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 8px;
-  cursor: pointer;
-  transition: box-shadow .15s;
-  font-size: .82rem;
-}
-.kanban-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.1); }
-.kanban-card .name { font-weight: 700; margin-bottom: 4px; }
-.kanban-card .meta { color: var(--text-muted); font-size: .75rem; }
-</style>
 
 <script>
 let leads = [];
 let usuarios = [];
 let editingId = null;
-const STATUS_PILL = { nuevo:'pill-gray', contactado:'pill-blue', calificado:'pill-yellow', convertido:'pill-green', descartado:'pill-red' };
+
+const STATUS_PILL = { nuevo:'', contactado:'pill-blue', calificado:'pill-amber', convertido:'pill-green', descartado:'pill-red' };
 const STATUS_LABEL = { nuevo:'Nuevo', contactado:'Contactado', calificado:'Calificado', convertido:'Convertido', descartado:'Descartado' };
-const FUENTE_ICON = { web:'🌐', telefono:'📞', whatsapp:'💬', referido:'👥', presencial:'🏢' };
+const FUENTE_LABEL = { web:'Web', telefono:'Teléfono', whatsapp:'WhatsApp', referido:'Referido', presencial:'Presencial' };
 
 async function init() {
-  document.getElementById('topbar-page-title').textContent = 'Leads / CRM';
+  if (window.AdminLayout) window.AdminLayout.setPageTitle('Leads / CRM');
   try { usuarios = await Api.get('/admin/usuarios'); } catch {}
   const sel = document.getElementById('field-assigned_to');
   sel.innerHTML = '<option value="">Sin asignar</option>' + usuarios.map(u => `<option value="${u.id}">${u.nombre}</option>`).join('');
   load();
 }
 
+const editIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+const trashIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>`;
+
 async function load() {
-  const search = document.getElementById('search-input').value.toLowerCase();
+  const search = (document.getElementById('search-input').value || '').toLowerCase();
   const statusFilter = document.getElementById('filter-status').value;
   const fuenteFilter = document.getElementById('filter-fuente').value;
   const tbody = document.getElementById('table-body');
   try {
     leads = await Api.get('/admin/leads');
     let filtered = leads;
-    if (search) filtered = filtered.filter(l => l.nombre?.toLowerCase().includes(search) || l.email?.toLowerCase().includes(search) || l.telefono?.includes(search));
+    if (search) filtered = filtered.filter(l =>
+      l.nombre?.toLowerCase().includes(search) ||
+      l.email?.toLowerCase().includes(search) ||
+      l.telefono?.includes(search));
     if (statusFilter) filtered = filtered.filter(l => l.status === statusFilter);
     if (fuenteFilter) filtered = filtered.filter(l => l.fuente === fuenteFilter);
+
+    document.getElementById('meta-total').textContent = leads.length;
+    document.getElementById('meta-new').textContent = leads.filter(l => l.status === 'nuevo').length;
 
     // Kanban
     ['nuevo','contactado','calificado','convertido','descartado'].forEach(s => {
       const col = document.getElementById(`col-${s}`);
       const cards = leads.filter(l => l.status === s);
-      document.querySelector(`[data-status="${s}"] .kanban-count`).textContent = cards.length;
-      col.innerHTML = cards.slice(0,10).map(l => `
+      document.getElementById(`ct-${s}`).textContent = cards.length;
+      col.innerHTML = cards.slice(0, 8).map(l => `
         <div class="kanban-card" onclick="edit(${l.id})">
-          <div class="name">${l.nombre}</div>
-          <div class="meta">${FUENTE_ICON[l.fuente] ?? ''} ${l.fuente ?? ''} · ${fmt.date(l.createdAt)}</div>
-          ${l.telefono ? `<div class="meta">📞 ${l.telefono}</div>` : ''}
-        </div>`).join('') || `<div style="color:var(--text-muted);font-size:.78rem;text-align:center;padding:16px;">Vacío</div>`;
+          <div class="kanban-card-name">${l.nombre}</div>
+          <div class="kanban-card-meta">${FUENTE_LABEL[l.fuente] ?? '—'} · ${fmt.date(l.createdAt)}</div>
+          ${l.telefono ? `<div class="kanban-card-meta">${l.telefono}</div>` : ''}
+        </div>`).join('') || `<div style="color:var(--light); font-size:11px; text-align:center; padding:12px 0;">Vacío</div>`;
     });
 
-    // Tabla
-    if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);">Sin leads</td></tr>'; return; }
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><h3>Sin leads</h3><p>No hay prospectos para los filtros seleccionados.</p></div></td></tr>`;
+      return;
+    }
     tbody.innerHTML = filtered.map(l => `
       <tr>
-        <td><div style="font-weight:600;">${l.nombre}</div><div style="font-size:.73rem;color:var(--text-muted);">${l.email ?? ''}</div></td>
-        <td>${l.telefono ?? '—'}</td>
-        <td>${FUENTE_ICON[l.fuente] ?? ''} ${l.fuente ?? '—'}</td>
-        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.8rem;color:var(--text-muted);">${l.mensaje ?? '—'}</td>
-        <td>${l.assignedTo?.nombre ?? '<span style="color:var(--text-muted)">Sin asignar</span>'}</td>
-        <td><span class="pill ${STATUS_PILL[l.status] ?? 'pill-gray'}">${STATUS_LABEL[l.status] ?? l.status}</span></td>
-        <td style="color:var(--text-muted);font-size:.8rem;">${fmt.date(l.createdAt)}</td>
-        <td class="actions">
-          <button class="btn-icon" onclick="edit(${l.id})"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-          <button class="btn-icon danger" onclick="removeLead(${l.id},'${l.nombre.replace(/'/g,"\\'")}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+        <td>
+          <div class="row-name">${l.nombre}</div>
+          <div class="row-sub">${l.email ?? ''}</div>
+        </td>
+        <td style="color:var(--muted);">${l.telefono ?? '—'}</td>
+        <td style="color:var(--ink-soft);">${FUENTE_LABEL[l.fuente] ?? '—'}</td>
+        <td style="max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--muted);">${l.mensaje ?? '—'}</td>
+        <td>${l.assignedTo?.nombre ?? '<span style="color:var(--light);">Sin asignar</span>'}</td>
+        <td><span class="pill ${STATUS_PILL[l.status] ?? ''}">${STATUS_LABEL[l.status] ?? l.status}</span></td>
+        <td style="color:var(--muted); font-variant-numeric:tabular-nums;">${fmt.date(l.createdAt)}</td>
+        <td style="text-align:right;">
+          <div class="row-actions">
+            <button class="icon-btn" onclick="edit(${l.id})" title="Editar">${editIcon}</button>
+            <button class="icon-btn" onclick="removeLead(${l.id},'${l.nombre.replace(/'/g,"\\'")}')" title="Eliminar">${trashIcon}</button>
+          </div>
         </td>
       </tr>`).join('');
-  } catch(e) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--danger);padding:30px;">${e.message}</td></tr>`; }
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--red); padding:30px;">${e.message}</td></tr>`;
+  }
 }
 
 function openModal(data = null) {
   editingId = data?.id ?? null;
-  document.getElementById('modal-title').textContent = editingId ? 'Editar Lead' : 'Nuevo Lead';
+  document.getElementById('modal-title').textContent = editingId ? 'Editar lead' : 'Nuevo lead';
   document.getElementById('field-id').value = editingId ?? '';
   document.getElementById('field-nombre').value = data?.nombre ?? '';
   document.getElementById('field-email').value = data?.email ?? '';
@@ -219,7 +290,7 @@ function openModal(data = null) {
   document.getElementById('modal-overlay').classList.add('open');
 }
 function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
-function edit(id) { const l = leads.find(x => x.id === id); if(l) openModal(l); }
+function edit(id) { const l = leads.find(x => x.id === id); if (l) openModal(l); }
 
 async function save() {
   const nombre = document.getElementById('field-nombre').value.trim();
@@ -237,19 +308,19 @@ async function save() {
     if (editingId) await Api.put(`/admin/leads/${editingId}`, body);
     else await Api.post('/admin/leads', body);
     closeModal(); load(); Toast.show('Lead guardado', 'success');
-  } catch(e) { Toast.show(e.message, 'error'); }
+  } catch (e) { Toast.show(e.message, 'error'); }
 }
 
 async function removeLead(id, nombre) {
   if (!confirm(`¿Eliminar el lead "${nombre}"?`)) return;
   try { await Api.delete(`/admin/leads/${id}`); load(); Toast.show('Lead eliminado', 'success'); }
-  catch(e) { Toast.show(e.message, 'error'); }
+  catch (e) { Toast.show(e.message, 'error'); }
 }
 
 document.getElementById('search-input').addEventListener('input', load);
 document.getElementById('filter-status').addEventListener('change', load);
 document.getElementById('filter-fuente').addEventListener('change', load);
-document.getElementById('modal-overlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>

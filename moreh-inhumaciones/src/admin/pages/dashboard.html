@@ -1,168 +1,401 @@
 <!DOCTYPE html>
 <html lang="es-MX">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dashboard | Moreh Admin</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/admin.css">
-  <script src="../js/api.js"></script>
-  <script src="../js/layout.js"></script>
-  <script src="../js/auth.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard · Moreh Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/admin.css" />
+  <script src="../js/layout.js" defer></script>
 </head>
 <body>
+
 <div class="admin-main">
   <div class="admin-content">
 
-    <!-- Header -->
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+    <!-- ── Page header ─────────────────────────────────── -->
+    <div class="page-h">
       <div>
-        <h1 class="page-title">Dashboard</h1>
-        <p class="page-subtitle">Resumen general de operaciones</p>
-      </div>
-      <span id="current-date" style="font-size:.82rem;color:var(--text-muted);align-self:flex-end;"></span>
-    </div>
-
-    <!-- KPIs -->
-    <div class="kpi-grid" id="kpi-grid">
-      <!-- Populated by JS -->
-      <div class="kpi-card"><div class="kpi-icon gold"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="kpi-info"><div class="kpi-value" id="kpi-ventas">—</div><div class="kpi-label">Ventas del mes</div></div></div>
-      <div class="kpi-card"><div class="kpi-icon blue"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div><div class="kpi-info"><div class="kpi-value" id="kpi-ordenes">—</div><div class="kpi-label">Órdenes activas</div></div></div>
-      <div class="kpi-card"><div class="kpi-icon green"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="kpi-info"><div class="kpi-value" id="kpi-contratos">—</div><div class="kpi-label">Contratos activos</div></div></div>
-      <div class="kpi-card"><div class="kpi-icon purple"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="kpi-info"><div class="kpi-value" id="kpi-leads">—</div><div class="kpi-label">Leads nuevos</div></div></div>
-      <div class="kpi-card"><div class="kpi-icon red"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div><div class="kpi-info"><div class="kpi-value" id="kpi-stock">—</div><div class="kpi-label">Artículos stock bajo</div></div></div>
-      <div class="kpi-card"><div class="kpi-icon orange"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div class="kpi-info"><div class="kpi-value" id="kpi-productos">—</div><div class="kpi-label">Productos activos</div></div></div>
-    </div>
-
-    <!-- Charts row -->
-    <div class="chart-grid">
-      <div class="chart-card">
-        <div class="card-header"><h3 class="card-title">Ventas por sucursal</h3></div>
-        <div class="card-body"><canvas class="chart" id="chart-ventas-sucursal"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="card-header"><h3 class="card-title">Contratos por tipo</h3></div>
-        <div class="card-body"><canvas class="chart" id="chart-contratos-tipo"></canvas></div>
-      </div>
-    </div>
-
-    <!-- Bottom row: Activity + Top products -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">Actividad reciente</h3>
+        <h1 class="page-title">Resumen general</h1>
+        <div class="page-meta">
+          <span>Jueves, 21 mayo 2026</span>
+          <span class="dot"></span>
+          <span>Últimos 30 días</span>
+          <span class="dot"></span>
+          <span style="color: var(--green); font-weight: 600;">● En vivo</span>
         </div>
-        <div class="card-body" style="padding:0 24px;">
-          <div class="activity-list" id="activity-list">
-            <p style="padding:20px 0;color:var(--text-muted);font-size:.875rem;text-align:center;">Cargando...</p>
+      </div>
+      <div style="display:flex; gap:6px; align-items:center;">
+        <div class="seg" role="tablist" aria-label="Periodo">
+          <button>D</button>
+          <button>S</button>
+          <button class="on">M</button>
+          <button>T</button>
+          <button>A</button>
+        </div>
+        <button class="btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          May 1 — May 30
+        </button>
+        <button class="btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+          Filtros
+        </button>
+        <button class="btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exportar
+        </button>
+        <button class="btn btn-primary">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nueva orden
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Banner ─────────────────────────────────────── -->
+    <div class="banner banner-amber">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span><b>3 órdenes</b> requieren tu atención hoy. <b>8 productos</b> con stock bajo.</span>
+      <span class="banner-act"><a href="#pendientes">Ver pendientes →</a></span>
+    </div>
+
+    <!-- ── KPI strip ─────────────────────────────────── -->
+    <div class="kpi-row" id="kpi-row"></div>
+
+    <!-- ── Chart + Donut ──────────────────────────────── -->
+    <div style="display:grid; grid-template-columns:2fr 1fr; gap:20px; align-items:start;">
+      <div>
+        <div class="section-h" style="margin-bottom:12px;">
+          <div>
+            <div class="section-title">Ingresos diarios</div>
+            <div class="section-sub">Total acumulado · MXN</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:22px; font-weight:600; letter-spacing:-0.025em; font-variant-numeric:tabular-nums;">$1,284,650</div>
+            <div style="font-size:11px; color:var(--green); font-weight:600;">+12.4% vs. periodo anterior</div>
           </div>
         </div>
+        <div id="sales-chart"></div>
       </div>
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">Productos más vendidos</h3>
+
+      <div>
+        <div class="section-h" style="margin-bottom:12px;">
+          <div>
+            <div class="section-title">Contratos por tipo</div>
+            <div class="section-sub">124 vigentes</div>
+          </div>
         </div>
-        <div class="card-body" style="padding:0;">
+        <div id="contracts-by-type"></div>
+      </div>
+    </div>
+
+    <!-- ── 3-col: atención + sucursales + top productos ─ -->
+    <div class="section">
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:24px;">
+        <!-- Necesita atención -->
+        <div id="attention-col">
+          <div class="section-h">
+            <div>
+              <div class="section-title">Necesita tu atención</div>
+              <div class="section-sub">5 elementos · por urgencia</div>
+            </div>
+          </div>
+          <div id="attention-list"></div>
+        </div>
+        <!-- Sucursales -->
+        <div>
+          <div class="section-h">
+            <div>
+              <div class="section-title">Ventas por sucursal</div>
+              <div class="section-sub">Top 7 · este mes (miles MXN)</div>
+            </div>
+            <button class="btn btn-ghost" style="font-size:11.5px;">Ver todas →</button>
+          </div>
+          <div id="branches-list"></div>
+        </div>
+        <!-- Top productos -->
+        <div>
+          <div class="section-h">
+            <div>
+              <div class="section-title">Productos más vendidos</div>
+              <div class="section-sub">Por unidades</div>
+            </div>
+            <button class="btn btn-ghost" style="font-size:11.5px;">Ver todos →</button>
+          </div>
           <table class="admin-table" id="top-products-table">
-            <thead><tr><th>#</th><th>Producto</th><th>Unidades</th></tr></thead>
-            <tbody><tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text-muted);">Cargando...</td></tr></tbody>
+            <tbody></tbody>
           </table>
         </div>
       </div>
     </div>
 
+    <!-- ── Actividad ──────────────────────────────────── -->
+    <div class="section">
+      <div class="section-h">
+        <div>
+          <div class="section-title">Actividad reciente</div>
+          <div class="section-sub">Eventos del sistema · últimas 24 horas</div>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-ghost" style="font-size:11.5px;">Todas</button>
+          <button class="btn btn-ghost" style="font-size:11.5px;">Órdenes</button>
+          <button class="btn btn-ghost" style="font-size:11.5px;">Contratos</button>
+          <button class="btn btn-ghost" style="font-size:11.5px;">Sistema</button>
+        </div>
+      </div>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th style="width:90px;">Hora</th>
+            <th style="width:110px;">Tipo</th>
+            <th>Evento</th>
+            <th>Referencia</th>
+            <th style="width:140px;">Usuario</th>
+            <th style="width:40px;"></th>
+          </tr>
+        </thead>
+        <tbody id="activity-table"></tbody>
+      </table>
+    </div>
+
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', async () => {
-  document.getElementById('topbar-page-title').textContent = 'Dashboard';
-  document.getElementById('current-date').textContent = new Date().toLocaleDateString('es-MX', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+/* =========================================================
+   MOCK DATA — reemplaza por llamadas reales a tu API
+   ========================================================= */
+const KPIS = [
+  { label: 'Ventas del mes',    val: '$1,284,650', delta: '+12.4%', up: true,  spark: [12,14,13,16,15,18,17,21,20,23,22,26] },
+  { label: 'Órdenes activas',   val: '38',         delta: '+6',     up: true,  spark: [4,6,5,7,6,8,7,9,8,10,9,12] },
+  { label: 'Contratos activos', val: '124',        delta: '−2',     up: false, spark: [10,12,11,13,12,14,13,12,11,10,9,10] },
+  { label: 'Leads nuevos',      val: '47',         delta: '+18.2%', up: true,  spark: [3,5,4,6,5,7,6,8,9,11,10,14] },
+  { label: 'Stock bajo',        val: '8',          delta: '+3',     up: false, spark: [2,3,3,4,5,5,6,7,6,7,8,8] },
+  { label: 'Productos activos', val: '142',        delta: '+4',     up: true,  spark: [120,122,125,128,130,132,134,136,138,140,141,142] },
+];
 
-  try {
-    const [kpis, activity, byBranch, byType, topProds] = await Promise.all([
-      Api.get('/admin/dashboard/kpis'),
-      Api.get('/admin/dashboard/activity'),
-      Api.get('/admin/dashboard/sales-by-branch'),
-      Api.get('/admin/dashboard/contracts-by-type'),
-      Api.get('/admin/dashboard/top-products'),
-    ]);
+const CONTRACTS = [
+  { type: 'Velación funeraria', val: 42, pct: 34 },
+  { type: 'Inhumación',         val: 31, pct: 25 },
+  { type: 'Cremación',          val: 24, pct: 19 },
+  { type: 'Plan a futuro',      val: 18, pct: 15 },
+  { type: 'Otros',              val:  9, pct:  7 },
+];
 
-    // KPIs
-    document.getElementById('kpi-ventas').textContent    = fmt.currency(kpis.ventas_mes);
-    document.getElementById('kpi-ordenes').textContent   = kpis.ordenes_activas;
-    document.getElementById('kpi-contratos').textContent = kpis.contratos_activos;
-    document.getElementById('kpi-leads').textContent     = kpis.leads_nuevos;
-    document.getElementById('kpi-stock').textContent     = kpis.stock_bajo;
-    document.getElementById('kpi-productos').textContent = kpis.total_productos;
+const ATTENTION = [
+  { tag:'Contrato',  tone:'amber',  title:'CON-0912 firma pendiente',           meta:'Cliente: García López · vence en 2 días', cta:'Revisar' },
+  { tag:'Pago',      tone:'red',    title:'ORD-2837 pago vencido',              meta:'$ 18,400 · 5 días de atraso',             cta:'Cobrar'  },
+  { tag:'Stock',     tone:'red',    title:'Urna Pequeña Memorial sin stock',    meta:'Sucursal Polanco · 0 unidades',           cta:'Reponer' },
+  { tag:'Lead',      tone:'blue',   title:'6 leads sin responder',              meta:'El más antiguo: hace 3 horas',            cta:'Asignar' },
+  { tag:'Auditoría', tone:'gold',   title:'2 cambios pendientes de aprobación', meta:'Precios catálogo · roles',                cta:'Aprobar' },
+];
 
-    // Activity
-    const actList = document.getElementById('activity-list');
-    if (!activity.length) {
-      actList.innerHTML = '<p style="padding:24px 0;text-align:center;color:var(--text-muted);">Sin actividad reciente.</p>';
-    } else {
-      actList.innerHTML = activity.map(a => `
-        <div class="activity-item">
-          <span class="activity-dot"></span>
-          <div>
-            <div class="activity-text"><strong>${a.user_email ?? 'Sistema'}</strong> ${a.accion} <em>${a.entidad}</em>${a.entidad_id ? ` #${a.entidad_id}` : ''}</div>
-            <div class="activity-time">${fmt.dateTime(a.createdAt)}</div>
-          </div>
-        </div>`).join('');
-    }
+const BRANCHES = [
+  { city:'CDMX · Polanco',     val: 286 },
+  { city:'CDMX · Coyoacán',    val: 218 },
+  { city:'Guadalajara',        val: 192 },
+  { city:'Monterrey · Centro', val: 174 },
+  { city:'Puebla',             val: 138 },
+  { city:'Querétaro',          val: 121 },
+  { city:'Mérida',             val:  94 },
+];
 
-    // Chart: Ventas por sucursal (top 8)
-    const top8 = byBranch.slice(0, 8);
-    new Chart(document.getElementById('chart-ventas-sucursal'), {
-      type: 'bar',
-      data: {
-        labels: top8.map(b => b.ciudad ?? b.sucursal),
-        datasets: [{
-          label: 'Ventas (MXN)',
-          data: top8.map(b => Number(b.ventas_ordenes) + Number(b.ventas_contratos)),
-          backgroundColor: '#0d1b2a',
-          borderRadius: 5,
-        }],
-      },
-      options: {
-        responsive: true, plugins: { legend: { display: false } },
-        scales: { y: { ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k' } } },
-      },
-    });
+const TOP_PRODUCTS = [
+  { rank:1, name:'Ataúd Metálico Cobre',  cat:'Ataúdes', sold:47, trend:'+22%' },
+  { rank:2, name:'Urna Mármol Onyx',      cat:'Urnas',   sold:38, trend:'+14%' },
+  { rank:3, name:'Ataúd Roble Clásico',   cat:'Ataúdes', sold:31, trend:'+8%'  },
+  { rank:4, name:'Urna Bronce Premium',   cat:'Urnas',   sold:24, trend:'+5%'  },
+  { rank:5, name:'Ataúd Caoba Sello',     cat:'Ataúdes', sold:19, trend:'−3%'  },
+];
 
-    // Chart: Contratos por tipo (donut)
-    const TIPOS_LABEL = {
-      velacion_funeraria: 'Velación Funeraria', velacion_domicilio: 'Velación Domicilio',
-      inhumacion: 'Inhumación', exhumacion: 'Exhumación', cremacion: 'Cremación', plan_futuro: 'Plan a Futuro',
-    };
-    new Chart(document.getElementById('chart-contratos-tipo'), {
-      type: 'doughnut',
-      data: {
-        labels: byType.map(t => TIPOS_LABEL[t.tipo] ?? t.tipo),
-        datasets: [{ data: byType.map(t => t.total), backgroundColor: ['#0d1b2a','#c9a86c','#1a2f47','#a68040','#253f5e','#e2c897'], hoverOffset: 4 }],
-      },
-      options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } },
-    });
+const ACTIVITY = [
+  { time:'hace 4 min',  tag:'Órdenes',     tone:'gold',  what:'creó orden',                    ref:'#ORD-2841',                who:'Laura Méndez'  },
+  { time:'hace 18 min', tag:'Inventario',  tone:'red',   what:'detectó stock bajo en',         ref:'Urna Premium Bronce',      who:'Sistema'       },
+  { time:'hace 32 min', tag:'Contratos',   tone:'green', what:'firmó contrato',                ref:'#CON-0917',                who:'Carlos Ortega' },
+  { time:'hace 1 h',    tag:'Clientes',    tone:'blue',  what:'actualizó cliente',             ref:'Familia Hernández',        who:'María Reyes'   },
+  { time:'hace 2 h',    tag:'Órdenes',     tone:'green', what:'cobró orden',                   ref:'#ORD-2839',                who:'Laura Méndez'  },
+  { time:'hace 3 h',    tag:'Inventario',  tone:'gold',  what:'sincronizó inventario en',      ref:'Sucursal Polanco',         who:'Sistema'       },
+];
 
-    // Top products table
-    const tbody = document.querySelector('#top-products-table tbody');
-    if (!topProds.length) {
-      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text-muted);">Sin datos</td></tr>';
-    } else {
-      tbody.innerHTML = topProds.map((p, i) => `
-        <tr>
-          <td style="width:36px;font-weight:700;color:var(--text-muted);">${i+1}</td>
-          <td><div style="font-weight:600;font-size:.82rem;">${p.nombre}</div><div style="font-size:.73rem;color:var(--text-muted);">${p.categoria}</div></td>
-          <td style="font-weight:700;">${p.unidades_vendidas}</td>
-        </tr>`).join('');
-    }
-
-  } catch (err) {
-    console.error(err);
-    Toast.show('Error al cargar el dashboard: ' + err.message, 'error');
+/* =========================================================
+   HELPERS
+   ========================================================= */
+function el(tag, props, ...children) {
+  const n = document.createElement(tag);
+  if (props) for (const k in props) {
+    if (k === 'style' && typeof props[k] === 'object') Object.assign(n.style, props[k]);
+    else if (k.startsWith('on') && typeof props[k] === 'function') n.addEventListener(k.slice(2).toLowerCase(), props[k]);
+    else if (k === 'class') n.className = props[k];
+    else if (k === 'html') n.innerHTML = props[k];
+    else n.setAttribute(k, props[k]);
   }
+  for (const c of children) if (c != null) n.append(c.nodeType ? c : document.createTextNode(c));
+  return n;
+}
+
+function sparklineSVG(data, color, w, h) {
+  w = w || 60; h = h || 18;
+  if (!data || !data.length) return '';
+  const min = Math.min(...data), max = Math.max(...data), span = max - min || 1;
+  const step = w / (data.length - 1);
+  const pts = data.map((v, i) => [i*step, h - 2 - ((v - min)/span)*(h - 4)]);
+  const path = pts.map((p, i) => (i===0?'M':'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block;">
+    <path d="${path}" fill="none" stroke="${color}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="${pts[pts.length-1][0]}" cy="${pts[pts.length-1][1]}" r="2" fill="${color}"/>
+  </svg>`;
+}
+
+function arrow(up, size) {
+  size = size || 9;
+  return up
+    ? `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`
+    : `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`;
+}
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+function renderKpis() {
+  const row = document.getElementById('kpi-row');
+  row.innerHTML = KPIS.map(k => {
+    const color = k.up ? '#15803d' : '#b91c1c';
+    return `
+      <div class="kpi">
+        <div class="kpi-label">${k.label}</div>
+        <div class="kpi-val">${k.val}</div>
+        <div class="kpi-foot">
+          <span class="delta ${k.up ? 'delta-up' : 'delta-down'}">${arrow(k.up)} ${k.delta}</span>
+          ${sparklineSVG(k.spark, color)}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderSalesChart() {
+  const W = 760, H = 200, padL = 32, padR = 8, padT = 6, padB = 22;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const days = 30;
+  const series = [];
+  let v = 24;
+  for (let i = 0; i < days; i++) {
+    v += (Math.sin(i/2.1) * 4) + (i * 0.22) + (i === 12 ? 5 : 0);
+    series.push(Math.max(15, v));
+  }
+  const max = Math.max(...series);
+  const xStep = innerW / (days - 1);
+  const yScale = vv => padT + innerH - (vv / max) * innerH;
+  const linePath = series.map((vv, i) => (i===0?'M':'L') + (padL + i*xStep) + ',' + yScale(vv).toFixed(1)).join(' ');
+  const barW = innerW / days * 0.55;
+
+  const gridLines = [0, max/4, max/2, 3*max/4, max].map((vv, i) => `
+    <line x1="${padL}" x2="${W-padR}" y1="${yScale(vv)}" y2="${yScale(vv)}" stroke="#f1f1f1" stroke-width="1" ${i===0?'':'stroke-dasharray="2 3"'} />
+    <text x="${padL-6}" y="${yScale(vv)+3}" font-size="10" text-anchor="end" fill="#a1a1aa" style="font-variant-numeric:tabular-nums;">$${Math.round(vv*1.2)}k</text>
+  `).join('');
+
+  const bars = series.map((vv, i) => `
+    <rect x="${padL + i*xStep - barW/2}" y="${yScale(vv)}" width="${barW}" height="${innerH - (yScale(vv) - padT)}" fill="#f6f6f7"/>
+  `).join('');
+
+  const xLabels = [0,7,14,21,28].map((t, i) => {
+    const labels = ['May 01','May 08','May 15','May 22','May 29'];
+    return `<text x="${padL + t*xStep}" y="${H-6}" font-size="10" text-anchor="middle" fill="#a1a1aa">${labels[i]}</text>`;
+  }).join('');
+
+  document.getElementById('sales-chart').innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" width="100%" preserveAspectRatio="none" style="display:block;">
+      ${gridLines}
+      ${bars}
+      <path d="${linePath}" fill="none" stroke="#0a0a0a" stroke-width="1.5"/>
+      <circle cx="${padL + 12*xStep}" cy="${yScale(series[12])}" r="3" fill="#fff" stroke="#0a0a0a" stroke-width="1.5"/>
+      ${xLabels}
+    </svg>`;
+}
+
+function renderContracts() {
+  const host = document.getElementById('contracts-by-type');
+  host.innerHTML = CONTRACTS.map((d, i) => `
+    <div style="padding:6px 0; ${i < CONTRACTS.length-1 ? 'border-bottom:1px solid var(--border-soft);' : ''}">
+      <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
+        <span style="color:var(--ink-soft); font-weight:500;">${d.type}</span>
+        <span style="color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums;">
+          ${d.val} <span style="color:var(--muted); font-weight:400; margin-left:4px;">(${d.pct}%)</span>
+        </span>
+      </div>
+      <div class="mini-bar ${i === 1 ? 'gold' : ''}"><i style="width:${d.pct}%;"></i></div>
+    </div>
+  `).join('');
+}
+
+function renderAttention() {
+  const host = document.getElementById('attention-list');
+  host.innerHTML = ATTENTION.map(a => `
+    <div style="display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-top:1px solid var(--border-soft);">
+      <span class="pill pill-${a.tone}">${a.tag}</span>
+      <div style="flex:1; min-width:0;">
+        <div style="font-size:12.5px; font-weight:600; color:var(--ink);">${a.title}</div>
+        <div style="font-size:11px; color:var(--muted); margin-top:2px;">${a.meta}</div>
+      </div>
+      <button class="btn" style="padding:3px 8px; font-size:11.5px;">${a.cta} →</button>
+    </div>
+  `).join('');
+}
+
+function renderBranches() {
+  const max = Math.max(...BRANCHES.map(b => b.val));
+  document.getElementById('branches-list').innerHTML = BRANCHES.map((b, i) => {
+    const pct = (b.val / max) * 100;
+    return `
+      <div style="display:grid; grid-template-columns:120px 1fr 50px; align-items:center; gap:12px; padding:5px 0;">
+        <span style="font-size:11.5px; color:var(--ink-soft);">${b.city}</span>
+        <div class="mini-bar ${i === 0 ? 'gold' : ''}" style="height:6px;"><i style="width:${pct}%;"></i></div>
+        <span style="font-size:11.5px; font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; text-align:right;">$${b.val}k</span>
+      </div>`;
+  }).join('');
+}
+
+function renderTopProducts() {
+  document.querySelector('#top-products-table tbody').innerHTML = TOP_PRODUCTS.map(p => `
+    <tr>
+      <td style="width:24px; color:var(--light); font-variant-numeric:tabular-nums; font-size:11px;">${String(p.rank).padStart(2,'0')}</td>
+      <td>
+        <div class="row-name" style="font-size:12px;">${p.name}</div>
+        <div class="row-sub">${p.cat}</div>
+      </td>
+      <td style="text-align:right; font-variant-numeric:tabular-nums; font-weight:600; font-size:12px;">${p.sold}</td>
+      <td style="text-align:right; font-size:11px; font-weight:600; color:${p.trend.startsWith('−') ? 'var(--red)' : 'var(--green)'};">${p.trend}</td>
+    </tr>
+  `).join('');
+}
+
+function renderActivity() {
+  document.getElementById('activity-table').innerHTML = ACTIVITY.map(a => `
+    <tr>
+      <td style="color:var(--muted); font-variant-numeric:tabular-nums;">${a.time}</td>
+      <td><span class="pill pill-${a.tone}">${a.tag}</span></td>
+      <td>${a.what}</td>
+      <td><span style="font-weight:600; color:var(--ink);">${a.ref}</span></td>
+      <td style="color:var(--muted);">${a.who}</td>
+      <td style="text-align:right;">
+        <button class="icon-btn" aria-label="Abrir">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.AdminLayout) window.AdminLayout.setPageTitle('Dashboard');
+  renderKpis();
+  renderSalesChart();
+  renderContracts();
+  renderAttention();
+  renderBranches();
+  renderTopProducts();
+  renderActivity();
 });
 </script>
 </body>

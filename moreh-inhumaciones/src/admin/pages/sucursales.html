@@ -1,52 +1,130 @@
 <!DOCTYPE html>
 <html lang="es-MX">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sucursales | Moreh Admin</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/admin.css">
-  <script src="../js/api.js"></script><script src="../js/layout.js"></script><script src="../js/auth.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sucursales · Moreh Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/admin.css" />
+  <script src="../js/api.js"></script>
+  <script src="../js/layout.js" defer></script>
+  <script src="../js/auth.js"></script>
+  <style>
+    .branch-card {
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      background: var(--surface);
+      padding: 16px 18px;
+      transition: border-color .12s, box-shadow .12s;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .branch-card:hover {
+      border-color: var(--faint);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+    }
+    .branch-card .top {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+    }
+    .branch-name { font-size: 13.5px; font-weight: 600; letter-spacing: -0.01em; }
+    .branch-loc { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+    .branch-row {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11.5px; color: var(--ink-soft);
+    }
+    .branch-row svg { color: var(--muted); }
+    .branch-row code {
+      font-family: var(--font-mono); font-size: 11px;
+      background: var(--surface-alt); padding: 1px 5px; border-radius: 3px;
+      color: var(--muted);
+    }
+    .branch-actions {
+      display: flex; gap: 6px;
+      padding-top: 8px; margin-top: 4px;
+      border-top: 1px solid var(--border-soft);
+    }
+    .branch-actions .btn { flex: 1; justify-content: center; }
+    .branch-state-group { margin-bottom: 28px; }
+    .branch-state-h {
+      font-size: 10.5px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted);
+      padding-bottom: 8px; margin-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .branch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+  </style>
 </head>
 <body>
-<div class="admin-main"><div class="admin-content">
-  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
-    <div><h1 class="page-title">Sucursales</h1><p class="page-subtitle">14 sucursales en Sinaloa, Jalisco y BCS</p></div>
-    <button class="btn-admin btn-primary" onclick="openModal()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Nueva sucursal
-    </button>
-  </div>
 
-  <div id="branch-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;">
-    <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Cargando...</div>
-  </div>
-</div></div>
+<div class="admin-main">
+  <div class="admin-content">
 
+    <div class="page-h">
+      <div>
+        <h1 class="page-title">Sucursales</h1>
+        <div class="page-meta">
+          <span>Red de sucursales y capillas</span>
+          <span class="dot"></span>
+          <span><b id="meta-total">0</b> sucursales</span>
+          <span class="dot"></span>
+          <span><b id="meta-states">0</b> estados</span>
+          <span class="dot"></span>
+          <span><b id="meta-active" style="color:var(--green);">0</b> activas</span>
+        </div>
+      </div>
+      <div style="display:flex; gap:6px;">
+        <div class="seg">
+          <button class="on" data-v="grid">Tarjetas</button>
+          <button data-v="map">Mapa</button>
+        </div>
+        <button class="btn btn-primary" onclick="openModal()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nueva sucursal</button>
+      </div>
+    </div>
+
+    <div id="grid-root">
+      <div style="text-align:center; padding:40px; color:var(--muted);">Cargando...</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal sucursal -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal-box modal-lg">
-    <div class="modal-header"><h4 class="modal-title" id="modal-title">Nueva Sucursal</h4><button class="modal-close" onclick="closeModal()">✕</button></div>
-    <div class="modal-body">
-      <input type="hidden" id="field-id">
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Nombre *</label><input class="form-control" id="field-nombre" placeholder="Ej. Culiacán Centro"></div>
-        <div class="form-group"><label class="form-label">Estado *</label><input class="form-control" id="field-estado" placeholder="Ej. Sinaloa"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Ciudad *</label><input class="form-control" id="field-ciudad"></div>
-        <div class="form-group"><label class="form-label">Teléfono</label><input class="form-control" id="field-telefono"></div>
-      </div>
-      <div class="form-group"><label class="form-label">Dirección</label><input class="form-control" id="field-direccion"></div>
-      <div class="form-group"><label class="form-label">Horario</label><input class="form-control" id="field-horario" placeholder="Ej. 24 horas"></div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Latitud</label><input class="form-control" type="number" id="field-lat" step="0.0000001"></div>
-        <div class="form-group"><label class="form-label">Longitud</label><input class="form-control" type="number" id="field-lng" step="0.0000001"></div>
-      </div>
-      <div class="form-group"><label class="form-label">URL imagen fachada</label><input class="form-control" id="field-imagen_url"></div>
+    <div class="modal-head">
+      <h4 class="modal-title" id="modal-title">Nueva sucursal</h4>
+      <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
-    <div class="modal-footer">
-      <button class="btn-admin btn-outline" onclick="closeModal()">Cancelar</button>
-      <button class="btn-admin btn-primary" onclick="save()">Guardar</button>
+    <div class="modal-body">
+      <input type="hidden" id="field-id" />
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Nombre *</label><input class="form-control" id="field-nombre" placeholder="Ej. Culiacán Centro" /></div>
+        <div class="form-group"><label class="form-label">Estado *</label><input class="form-control" id="field-estado" placeholder="Ej. Sinaloa" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Ciudad *</label><input class="form-control" id="field-ciudad" /></div>
+        <div class="form-group"><label class="form-label">Teléfono</label><input class="form-control" id="field-telefono" /></div>
+      </div>
+      <div class="form-group"><label class="form-label">Dirección</label><input class="form-control" id="field-direccion" /></div>
+      <div class="form-group"><label class="form-label">Horario</label><input class="form-control" id="field-horario" placeholder="Ej. 24 horas" /></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Latitud</label><input class="form-control" type="number" id="field-lat" step="0.0000001" /></div>
+        <div class="form-group"><label class="form-label">Longitud</label><input class="form-control" type="number" id="field-lng" step="0.0000001" /></div>
+      </div>
+      <div class="form-group"><label class="form-label">URL imagen fachada</label><input class="form-control" id="field-imagen_url" /></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="save()">Guardar</button>
     </div>
   </div>
 </div>
@@ -56,52 +134,74 @@ let sucursales = [];
 let editingId = null;
 
 async function load() {
-  document.getElementById('topbar-page-title').textContent = 'Sucursales';
+  if (window.AdminLayout) window.AdminLayout.setPageTitle('Sucursales');
   try {
     sucursales = await Api.get('/admin/sucursales');
-    const grid = document.getElementById('branch-grid');
-    if (!sucursales.length) { grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Sin sucursales</div>'; return; }
+    const root = document.getElementById('grid-root');
+
+    document.getElementById('meta-total').textContent = sucursales.length;
+    const states = new Set(sucursales.map(b => b.estado));
+    document.getElementById('meta-states').textContent = states.size;
+    document.getElementById('meta-active').textContent = sucursales.filter(b => b.activo).length;
+
+    if (!sucursales.length) {
+      root.innerHTML = `<div class="empty-state"><h3>Sin sucursales</h3><p>Crea la primera con el botón "Nueva sucursal".</p></div>`;
+      return;
+    }
+
     const byState = {};
-    sucursales.forEach(b => { if(!byState[b.estado]) byState[b.estado] = []; byState[b.estado].push(b); });
-    grid.innerHTML = Object.entries(byState).map(([estado, branches]) => `
-      <div style="grid-column:1/-1;">
-        <div style="font-size:.75rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--border);">${estado}</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;">
+    sucursales.forEach(b => { (byState[b.estado] ??= []).push(b); });
+
+    const phoneIcon = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`;
+    const clockIcon = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+    const pinIcon = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`;
+
+    root.innerHTML = Object.entries(byState).map(([estado, branches]) => `
+      <div class="branch-state-group">
+        <div class="branch-state-h">
+          <span>${estado}</span>
+          <span style="color:var(--light); font-weight:500; letter-spacing:0;">·</span>
+          <span style="color:var(--ink-soft); font-weight:500; letter-spacing:0; text-transform:none;">${branches.length} ${branches.length === 1 ? 'sucursal' : 'sucursales'}</span>
+        </div>
+        <div class="branch-grid">
           ${branches.map(b => `
-            <div class="card" style="padding:18px 20px;">
-              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;">
+            <div class="branch-card">
+              <div class="top">
                 <div>
-                  <div style="font-weight:700;font-size:.95rem;">${b.nombre}</div>
-                  <div style="font-size:.78rem;color:var(--text-muted);">${b.ciudad}, ${b.estado}</div>
+                  <div class="branch-name">${b.nombre}</div>
+                  <div class="branch-loc">${b.ciudad}, ${b.estado}</div>
                 </div>
-                <span class="pill ${b.activo?'pill-green':'pill-gray'}">${b.activo?'Activa':'Inactiva'}</span>
+                ${b.activo ? '<span class="status status-ok">Activa</span>' : '<span class="status status-off">Inactiva</span>'}
               </div>
-              ${b.telefono ? `<div style="font-size:.8rem;color:var(--text-muted);margin-bottom:4px;">📞 ${b.telefono}</div>` : ''}
-              ${b.horario ? `<div style="font-size:.8rem;color:var(--text-muted);margin-bottom:4px;">🕐 ${b.horario}</div>` : ''}
-              ${b.direccion ? `<div style="font-size:.78rem;color:var(--text-light);margin-bottom:10px;">${b.direccion}</div>` : ''}
-              <div style="display:flex;gap:8px;margin-top:10px;">
-                <button class="btn-admin btn-outline" style="flex:1;justify-content:center;font-size:.78rem;padding:6px 10px;" onclick="edit(${b.id})">Editar</button>
-                <button class="btn-admin" style="flex:1;justify-content:center;font-size:.78rem;padding:6px 10px;background:#f1f5f9;border-color:var(--border);" onclick="manageChapels(${b.id},'${b.nombre}')">Capillas</button>
+              ${b.telefono ? `<div class="branch-row">${phoneIcon}<span>${b.telefono}</span></div>` : ''}
+              ${b.horario ? `<div class="branch-row">${clockIcon}<span>${b.horario}</span></div>` : ''}
+              ${b.direccion ? `<div class="branch-row">${pinIcon}<span style="color:var(--muted);">${b.direccion}</span></div>` : ''}
+              <div class="branch-actions">
+                <button class="btn" onclick="edit(${b.id})">Editar</button>
+                <button class="btn" onclick="manageChapels(${b.id},'${b.nombre.replace(/'/g,"\\'")}')">Capillas</button>
               </div>
             </div>`).join('')}
         </div>
-      </div>`).join('');
-  } catch(e) { document.getElementById('branch-grid').innerHTML = `<div style="color:var(--danger);padding:30px;">${e.message}</div>`; }
+      </div>
+    `).join('');
+  } catch (e) {
+    document.getElementById('grid-root').innerHTML = `<div style="color:var(--red); padding:30px;">${e.message}</div>`;
+  }
 }
 
 function openModal(data = null) {
   editingId = data?.id ?? null;
-  document.getElementById('modal-title').textContent = editingId ? 'Editar Sucursal' : 'Nueva Sucursal';
+  document.getElementById('modal-title').textContent = editingId ? 'Editar sucursal' : 'Nueva sucursal';
   ['nombre','estado','ciudad','telefono','direccion','horario','imagen_url'].forEach(f => {
     const el = document.getElementById('field-'+f);
-    if(el) el.value = data?.[f] ?? '';
+    if (el) el.value = data?.[f] ?? '';
   });
   document.getElementById('field-lat').value = data?.lat ?? '';
   document.getElementById('field-lng').value = data?.lng ?? '';
   document.getElementById('modal-overlay').classList.add('open');
 }
 function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
-function edit(id) { const b = sucursales.find(x=>x.id===id); if(b) openModal(b); }
+function edit(id) { const b = sucursales.find(x => x.id === id); if (b) openModal(b); }
 
 async function save() {
   const nombre = document.getElementById('field-nombre').value.trim();
@@ -121,7 +221,7 @@ async function save() {
     if (editingId) await Api.put(`/admin/sucursales/${editingId}`, body);
     else await Api.post('/admin/sucursales', body);
     closeModal(); load(); Toast.show('Sucursal guardada', 'success');
-  } catch(e) { Toast.show(e.message, 'error'); }
+  } catch (e) { Toast.show(e.message, 'error'); }
 }
 
 async function manageChapels(branchId, branchName) {
@@ -129,15 +229,15 @@ async function manageChapels(branchId, branchName) {
   const list = chapels.map(c => `${c.id}: ${c.nombre} (cap. ${c.capacidad ?? '—'})`).join('\n') || 'Sin capillas';
   const action = prompt(`Capillas de ${branchName}:\n${list}\n\n¿Agregar nueva? Escribe el nombre o cancela:`);
   if (action) {
-    const cap = parseInt(prompt('Capacidad (dejar vacío si no aplica):'));
+    const cap = parseInt(prompt('Capacidad (vacío si no aplica):'));
     try {
       await Api.post(`/admin/sucursales/${branchId}/capillas`, { nombre: action, capacidad: cap || null });
       Toast.show('Capilla agregada', 'success');
-    } catch(e) { Toast.show(e.message, 'error'); }
+    } catch (e) { Toast.show(e.message, 'error'); }
   }
 }
 
-document.getElementById('modal-overlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
 document.addEventListener('DOMContentLoaded', load);
 </script>
 </body>

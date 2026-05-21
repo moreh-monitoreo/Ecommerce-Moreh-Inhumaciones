@@ -1,81 +1,129 @@
 <!DOCTYPE html>
 <html lang="es-MX">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Órdenes | Moreh Admin</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/admin.css">
-  <script src="../js/api.js"></script><script src="../js/layout.js"></script><script src="../js/auth.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Órdenes · Moreh Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/admin.css" />
+  <script src="../js/api.js"></script>
+  <script src="../js/layout.js" defer></script>
+  <script src="../js/auth.js"></script>
 </head>
 <body>
-<div class="admin-main"><div class="admin-content">
-  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
-    <div><h1 class="page-title">Órdenes</h1><p class="page-subtitle">Gestión de pedidos del e-commerce</p></div>
-    <button class="btn-admin btn-primary" onclick="openModal()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Nueva orden
-    </button>
-  </div>
 
-  <div class="toolbar">
-    <div class="toolbar-search">
-      <svg class="toolbar-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="search" id="search-input" placeholder="Buscar cliente...">
+<div class="admin-main">
+  <div class="admin-content">
+
+    <div class="page-h">
+      <div>
+        <h1 class="page-title">Órdenes</h1>
+        <div class="page-meta">
+          <span>Gestión de pedidos del e-commerce</span>
+          <span class="dot"></span>
+          <span><b id="meta-total">0</b> en total</span>
+          <span class="dot"></span>
+          <span><b id="meta-pendientes" style="color:var(--amber);">0</b> pendientes</span>
+          <span class="dot"></span>
+          <span><b id="meta-revenue" style="color:var(--green);">$0</b> este mes</span>
+        </div>
+      </div>
+      <div style="display:flex; gap:6px;">
+        <button class="btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Exportar</button>
+        <button class="btn btn-primary" onclick="openModal()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nueva orden</button>
+      </div>
     </div>
-    <select class="form-select" id="filter-status" style="max-width:180px;">
-      <option value="">Todos los estados</option>
-      <option value="pendiente">Pendiente</option>
-      <option value="pagada">Pagada</option>
-      <option value="en_preparacion">En preparación</option>
-      <option value="enviada">Enviada</option>
-      <option value="entregada">Entregada</option>
-      <option value="cancelada">Cancelada</option>
-    </select>
-  </div>
 
-  <div class="table-wrapper">
+    <!-- Status tabs -->
+    <div class="table-toolbar" style="border-bottom:1px solid var(--border-soft);">
+      <div class="seg" id="status-tabs">
+        <button data-st="" class="on">Todas</button>
+        <button data-st="pendiente">Pendientes</button>
+        <button data-st="pagada">Pagadas</button>
+        <button data-st="en_preparacion">En preparación</button>
+        <button data-st="enviada">Enviadas</button>
+        <button data-st="entregada">Entregadas</button>
+        <button data-st="cancelada">Canceladas</button>
+      </div>
+      <label class="search">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" id="search-input" placeholder="Buscar cliente..." />
+      </label>
+      <span class="chip">Periodo: <b>30 días</b></span>
+      <div style="margin-left:auto; font-size:11.5px; color:var(--muted);" id="lbl-count">0 órdenes</div>
+    </div>
+
     <table class="admin-table">
-      <thead><tr><th>#</th><th>Cliente</th><th>Fecha</th><th>Total</th><th>Método pago</th><th>Estado</th><th class="actions">Acciones</th></tr></thead>
-      <tbody id="table-body"><tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted);">Cargando...</td></tr></tbody>
+      <thead>
+        <tr>
+          <th style="width:28px;"><input type="checkbox" /></th>
+          <th style="width:80px;">ID</th>
+          <th>Cliente</th>
+          <th style="width:120px;">Fecha</th>
+          <th style="width:110px; text-align:right;">Total</th>
+          <th style="width:120px;">Método pago</th>
+          <th style="width:130px;">Estado</th>
+          <th style="width:60px; text-align:right;">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <tr><td colspan="8" style="text-align:center; padding:40px; color:var(--muted);">Cargando...</td></tr>
+      </tbody>
     </table>
+
+    <div class="table-foot">
+      <span id="foot-summary">Cargando...</span>
+      <div class="pagination">
+        <button class="btn btn-ghost" style="padding:3px 8px; font-size:11.5px;">← Anterior</button>
+        <button class="btn" style="padding:3px 7px; font-size:11.5px;">1</button>
+        <button class="btn btn-ghost" style="padding:3px 8px; font-size:11.5px;">Siguiente →</button>
+      </div>
+    </div>
+
   </div>
-</div></div>
+</div>
 
 <!-- Modal Nueva Orden -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal-box modal-lg">
-    <div class="modal-header">
-      <h4 class="modal-title" id="modal-title">Nueva Orden</h4>
+    <div class="modal-head">
+      <h4 class="modal-title">Nueva orden</h4>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body">
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Nombre del cliente *</label><input class="form-control" id="field-cliente_nombre" placeholder="Nombre completo"></div>
-        <div class="form-group"><label class="form-label">Email</label><input class="form-control" id="field-cliente_email" type="email"></div>
+        <div class="form-group"><label class="form-label">Nombre del cliente *</label><input class="form-control" id="field-cliente_nombre" placeholder="Nombre completo" /></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-control" id="field-cliente_email" type="email" /></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Teléfono</label><input class="form-control" id="field-cliente_telefono"></div>
-        <div class="form-group"><label class="form-label">Método de pago</label>
+        <div class="form-group"><label class="form-label">Teléfono</label><input class="form-control" id="field-cliente_telefono" /></div>
+        <div class="form-group">
+          <label class="form-label">Método de pago</label>
           <select class="form-select" id="field-metodo_pago">
             <option value="">Seleccionar...</option>
             <option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Cheque</option>
           </select>
         </div>
       </div>
-      <div class="form-group"><label class="form-label">Dirección de envío</label><input class="form-control" id="field-direccion_envio"></div>
-      <hr style="border-color:var(--border);margin:16px 0;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-        <strong style="font-size:.9rem;">Artículos</strong>
-        <button class="btn-admin btn-outline" type="button" onclick="addItem()" style="padding:5px 12px;font-size:.8rem;">+ Agregar</button>
+      <div class="form-group"><label class="form-label">Dirección de envío</label><input class="form-control" id="field-direccion_envio" /></div>
+
+      <div style="display:flex; align-items:center; justify-content:space-between; margin: 14px 0 10px; padding-top:10px; border-top:1px solid var(--border-soft);">
+        <div class="section-title">Artículos</div>
+        <button class="btn" type="button" onclick="addItem()" style="font-size:11.5px;">+ Agregar</button>
       </div>
       <div id="items-container"></div>
-      <div style="text-align:right;margin-top:10px;font-size:1rem;font-weight:700;" id="total-display">Total: $0.00</div>
-      <div class="form-group" style="margin-top:12px;"><label class="form-label">Notas</label><textarea class="form-control" id="field-notas" rows="2"></textarea></div>
+      <div style="text-align:right; margin-top:10px; font-size:14px; font-weight:600; font-variant-numeric:tabular-nums;" id="total-display">Total: $0.00</div>
+
+      <div class="form-group" style="margin-top:14px;">
+        <label class="form-label">Notas</label>
+        <textarea class="form-control" id="field-notas" rows="2"></textarea>
+      </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-admin btn-outline" onclick="closeModal()">Cancelar</button>
-      <button class="btn-admin btn-primary" onclick="save()">Crear orden</button>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="save()">Crear orden</button>
     </div>
   </div>
 </div>
@@ -83,10 +131,14 @@
 <!-- Modal Estado -->
 <div class="modal-overlay" id="modal-status">
   <div class="modal-box modal-sm">
-    <div class="modal-header"><h4 class="modal-title">Cambiar estado</h4><button class="modal-close" onclick="closeStatusModal()">✕</button></div>
+    <div class="modal-head">
+      <h4 class="modal-title">Cambiar estado</h4>
+      <button class="modal-close" onclick="closeStatusModal()">✕</button>
+    </div>
     <div class="modal-body">
-      <input type="hidden" id="status-order-id">
-      <div class="form-group"><label class="form-label">Nuevo estado</label>
+      <input type="hidden" id="status-order-id" />
+      <div class="form-group">
+        <label class="form-label">Nuevo estado</label>
         <select class="form-select" id="field-new-status">
           <option value="pendiente">Pendiente</option>
           <option value="pagada">Pagada</option>
@@ -97,60 +149,83 @@
         </select>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-admin btn-outline" onclick="closeStatusModal()">Cancelar</button>
-      <button class="btn-admin btn-primary" onclick="updateStatus()">Actualizar</button>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeStatusModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="updateStatus()">Actualizar</button>
     </div>
   </div>
 </div>
 
 <script>
 let ordenes = [];
-const STATUS_PILL = { pendiente:'pill-yellow',pagada:'pill-blue',en_preparacion:'pill-purple',enviada:'pill-blue',entregada:'pill-green',cancelada:'pill-red' };
-const STATUS_LABEL = { pendiente:'Pendiente',pagada:'Pagada',en_preparacion:'En preparación',enviada:'Enviada',entregada:'Entregada',cancelada:'Cancelada' };
+let itemCount = 0;
+let currentStatus = '';
+
+const STATUS_PILL = { pendiente:'amber', pagada:'blue', en_preparacion:'purple', enviada:'blue', entregada:'green', cancelada:'red' };
+const STATUS_LABEL = { pendiente:'Pendiente', pagada:'Pagada', en_preparacion:'En preparación', enviada:'Enviada', entregada:'Entregada', cancelada:'Cancelada' };
 
 async function load() {
-  const status = document.getElementById('filter-status').value;
+  if (window.AdminLayout) window.AdminLayout.setPageTitle('Órdenes');
   const tbody = document.getElementById('table-body');
   try {
-    ordenes = await Api.get('/admin/ordenes' + (status ? `?status=${status}` : ''));
-    const search = document.getElementById('search-input').value.toLowerCase();
+    ordenes = await Api.get('/admin/ordenes' + (currentStatus ? `?status=${currentStatus}` : ''));
+    const search = (document.getElementById('search-input').value || '').toLowerCase();
     const filtered = search ? ordenes.filter(o => o.cliente_nombre?.toLowerCase().includes(search)) : ordenes;
-    if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted);">Sin órdenes</td></tr>'; return; }
+
+    document.getElementById('meta-total').textContent = ordenes.length;
+    document.getElementById('meta-pendientes').textContent = ordenes.filter(o => o.status === 'pendiente').length;
+    const revenue = ordenes.filter(o => ['pagada','enviada','entregada'].includes(o.status))
+      .reduce((s, o) => s + Number(o.total || 0), 0);
+    document.getElementById('meta-revenue').textContent = fmt.currency(revenue);
+    document.getElementById('lbl-count').textContent = `${filtered.length} ${filtered.length === 1 ? 'orden' : 'órdenes'}`;
+    document.getElementById('foot-summary').textContent = `Mostrando ${filtered.length} de ${ordenes.length}`;
+
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><h3>Sin órdenes</h3><p>No hay pedidos para los filtros seleccionados.</p></div></td></tr>`;
+      return;
+    }
+    const editIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`;
     tbody.innerHTML = filtered.map(o => `
       <tr>
-        <td style="color:var(--text-muted);font-size:.8rem;">#${o.id}</td>
-        <td><div style="font-weight:600;">${o.cliente_nombre}</div><div style="font-size:.73rem;color:var(--text-muted);">${o.cliente_email ?? ''}</div></td>
-        <td>${fmt.date(o.createdAt)}</td>
-        <td style="font-weight:700;">${fmt.currency(o.total)}</td>
-        <td>${o.metodo_pago ?? '—'}</td>
-        <td><span class="pill ${STATUS_PILL[o.status] ?? 'pill-gray'}">${STATUS_LABEL[o.status] ?? o.status}</span></td>
-        <td class="actions">
-          <button class="btn-icon" onclick="openStatusModal(${o.id},'${o.status}')" title="Cambiar estado"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></button>
+        <td><input type="checkbox" /></td>
+        <td><span class="row-id">#${o.id}</span></td>
+        <td>
+          <div class="row-name">${o.cliente_nombre}</div>
+          <div class="row-sub">${o.cliente_email ?? ''}</div>
+        </td>
+        <td style="color:var(--muted);">${fmt.date(o.createdAt)}</td>
+        <td style="text-align:right; font-variant-numeric:tabular-nums; font-weight:600;">${fmt.currency(o.total)}</td>
+        <td style="color:var(--muted);">${o.metodo_pago ?? '—'}</td>
+        <td><span class="pill pill-${STATUS_PILL[o.status] ?? 'gray'}">${STATUS_LABEL[o.status] ?? o.status}</span></td>
+        <td style="text-align:right;">
+          <button class="icon-btn" onclick="openStatusModal(${o.id},'${o.status}')" title="Cambiar estado">${editIcon}</button>
         </td>
       </tr>`).join('');
-  } catch(e) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--danger);padding:30px;">${e.message}</td></tr>`; }
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--red); padding:30px;">${e.message}</td></tr>`;
+  }
 }
 
-let itemCount = 0;
 function addItem() {
   itemCount++;
   const div = document.createElement('div');
   div.id = `item-${itemCount}`;
-  div.style.cssText = 'display:grid;grid-template-columns:1fr auto auto auto;gap:8px;align-items:center;margin-bottom:8px;';
+  div.style.cssText = 'display:grid; grid-template-columns:1fr 70px 120px 28px; gap:8px; align-items:center; margin-bottom:8px;';
   div.innerHTML = `
-    <input class="form-control" placeholder="Nombre del artículo" data-field="nombre">
-    <input class="form-control" type="number" min="1" value="1" style="width:70px;" data-field="cantidad" onchange="calcTotal()">
-    <input class="form-control" type="number" min="0" step="0.01" placeholder="Precio" style="width:120px;" data-field="precio" onchange="calcTotal()">
-    <button type="button" style="background:none;border:none;cursor:pointer;color:var(--danger);font-size:1.2rem;" onclick="this.parentElement.remove();calcTotal()">×</button>`;
+    <input class="form-control" placeholder="Nombre del artículo" data-field="nombre" />
+    <input class="form-control" type="number" min="1" value="1" data-field="cantidad" onchange="calcTotal()" />
+    <input class="form-control" type="number" min="0" step="0.01" placeholder="Precio" data-field="precio" onchange="calcTotal()" />
+    <button type="button" class="icon-btn" onclick="this.parentElement.remove(); calcTotal();" title="Eliminar">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+    </button>`;
   document.getElementById('items-container').appendChild(div);
 }
 
 function calcTotal() {
   let total = 0;
-  document.querySelectorAll('#items-container > div').forEach(div => {
-    const qty = parseFloat(div.querySelector('[data-field=cantidad]').value) || 0;
-    const price = parseFloat(div.querySelector('[data-field=precio]').value) || 0;
+  document.querySelectorAll('#items-container > div').forEach(d => {
+    const qty = parseFloat(d.querySelector('[data-field=cantidad]').value) || 0;
+    const price = parseFloat(d.querySelector('[data-field=precio]').value) || 0;
     total += qty * price;
   });
   document.getElementById('total-display').textContent = 'Total: ' + fmt.currency(total);
@@ -172,10 +247,10 @@ async function save() {
   if (!nombre) { Toast.show('El nombre del cliente es requerido', 'warning'); return; }
   const items = [];
   let valid = true;
-  document.querySelectorAll('#items-container > div').forEach(div => {
-    const n = div.querySelector('[data-field=nombre]').value.trim();
-    const qty = parseInt(div.querySelector('[data-field=cantidad]').value);
-    const price = parseFloat(div.querySelector('[data-field=precio]').value);
+  document.querySelectorAll('#items-container > div').forEach(d => {
+    const n = d.querySelector('[data-field=nombre]').value.trim();
+    const qty = parseInt(d.querySelector('[data-field=cantidad]').value);
+    const price = parseFloat(d.querySelector('[data-field=precio]').value);
     if (!n || !qty || isNaN(price)) { valid = false; return; }
     items.push({ nombre_producto: n, cantidad: qty, precio_unitario: price });
   });
@@ -191,12 +266,12 @@ async function save() {
       items,
     });
     closeModal(); load(); Toast.show('Orden creada', 'success');
-  } catch(e) { Toast.show(e.message, 'error'); }
+  } catch (e) { Toast.show(e.message, 'error'); }
 }
 
-function openStatusModal(id, currentStatus) {
+function openStatusModal(id, current) {
   document.getElementById('status-order-id').value = id;
-  document.getElementById('field-new-status').value = currentStatus;
+  document.getElementById('field-new-status').value = current;
   document.getElementById('modal-status').classList.add('open');
 }
 function closeStatusModal() { document.getElementById('modal-status').classList.remove('open'); }
@@ -207,14 +282,21 @@ async function updateStatus() {
   try {
     await Api.patch(`/admin/ordenes/${id}/status`, { status });
     closeStatusModal(); load(); Toast.show('Estado actualizado', 'success');
-  } catch(e) { Toast.show(e.message, 'error'); }
+  } catch (e) { Toast.show(e.message, 'error'); }
 }
 
-document.getElementById('filter-status').addEventListener('change', load);
+document.getElementById('status-tabs').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-st]');
+  if (!btn) return;
+  document.querySelectorAll('#status-tabs button').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  currentStatus = btn.dataset.st;
+  load();
+});
 document.getElementById('search-input').addEventListener('input', load);
-document.getElementById('modal-overlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
-document.getElementById('modal-status').addEventListener('click', e => { if(e.target===e.currentTarget) closeStatusModal(); });
-document.addEventListener('DOMContentLoaded', () => { document.getElementById('topbar-page-title').textContent = 'Órdenes'; load(); });
+document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+document.getElementById('modal-status').addEventListener('click', e => { if (e.target === e.currentTarget) closeStatusModal(); });
+document.addEventListener('DOMContentLoaded', load);
 </script>
 </body>
 </html>

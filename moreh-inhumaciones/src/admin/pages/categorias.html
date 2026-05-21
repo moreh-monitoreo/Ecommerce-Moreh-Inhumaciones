@@ -1,48 +1,101 @@
 <!DOCTYPE html>
 <html lang="es-MX">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Categorías | Moreh Admin</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/admin.css">
-  <script src="../js/api.js"></script><script src="../js/layout.js"></script><script src="../js/auth.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Categorías · Moreh Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/admin.css" />
+  <script src="../js/api.js"></script>
+  <script src="../js/layout.js" defer></script>
+  <script src="../js/auth.js"></script>
 </head>
 <body>
-<div class="admin-main"><div class="admin-content">
-  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
-    <div><h1 class="page-title">Categorías</h1><p class="page-subtitle">Organización jerárquica de productos</p></div>
-    <button class="btn-admin btn-primary" onclick="openModal()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Nueva categoría
-    </button>
-  </div>
 
-  <div class="table-wrapper">
-    <table class="admin-table">
-      <thead><tr><th>Nombre</th><th>Slug</th><th>Categoría padre</th><th>Productos</th><th>Estado</th><th class="actions">Acciones</th></tr></thead>
-      <tbody id="table-body"><tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted);">Cargando...</td></tr></tbody>
-    </table>
-  </div>
-</div></div>
+<div class="admin-main">
+  <div class="admin-content">
 
-<div class="modal-overlay" id="modal-overlay">
-  <div class="modal-box">
-    <div class="modal-header"><h4 class="modal-title" id="modal-title">Nueva Categoría</h4><button class="modal-close" onclick="closeModal()">✕</button></div>
-    <div class="modal-body">
-      <input type="hidden" id="field-id">
-      <div class="form-group"><label class="form-label">Nombre *</label><input class="form-control" id="field-nombre" placeholder="Ej. Ataúdes de madera"></div>
-      <div class="form-group"><label class="form-label">Slug *</label><input class="form-control" id="field-slug" placeholder="Ej. ataud-madera"></div>
-      <div class="form-group"><label class="form-label">Categoría padre</label>
-        <select class="form-select" id="field-parent_id"><option value="">Ninguna (categoría raíz)</option></select>
+    <div class="page-h">
+      <div>
+        <h1 class="page-title">Categorías</h1>
+        <div class="page-meta">
+          <span>Organización jerárquica de productos</span>
+          <span class="dot"></span>
+          <span><b id="meta-total">0</b> categorías</span>
+          <span class="dot"></span>
+          <span><b id="meta-roots">0</b> raíz</span>
+        </div>
       </div>
-      <div class="form-group" id="group-activo" style="display:none;"><label class="form-label">Estado</label>
-        <select class="form-select" id="field-activo"><option value="true">Activa</option><option value="false">Inactiva</option></select>
+      <div style="display:flex; gap:6px;">
+        <button class="btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Exportar</button>
+        <button class="btn btn-primary" onclick="openModal()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nueva categoría</button>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-admin btn-outline" onclick="closeModal()">Cancelar</button>
-      <button class="btn-admin btn-primary" onclick="save()">Guardar</button>
+
+    <div class="table-toolbar">
+      <label class="search">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" id="search-input" placeholder="Buscar categoría..." />
+      </label>
+      <span class="chip">Vista: <b>Árbol</b></span>
+      <span class="chip">Estado: <b>Todas</b></span>
+    </div>
+
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th style="width:160px;">Slug</th>
+          <th style="width:200px;">Categoría padre</th>
+          <th style="width:90px; text-align:right;">Productos</th>
+          <th style="width:110px;">Estado</th>
+          <th style="width:90px; text-align:right;">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <tr><td colspan="6" style="text-align:center; padding:40px; color:var(--muted);">Cargando...</td></tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h4 class="modal-title" id="modal-title">Nueva categoría</h4>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="field-id" />
+      <div class="form-group">
+        <label class="form-label">Nombre *</label>
+        <input class="form-control" id="field-nombre" placeholder="Ej. Ataúdes de madera" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Slug *</label>
+        <input class="form-control" id="field-slug" placeholder="ataud-madera" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Categoría padre</label>
+        <select class="form-select" id="field-parent_id">
+          <option value="">Ninguna (categoría raíz)</option>
+        </select>
+      </div>
+      <div class="form-group" id="group-activo" style="display:none;">
+        <label class="form-label">Estado</label>
+        <select class="form-select" id="field-activo">
+          <option value="true">Activa</option>
+          <option value="false">Inactiva</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="save()">Guardar</button>
     </div>
   </div>
 </div>
@@ -51,45 +104,65 @@
 let categorias = [];
 let editingId = null;
 
-function toSlug(str) {
-  return str.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+function toSlug(s) {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 }
 
+const editIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+const trashIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>`;
+
 async function load() {
-  document.getElementById('topbar-page-title').textContent = 'Categorías';
+  if (window.AdminLayout) window.AdminLayout.setPageTitle('Categorías');
+  const search = (document.getElementById('search-input').value || '').toLowerCase();
   const tbody = document.getElementById('table-body');
   try {
     categorias = await Api.get('/admin/categorias');
-    if (!categorias.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted);">Sin categorías</td></tr>'; return; }
     const catMap = {};
     categorias.forEach(c => catMap[c.id] = c.nombre);
-    tbody.innerHTML = categorias.map(c => `
+
+    document.getElementById('meta-total').textContent = categorias.length;
+    document.getElementById('meta-roots').textContent = categorias.filter(c => !c.parent_id).length;
+
+    let filtered = search ? categorias.filter(c => c.nombre.toLowerCase().includes(search) || c.slug.toLowerCase().includes(search)) : categorias;
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><h3>Sin categorías</h3><p>Crea la primera con el botón "Nueva categoría".</p></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = filtered.map(c => `
       <tr>
-        <td><div style="display:flex;align-items:center;gap:8px;">
-          ${c.parent_id ? '<span style="color:var(--text-muted);font-size:1rem;">↳</span>' : '<span style="width:16px;display:inline-block;"></span>'}
-          <span style="font-weight:600;">${c.nombre}</span>
-        </div></td>
-        <td style="color:var(--text-muted);font-size:.82rem;font-family:monospace;">${c.slug}</td>
-        <td>${c.parent_id ? `<span class="pill pill-blue">${catMap[c.parent_id] ?? '#'+c.parent_id}</span>` : '<span style="color:var(--text-muted);">—</span>'}</td>
-        <td style="color:var(--text-muted);">${c._count?.productos ?? '—'}</td>
-        <td><span class="pill ${c.activo?'pill-green':'pill-gray'}">${c.activo?'Activa':'Inactiva'}</span></td>
-        <td class="actions">
-          <button class="btn-icon" onclick="edit(${c.id})"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-          <button class="btn-icon danger" onclick="remove(${c.id},'${c.nombre.replace(/'/g,"\\'")}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+        <td>
+          <div style="display:flex; align-items:center; gap:8px;">
+            ${c.parent_id ? '<span style="color:var(--light);">↳</span>' : '<span style="width:14px; display:inline-block;"></span>'}
+            <span class="row-name">${c.nombre}</span>
+          </div>
+        </td>
+        <td><code style="font-family:var(--font-mono); font-size:11px; color:var(--muted);">${c.slug}</code></td>
+        <td>${c.parent_id ? `<span class="pill pill-blue">${catMap[c.parent_id] ?? '#'+c.parent_id}</span>` : '<span style="color:var(--light);">—</span>'}</td>
+        <td style="text-align:right; font-variant-numeric:tabular-nums; color:var(--muted);">${c._count?.productos ?? '—'}</td>
+        <td>${c.activo ? '<span class="status status-ok">Activa</span>' : '<span class="status status-off">Inactiva</span>'}</td>
+        <td style="text-align:right;">
+          <div class="row-actions">
+            <button class="icon-btn" onclick="edit(${c.id})" title="Editar">${editIcon}</button>
+            <button class="icon-btn" onclick="remove(${c.id},'${c.nombre.replace(/'/g,"\\'")}')" title="Eliminar">${trashIcon}</button>
+          </div>
         </td>
       </tr>`).join('');
-  } catch(e) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--danger);padding:30px;">${e.message}</td></tr>`; }
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--red); padding:30px;">${e.message}</td></tr>`;
+  }
 }
 
-function populateParentSelect(excludeId = null) {
+function populateParentSelect(excludeId) {
   const sel = document.getElementById('field-parent_id');
   const roots = categorias.filter(c => !c.parent_id && c.id !== excludeId);
-  sel.innerHTML = '<option value="">Ninguna (categoría raíz)</option>' + roots.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+  sel.innerHTML = '<option value="">Ninguna (categoría raíz)</option>' +
+    roots.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
 }
 
 function openModal(data = null) {
   editingId = data?.id ?? null;
-  document.getElementById('modal-title').textContent = editingId ? 'Editar Categoría' : 'Nueva Categoría';
+  document.getElementById('modal-title').textContent = editingId ? 'Editar categoría' : 'Nueva categoría';
   document.getElementById('field-id').value = editingId ?? '';
   document.getElementById('field-nombre').value = data?.nombre ?? '';
   document.getElementById('field-slug').value = data?.slug ?? '';
@@ -100,7 +173,7 @@ function openModal(data = null) {
   document.getElementById('modal-overlay').classList.add('open');
 }
 function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
-function edit(id) { const c = categorias.find(x => x.id === id); if(c) openModal(c); }
+function edit(id) { const c = categorias.find(x => x.id === id); if (c) openModal(c); }
 
 document.getElementById('field-nombre').addEventListener('input', e => {
   if (!editingId) document.getElementById('field-slug').value = toSlug(e.target.value);
@@ -119,16 +192,17 @@ async function save() {
     if (editingId) await Api.put(`/admin/categorias/${editingId}`, body);
     else await Api.post('/admin/categorias', body);
     closeModal(); load(); Toast.show('Categoría guardada', 'success');
-  } catch(e) { Toast.show(e.message, 'error'); }
+  } catch (e) { Toast.show(e.message, 'error'); }
 }
 
 async function remove(id, nombre) {
-  if (!confirm(`¿Eliminar la categoría "${nombre}"? Esta acción no se puede deshacer.`)) return;
+  if (!confirm(`¿Eliminar la categoría "${nombre}"?`)) return;
   try { await Api.delete(`/admin/categorias/${id}`); load(); Toast.show('Categoría eliminada', 'success'); }
-  catch(e) { Toast.show(e.message, 'error'); }
+  catch (e) { Toast.show(e.message, 'error'); }
 }
 
-document.getElementById('modal-overlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+document.getElementById('search-input').addEventListener('input', load);
+document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
 document.addEventListener('DOMContentLoaded', load);
 </script>
 </body>

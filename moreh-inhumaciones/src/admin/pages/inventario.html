@@ -1,50 +1,97 @@
 <!DOCTYPE html>
 <html lang="es-MX">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Inventario | Moreh Admin</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/admin.css">
-  <script src="../js/api.js"></script><script src="../js/layout.js"></script><script src="../js/auth.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inventario · Moreh Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/admin.css" />
+  <script src="../js/api.js"></script>
+  <script src="../js/layout.js" defer></script>
+  <script src="../js/auth.js"></script>
 </head>
 <body>
-<div class="admin-main"><div class="admin-content">
-  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
-    <div><h1 class="page-title">Inventario</h1><p class="page-subtitle">Stock por sucursal</p></div>
-    <button class="btn-admin btn-primary" onclick="openModal()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Registrar movimiento
-    </button>
-  </div>
 
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:24px;" id="stock-alerts"></div>
+<div class="admin-main">
+  <div class="admin-content">
 
-  <div class="toolbar">
-    <div class="toolbar-search">
-      <svg class="toolbar-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="search" id="search-input" placeholder="Buscar producto...">
+    <div class="page-h">
+      <div>
+        <h1 class="page-title">Inventario</h1>
+        <div class="page-meta">
+          <span>Stock por sucursal</span>
+          <span class="dot"></span>
+          <span><b id="meta-total">0</b> SKU</span>
+          <span class="dot"></span>
+          <span><b id="meta-low" style="color:var(--amber);">0</b> stock bajo</span>
+          <span class="dot"></span>
+          <span><b id="meta-out" style="color:var(--red);">0</b> agotados</span>
+        </div>
+      </div>
+      <div style="display:flex; gap:6px;">
+        <button class="btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Exportar</button>
+        <button class="btn btn-primary" onclick="openModal()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Registrar movimiento</button>
+      </div>
     </div>
-    <select class="form-select" id="filter-branch" style="max-width:220px;"><option value="">Todas las sucursales</option></select>
-  </div>
 
-  <div class="table-wrapper">
+    <!-- Banner stock bajo -->
+    <div class="banner banner-amber" id="alert-banner" style="display:none;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span id="alert-text"><b>0 productos</b> con stock bajo necesitan reposición.</span>
+    </div>
+
+    <div class="table-toolbar">
+      <label class="search">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" id="search-input" placeholder="Buscar producto..." />
+      </label>
+      <select class="form-select" id="filter-branch" style="max-width:240px; padding:5px 9px; font-size:11.5px;">
+        <option value="">Todas las sucursales</option>
+      </select>
+      <span class="chip">Stado: <b>Todos</b></span>
+    </div>
+
     <table class="admin-table">
-      <thead><tr><th>Producto</th><th>Categoría</th><th>Sucursal</th><th>Stock actual</th><th>Stock mínimo</th><th>Estado</th></tr></thead>
-      <tbody id="table-body"><tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted);">Cargando...</td></tr></tbody>
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th style="width:90px;">Categoría</th>
+          <th>Sucursal</th>
+          <th style="width:120px; text-align:right;">Stock actual</th>
+          <th style="width:120px; text-align:right;">Stock mínimo</th>
+          <th style="width:140px;">Disponibilidad</th>
+          <th style="width:110px;">Estado</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <tr><td colspan="7" style="text-align:center; padding:40px; color:var(--muted);">Cargando...</td></tr>
+      </tbody>
     </table>
+
   </div>
-</div></div>
+</div>
 
 <!-- Modal Movimiento -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal-box">
-    <div class="modal-header"><h4 class="modal-title">Registrar Movimiento</h4><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-head">
+      <h4 class="modal-title">Registrar movimiento</h4>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
     <div class="modal-body">
-      <div class="form-group"><label class="form-label">Sucursal *</label><select class="form-select" id="field-branch_id"><option value="">Seleccionar...</option></select></div>
-      <div class="form-group"><label class="form-label">Producto *</label><select class="form-select" id="field-producto_id"><option value="">Seleccionar...</option></select></div>
+      <div class="form-group">
+        <label class="form-label">Sucursal *</label>
+        <select class="form-select" id="field-branch_id"><option value="">Seleccionar...</option></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Producto *</label>
+        <select class="form-select" id="field-producto_id"><option value="">Seleccionar...</option></select>
+      </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Tipo *</label>
+        <div class="form-group">
+          <label class="form-label">Tipo *</label>
           <select class="form-select" id="field-tipo">
             <option value="entrada">Entrada</option>
             <option value="salida">Salida</option>
@@ -53,13 +100,19 @@
             <option value="traslado_salida">Traslado salida</option>
           </select>
         </div>
-        <div class="form-group"><label class="form-label">Cantidad *</label><input class="form-control" type="number" id="field-cantidad" min="1" value="1"></div>
+        <div class="form-group">
+          <label class="form-label">Cantidad *</label>
+          <input class="form-control" type="number" id="field-cantidad" min="1" value="1" />
+        </div>
       </div>
-      <div class="form-group"><label class="form-label">Motivo / Referencia</label><input class="form-control" id="field-motivo" placeholder="Ej. Compra a proveedor..."></div>
+      <div class="form-group">
+        <label class="form-label">Motivo / Referencia</label>
+        <input class="form-control" id="field-motivo" placeholder="Ej. Compra a proveedor..." />
+      </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-admin btn-outline" onclick="closeModal()">Cancelar</button>
-      <button class="btn-admin btn-primary" onclick="save()">Registrar</button>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="save()">Registrar</button>
     </div>
   </div>
 </div>
@@ -70,58 +123,79 @@ let sucursales = [];
 let productos = [];
 
 async function init() {
-  document.getElementById('topbar-page-title').textContent = 'Inventario';
-  [sucursales, productos] = await Promise.all([Api.get('/sucursales'), Api.get('/productos')]);
+  if (window.AdminLayout) window.AdminLayout.setPageTitle('Inventario');
+  [sucursales, productos] = await Promise.all([
+    Api.get('/sucursales').catch(() => []),
+    Api.get('/productos').catch(() => []),
+  ]);
   const branchSel = document.getElementById('filter-branch');
   branchSel.innerHTML = '<option value="">Todas las sucursales</option>' +
     sucursales.map(b => `<option value="${b.id}">${b.nombre} (${b.ciudad})</option>`).join('');
-  load();
-  loadAlerts();
+  await load();
+  await loadAlerts();
 }
 
 async function loadAlerts() {
   try {
     const low = await Api.get('/admin/inventario/stock-bajo');
-    const container = document.getElementById('stock-alerts');
-    if (!low.length) { container.innerHTML = ''; return; }
-    container.innerHTML = `<div style="grid-column:1/-1;font-size:.8rem;font-weight:700;color:var(--danger);margin-bottom:4px;">⚠ ${low.length} producto(s) con stock bajo</div>` +
-      low.slice(0,6).map(i => `
-        <div class="kpi-card" style="padding:14px 16px;border-left:3px solid var(--danger);">
-          <div class="kpi-info"><div style="font-weight:700;font-size:.82rem;">${i.producto?.nombre ?? '—'}</div>
-          <div style="font-size:.72rem;color:var(--text-muted);">${i.sucursal?.nombre ?? '—'}</div>
-          <div style="margin-top:4px;"><span class="pill pill-red">Stock: ${i.stock} / Mín: ${i.stock_minimo}</span></div></div>
-        </div>`).join('');
+    const banner = document.getElementById('alert-banner');
+    if (low.length) {
+      banner.style.display = '';
+      document.getElementById('alert-text').innerHTML =
+        `<b>${low.length} ${low.length === 1 ? 'producto' : 'productos'}</b> con stock bajo ${low.length === 1 ? 'necesita' : 'necesitan'} reposición.`;
+    } else {
+      banner.style.display = 'none';
+    }
   } catch {}
 }
 
 async function load() {
   const branchId = document.getElementById('filter-branch').value;
-  const search = document.getElementById('search-input').value.toLowerCase();
+  const search = (document.getElementById('search-input').value || '').toLowerCase();
   const tbody = document.getElementById('table-body');
   try {
     inventario = await Api.get('/admin/inventario' + (branchId ? `?branch_id=${branchId}` : ''));
     let filtered = search ? inventario.filter(i => i.producto?.nombre?.toLowerCase().includes(search)) : inventario;
-    if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted);">Sin registros</td></tr>'; return; }
+
+    const totalSku = inventario.length;
+    const low = inventario.filter(i => i.stock > 0 && i.stock <= i.stock_minimo).length;
+    const out = inventario.filter(i => i.stock === 0).length;
+    document.getElementById('meta-total').textContent = totalSku;
+    document.getElementById('meta-low').textContent = low;
+    document.getElementById('meta-out').textContent = out;
+
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><h3>Sin registros</h3><p>No hay datos de inventario para los filtros seleccionados.</p></div></td></tr>`;
+      return;
+    }
+    const maxStock = Math.max(...filtered.map(i => Math.max(i.stock, i.stock_minimo * 2)));
     tbody.innerHTML = filtered.map(i => {
-      const bajo = i.stock <= i.stock_minimo;
+      const pct = Math.min(100, (i.stock / maxStock) * 100);
+      const out = i.stock === 0;
+      const low = i.stock > 0 && i.stock <= i.stock_minimo;
+      const stockColor = out ? 'var(--red)' : low ? 'var(--amber)' : 'var(--ink)';
+      const barColor = out ? 'var(--red)' : low ? 'var(--amber)' : 'var(--green)';
       return `<tr>
-        <td><div style="font-weight:600;">${i.producto?.nombre ?? '—'}</div></td>
-        <td><span class="pill ${i.producto?.categoria==='ataud'?'pill-blue':'pill-purple'}">${i.producto?.categoria==='ataud'?'Ataúd':'Urna'}</span></td>
-        <td>${i.sucursal?.nombre ?? '—'} <span style="color:var(--text-muted);font-size:.78rem;">(${i.sucursal?.ciudad ?? ''})</span></td>
-        <td style="font-weight:700;font-size:1.1rem;color:${bajo?'var(--danger)':'var(--text)'};">${i.stock}</td>
-        <td style="color:var(--text-muted);">${i.stock_minimo}</td>
-        <td><span class="pill ${bajo?'pill-red':'pill-green'}">${bajo?'Stock bajo':'OK'}</span></td>
+        <td><div class="row-name">${i.producto?.nombre ?? '—'}</div></td>
+        <td><span class="pill ${i.producto?.categoria === 'ataud' ? 'pill-blue' : 'pill-gold'}">${i.producto?.categoria === 'ataud' ? 'Ataúd' : 'Urna'}</span></td>
+        <td>${i.sucursal?.nombre ?? '—'} <span style="color:var(--muted); font-size:11px;">${i.sucursal?.ciudad ?? ''}</span></td>
+        <td style="text-align:right; font-variant-numeric:tabular-nums; font-weight:600; color:${stockColor};">${i.stock}</td>
+        <td style="text-align:right; font-variant-numeric:tabular-nums; color:var(--muted);">${i.stock_minimo}</td>
+        <td><div class="mini-bar" style="height:6px;"><i style="width:${pct}%; background:${barColor};"></i></div></td>
+        <td>${out ? '<span class="status status-out">Agotado</span>' : low ? '<span class="status status-low">Stock bajo</span>' : '<span class="status status-ok">OK</span>'}</td>
       </tr>`;
     }).join('');
-  } catch(e) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--danger);padding:30px;">${e.message}</td></tr>`; }
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--red); padding:30px;">${e.message}</td></tr>`;
+  }
 }
 
 function openModal() {
-  const branchSel = document.getElementById('field-branch_id');
-  const prodSel = document.getElementById('field-producto_id');
-  branchSel.innerHTML = '<option value="">Seleccionar...</option>' +
+  const bSel = document.getElementById('field-branch_id');
+  const pSel = document.getElementById('field-producto_id');
+  bSel.innerHTML = '<option value="">Seleccionar...</option>' +
     sucursales.map(b => `<option value="${b.id}">${b.nombre} (${b.ciudad})</option>`).join('');
-  prodSel.innerHTML = '<option value="">Seleccionar...</option>' +
+  pSel.innerHTML = '<option value="">Seleccionar...</option>' +
     productos.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
   document.getElementById('field-cantidad').value = 1;
   document.getElementById('field-motivo').value = '';
@@ -139,12 +213,12 @@ async function save() {
   try {
     await Api.post('/admin/inventario/movimientos', { branch_id, producto_id, tipo, cantidad, motivo });
     closeModal(); load(); loadAlerts(); Toast.show('Movimiento registrado', 'success');
-  } catch(e) { Toast.show(e.message, 'error'); }
+  } catch (e) { Toast.show(e.message, 'error'); }
 }
 
 document.getElementById('filter-branch').addEventListener('change', load);
 document.getElementById('search-input').addEventListener('input', load);
-document.getElementById('modal-overlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
