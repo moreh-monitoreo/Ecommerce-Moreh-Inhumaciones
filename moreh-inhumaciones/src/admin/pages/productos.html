@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Productos | Moreh Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/admin.css">
+  <script src="../js/api.js"></script><script src="../js/layout.js"></script><script src="../js/auth.js"></script>
+</head>
+<body>
+<div class="admin-main"><div class="admin-content">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+    <div><h1 class="page-title">Productos</h1><p class="page-subtitle">Catálogo de ataúdes y urnas</p></div>
+    <button class="btn-admin btn-primary" onclick="openModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nuevo producto
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-search">
+      <svg class="toolbar-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" id="search-input" placeholder="Buscar producto...">
+    </div>
+    <select class="form-select" id="filter-categoria" style="max-width:180px;">
+      <option value="">Todas las categorías</option>
+      <option value="ataud">Ataúdes</option>
+      <option value="urna">Urnas</option>
+    </select>
+    <select class="form-select" id="filter-activo" style="max-width:140px;">
+      <option value="">Todos</option>
+      <option value="true">Activos</option>
+      <option value="false">Inactivos</option>
+    </select>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="admin-table">
+      <thead><tr><th>#</th><th>Imagen</th><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Material</th><th>Estado</th><th class="actions">Acciones</th></tr></thead>
+      <tbody id="table-body"><tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);">Cargando...</td></tr></tbody>
+    </table>
+  </div>
+</div></div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-title">Nuevo Producto</h4>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="field-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nombre *</label>
+          <input class="form-control" type="text" id="field-nombre" placeholder="Ej. METALICO BÁSICO">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Categoría *</label>
+          <select class="form-select" id="field-categoria">
+            <option value="ataud">Ataúd</option>
+            <option value="urna">Urna</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Precio público (MXN) *</label>
+          <input class="form-control" type="number" id="field-precio" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Material</label>
+          <input class="form-control" type="text" id="field-material" placeholder="Ej. Metálico">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descripción</label>
+        <textarea class="form-control" id="field-descripcion" rows="3" placeholder="Descripción del producto..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">URL de imagen principal</label>
+        <input class="form-control" type="text" id="field-imagen_url" placeholder="/img/producto.webp">
+      </div>
+      <div class="form-group" id="group-activo">
+        <label class="form-label">Estado</label>
+        <select class="form-select" id="field-activo">
+          <option value="true">Activo</option>
+          <option value="false">Inactivo</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-admin btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn-admin btn-primary" id="btn-save" onclick="save()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let productos = [];
+let editingId = null;
+
+async function load() {
+  const search = document.getElementById('search-input').value;
+  const categoria = document.getElementById('filter-categoria').value;
+  const activo = document.getElementById('filter-activo').value;
+  let url = '/admin/productos?';
+  if (search) url += `search=${encodeURIComponent(search)}&`;
+  if (categoria) url += `categoria=${categoria}&`;
+  if (activo !== '') url += `activo=${activo}&`;
+
+  const tbody = document.getElementById('table-body');
+  try {
+    productos = await Api.get(url);
+    if (!productos.length) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;"><div class="empty-state"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg><h3>Sin productos</h3><p>Crea el primer producto con el botón "Nuevo producto"</p></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = productos.map(p => `
+      <tr>
+        <td style="color:var(--text-muted);font-size:.8rem;">${p.id}</td>
+        <td><img src="${p.imagen_url || '/img/placeholder.webp'}" style="width:46px;height:46px;object-fit:cover;border-radius:8px;border:1px solid var(--border);" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2246%22 height=%2246%22 viewBox=%220 0 24 24%22 fill=%22%23e2e8f0%22%3E%3Crect width=%2224%22 height=%2224%22/%3E%3C/svg%3E'"></td>
+        <td><div style="font-weight:600;">${p.nombre}</div></td>
+        <td><span class="pill ${p.categoria==='ataud'?'pill-blue':'pill-purple'}">${p.categoria==='ataud'?'Ataúd':'Urna'}</span></td>
+        <td style="font-weight:700;">${fmt.currency(p.precio)}</td>
+        <td style="color:var(--text-muted);">${p.material ?? '—'}</td>
+        <td><span class="pill ${p.activo?'pill-green':'pill-gray'}">${p.activo?'Activo':'Inactivo'}</span></td>
+        <td class="actions">
+          <button class="btn-icon" onclick="edit(${p.id})" title="Editar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="btn-icon danger" onclick="remove(${p.id},'${p.nombre.replace(/'/g,"\\'")}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
+        </td>
+      </tr>`).join('');
+  } catch(e) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--danger);">${e.message}</td></tr>`; }
+}
+
+function openModal(data = null) {
+  editingId = data?.id ?? null;
+  document.getElementById('modal-title').textContent = editingId ? 'Editar Producto' : 'Nuevo Producto';
+  document.getElementById('field-id').value = editingId ?? '';
+  document.getElementById('field-nombre').value = data?.nombre ?? '';
+  document.getElementById('field-categoria').value = data?.categoria ?? 'ataud';
+  document.getElementById('field-precio').value = data?.precio ?? '';
+  document.getElementById('field-material').value = data?.material ?? '';
+  document.getElementById('field-descripcion').value = data?.descripcion ?? '';
+  document.getElementById('field-imagen_url').value = data?.imagen_url ?? '';
+  document.getElementById('field-activo').value = String(data?.activo ?? true);
+  document.getElementById('group-activo').style.display = editingId ? '' : 'none';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+function edit(id) {
+  const p = productos.find(x => x.id === id);
+  if (p) openModal(p);
+}
+
+async function save() {
+  const nombre = document.getElementById('field-nombre').value.trim();
+  const precio = parseFloat(document.getElementById('field-precio').value);
+  if (!nombre || isNaN(precio)) { Toast.show('Completa los campos requeridos', 'warning'); return; }
+
+  const body = {
+    nombre,
+    categoria: document.getElementById('field-categoria').value,
+    precio,
+    material: document.getElementById('field-material').value || null,
+    descripcion: document.getElementById('field-descripcion').value || null,
+    imagen_url: document.getElementById('field-imagen_url').value || null,
+    activo: document.getElementById('field-activo').value === 'true',
+  };
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  try {
+    if (editingId) await Api.put(`/admin/productos/${editingId}`, body);
+    else await Api.post('/admin/productos', body);
+    closeModal(); load();
+    Toast.show(editingId ? 'Producto actualizado' : 'Producto creado', 'success');
+  } catch(e) { Toast.show(e.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'Guardar'; }
+}
+
+async function remove(id, nombre) {
+  if (!confirm(`¿Desactivar el producto "${nombre}"?`)) return;
+  try { await Api.delete(`/admin/productos/${id}`); load(); Toast.show('Producto desactivado', 'success'); }
+  catch(e) { Toast.show(e.message, 'error'); }
+}
+
+document.getElementById('search-input').addEventListener('input', () => load());
+document.getElementById('filter-categoria').addEventListener('change', () => load());
+document.getElementById('filter-activo').addEventListener('change', () => load());
+document.getElementById('modal-overlay').addEventListener('click', e => { if(e.target === e.currentTarget) closeModal(); });
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('topbar-page-title').textContent = 'Productos';
+  load();
+});
+</script>
+</body>
+</html>

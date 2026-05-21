@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard | Moreh Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/admin.css">
+  <script src="../js/api.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/auth.js"></script>
+</head>
+<body>
+<div class="admin-main">
+  <div class="admin-content">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+      <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Resumen general de operaciones</p>
+      </div>
+      <span id="current-date" style="font-size:.82rem;color:var(--text-muted);align-self:flex-end;"></span>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid" id="kpi-grid">
+      <!-- Populated by JS -->
+      <div class="kpi-card"><div class="kpi-icon gold"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="kpi-info"><div class="kpi-value" id="kpi-ventas">—</div><div class="kpi-label">Ventas del mes</div></div></div>
+      <div class="kpi-card"><div class="kpi-icon blue"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div><div class="kpi-info"><div class="kpi-value" id="kpi-ordenes">—</div><div class="kpi-label">Órdenes activas</div></div></div>
+      <div class="kpi-card"><div class="kpi-icon green"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="kpi-info"><div class="kpi-value" id="kpi-contratos">—</div><div class="kpi-label">Contratos activos</div></div></div>
+      <div class="kpi-card"><div class="kpi-icon purple"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="kpi-info"><div class="kpi-value" id="kpi-leads">—</div><div class="kpi-label">Leads nuevos</div></div></div>
+      <div class="kpi-card"><div class="kpi-icon red"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div><div class="kpi-info"><div class="kpi-value" id="kpi-stock">—</div><div class="kpi-label">Artículos stock bajo</div></div></div>
+      <div class="kpi-card"><div class="kpi-icon orange"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div class="kpi-info"><div class="kpi-value" id="kpi-productos">—</div><div class="kpi-label">Productos activos</div></div></div>
+    </div>
+
+    <!-- Charts row -->
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="card-header"><h3 class="card-title">Ventas por sucursal</h3></div>
+        <div class="card-body"><canvas class="chart" id="chart-ventas-sucursal"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="card-header"><h3 class="card-title">Contratos por tipo</h3></div>
+        <div class="card-body"><canvas class="chart" id="chart-contratos-tipo"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Bottom row: Activity + Top products -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Actividad reciente</h3>
+        </div>
+        <div class="card-body" style="padding:0 24px;">
+          <div class="activity-list" id="activity-list">
+            <p style="padding:20px 0;color:var(--text-muted);font-size:.875rem;text-align:center;">Cargando...</p>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Productos más vendidos</h3>
+        </div>
+        <div class="card-body" style="padding:0;">
+          <table class="admin-table" id="top-products-table">
+            <thead><tr><th>#</th><th>Producto</th><th>Unidades</th></tr></thead>
+            <tbody><tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text-muted);">Cargando...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  document.getElementById('topbar-page-title').textContent = 'Dashboard';
+  document.getElementById('current-date').textContent = new Date().toLocaleDateString('es-MX', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+
+  try {
+    const [kpis, activity, byBranch, byType, topProds] = await Promise.all([
+      Api.get('/admin/dashboard/kpis'),
+      Api.get('/admin/dashboard/activity'),
+      Api.get('/admin/dashboard/sales-by-branch'),
+      Api.get('/admin/dashboard/contracts-by-type'),
+      Api.get('/admin/dashboard/top-products'),
+    ]);
+
+    // KPIs
+    document.getElementById('kpi-ventas').textContent    = fmt.currency(kpis.ventas_mes);
+    document.getElementById('kpi-ordenes').textContent   = kpis.ordenes_activas;
+    document.getElementById('kpi-contratos').textContent = kpis.contratos_activos;
+    document.getElementById('kpi-leads').textContent     = kpis.leads_nuevos;
+    document.getElementById('kpi-stock').textContent     = kpis.stock_bajo;
+    document.getElementById('kpi-productos').textContent = kpis.total_productos;
+
+    // Activity
+    const actList = document.getElementById('activity-list');
+    if (!activity.length) {
+      actList.innerHTML = '<p style="padding:24px 0;text-align:center;color:var(--text-muted);">Sin actividad reciente.</p>';
+    } else {
+      actList.innerHTML = activity.map(a => `
+        <div class="activity-item">
+          <span class="activity-dot"></span>
+          <div>
+            <div class="activity-text"><strong>${a.user_email ?? 'Sistema'}</strong> ${a.accion} <em>${a.entidad}</em>${a.entidad_id ? ` #${a.entidad_id}` : ''}</div>
+            <div class="activity-time">${fmt.dateTime(a.createdAt)}</div>
+          </div>
+        </div>`).join('');
+    }
+
+    // Chart: Ventas por sucursal (top 8)
+    const top8 = byBranch.slice(0, 8);
+    new Chart(document.getElementById('chart-ventas-sucursal'), {
+      type: 'bar',
+      data: {
+        labels: top8.map(b => b.ciudad ?? b.sucursal),
+        datasets: [{
+          label: 'Ventas (MXN)',
+          data: top8.map(b => Number(b.ventas_ordenes) + Number(b.ventas_contratos)),
+          backgroundColor: '#0d1b2a',
+          borderRadius: 5,
+        }],
+      },
+      options: {
+        responsive: true, plugins: { legend: { display: false } },
+        scales: { y: { ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k' } } },
+      },
+    });
+
+    // Chart: Contratos por tipo (donut)
+    const TIPOS_LABEL = {
+      velacion_funeraria: 'Velación Funeraria', velacion_domicilio: 'Velación Domicilio',
+      inhumacion: 'Inhumación', exhumacion: 'Exhumación', cremacion: 'Cremación', plan_futuro: 'Plan a Futuro',
+    };
+    new Chart(document.getElementById('chart-contratos-tipo'), {
+      type: 'doughnut',
+      data: {
+        labels: byType.map(t => TIPOS_LABEL[t.tipo] ?? t.tipo),
+        datasets: [{ data: byType.map(t => t.total), backgroundColor: ['#0d1b2a','#c9a86c','#1a2f47','#a68040','#253f5e','#e2c897'], hoverOffset: 4 }],
+      },
+      options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } },
+    });
+
+    // Top products table
+    const tbody = document.querySelector('#top-products-table tbody');
+    if (!topProds.length) {
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text-muted);">Sin datos</td></tr>';
+    } else {
+      tbody.innerHTML = topProds.map((p, i) => `
+        <tr>
+          <td style="width:36px;font-weight:700;color:var(--text-muted);">${i+1}</td>
+          <td><div style="font-weight:600;font-size:.82rem;">${p.nombre}</div><div style="font-size:.73rem;color:var(--text-muted);">${p.categoria}</div></td>
+          <td style="font-weight:700;">${p.unidades_vendidas}</td>
+        </tr>`).join('');
+    }
+
+  } catch (err) {
+    console.error(err);
+    Toast.show('Error al cargar el dashboard: ' + err.message, 'error');
+  }
+});
+</script>
+</body>
+</html>

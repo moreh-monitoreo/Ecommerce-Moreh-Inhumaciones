@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clientes | Moreh Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/admin.css">
+  <script src="../js/api.js"></script><script src="../js/layout.js"></script><script src="../js/auth.js"></script>
+</head>
+<body>
+<div class="admin-main"><div class="admin-content">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+    <div><h1 class="page-title">Clientes</h1><p class="page-subtitle">Registro de clientes y familias atendidas</p></div>
+    <button class="btn-admin btn-primary" onclick="openModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nuevo cliente
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-search">
+      <svg class="toolbar-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" id="search-input" placeholder="Buscar por nombre, email o teléfono...">
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="admin-table">
+      <thead><tr><th>Cliente</th><th>Email</th><th>Teléfono</th><th>RFC</th><th>Órdenes</th><th>Contratos</th><th>Registrado</th><th class="actions">Acciones</th></tr></thead>
+      <tbody id="table-body"><tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);">Cargando...</td></tr></tbody>
+    </table>
+  </div>
+</div></div>
+
+<!-- Modal cliente -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box modal-lg">
+    <div class="modal-header"><h4 class="modal-title" id="modal-title">Nuevo Cliente</h4><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="field-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Nombre completo *</label><input class="form-control" id="field-nombre" placeholder="Nombre completo"></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-control" type="email" id="field-email"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Teléfono</label><input class="form-control" id="field-telefono"></div>
+        <div class="form-group"><label class="form-label">RFC</label><input class="form-control" id="field-rfc" placeholder="Ej. XAXX010101000" maxlength="13"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Dirección</label><textarea class="form-control" id="field-direccion" rows="2" placeholder="Calle, número, colonia, ciudad, estado"></textarea></div>
+      <div class="form-group"><label class="form-label">Notas internas</label><textarea class="form-control" id="field-notas" rows="2" placeholder="Notas relevantes del cliente..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-admin btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn-admin btn-primary" onclick="save()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal detalle cliente -->
+<div class="modal-overlay" id="modal-detail">
+  <div class="modal-box modal-lg">
+    <div class="modal-header"><h4 class="modal-title" id="detail-title">Detalle del Cliente</h4><button class="modal-close" onclick="closeDetail()">✕</button></div>
+    <div class="modal-body" id="detail-body" style="min-height:200px;"></div>
+    <div class="modal-footer">
+      <button class="btn-admin btn-outline" onclick="closeDetail()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let clientes = [];
+let editingId = null;
+
+async function load() {
+  document.getElementById('topbar-page-title').textContent = 'Clientes';
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const tbody = document.getElementById('table-body');
+  try {
+    clientes = await Api.get('/admin/clientes');
+    let filtered = search ? clientes.filter(c =>
+      c.nombre?.toLowerCase().includes(search) ||
+      c.email?.toLowerCase().includes(search) ||
+      c.telefono?.includes(search)
+    ) : clientes;
+    if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);">Sin clientes</td></tr>'; return; }
+    const initials = n => n?.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase() ?? 'C';
+    tbody.innerHTML = filtered.map(c => `
+      <tr>
+        <td><div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0d1b2a,#1a2f47);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;">${initials(c.nombre)}</div>
+          <div>
+            <div style="font-weight:600;">${c.nombre}</div>
+            ${c.notas ? `<div style="font-size:.72rem;color:var(--text-muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.notas}</div>` : ''}
+          </div>
+        </div></td>
+        <td style="color:var(--text-muted);">${c.email ?? '—'}</td>
+        <td>${c.telefono ?? '—'}</td>
+        <td style="font-family:monospace;font-size:.8rem;color:var(--text-muted);">${c.rfc ?? '—'}</td>
+        <td style="text-align:center;">${c._count?.orders ?? 0}</td>
+        <td style="text-align:center;">${c._count?.contracts ?? 0}</td>
+        <td style="color:var(--text-muted);font-size:.8rem;">${fmt.date(c.createdAt)}</td>
+        <td class="actions">
+          <button class="btn-icon" title="Ver detalle" onclick="viewDetail(${c.id})"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button class="btn-icon" onclick="edit(${c.id})"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        </td>
+      </tr>`).join('');
+  } catch(e) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--danger);padding:30px;">${e.message}</td></tr>`; }
+}
+
+async function viewDetail(id) {
+  const c = clientes.find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('detail-title').textContent = c.nombre;
+  const body = document.getElementById('detail-body');
+  body.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:20px;">Cargando historial...</div>';
+  document.getElementById('modal-detail').classList.add('open');
+  try {
+    const [orders, contracts] = await Promise.all([
+      Api.get(`/admin/clientes/${id}/ordenes`).catch(() => []),
+      Api.get(`/admin/clientes/${id}/contratos`).catch(() => []),
+    ]);
+    body.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+        <div class="kpi-card"><div class="kpi-info"><div class="kpi-label">Email</div><div class="kpi-value" style="font-size:1rem;">${c.email ?? '—'}</div></div></div>
+        <div class="kpi-card"><div class="kpi-info"><div class="kpi-label">Teléfono</div><div class="kpi-value" style="font-size:1rem;">${c.telefono ?? '—'}</div></div></div>
+        <div class="kpi-card"><div class="kpi-info"><div class="kpi-label">RFC</div><div class="kpi-value" style="font-size:1rem;font-family:monospace;">${c.rfc ?? '—'}</div></div></div>
+        <div class="kpi-card"><div class="kpi-info"><div class="kpi-label">Registrado</div><div class="kpi-value" style="font-size:1rem;">${fmt.date(c.createdAt)}</div></div></div>
+      </div>
+      ${c.direccion ? `<div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:16px;font-size:.85rem;"><strong>Dirección:</strong> ${c.direccion}</div>` : ''}
+      <div style="margin-bottom:8px;font-weight:700;font-size:.85rem;">Órdenes (${orders.length})</div>
+      ${orders.length ? `<table class="admin-table" style="margin-bottom:16px;font-size:.82rem;"><thead><tr><th>#</th><th>Total</th><th>Estado</th><th>Fecha</th></tr></thead><tbody>${orders.slice(0,5).map(o=>`<tr><td>#${o.id}</td><td>${fmt.currency(o.total)}</td><td>${o.status}</td><td>${fmt.date(o.createdAt)}</td></tr>`).join('')}</tbody></table>` : '<p style="color:var(--text-muted);font-size:.85rem;margin-bottom:16px;">Sin órdenes</p>'}
+      <div style="margin-bottom:8px;font-weight:700;font-size:.85rem;">Contratos (${contracts.length})</div>
+      ${contracts.length ? `<table class="admin-table" style="font-size:.82rem;"><thead><tr><th>#</th><th>Tipo</th><th>Total</th><th>Estado</th></tr></thead><tbody>${contracts.slice(0,5).map(c=>`<tr><td>#${c.id}</td><td>${c.tipo}</td><td>${fmt.currency(c.total)}</td><td>${c.status}</td></tr>`).join('')}</tbody></table>` : '<p style="color:var(--text-muted);font-size:.85rem;">Sin contratos</p>'}
+    `;
+  } catch(e) { body.innerHTML = `<p style="color:var(--danger);">${e.message}</p>`; }
+}
+
+function openModal(data = null) {
+  editingId = data?.id ?? null;
+  document.getElementById('modal-title').textContent = editingId ? 'Editar Cliente' : 'Nuevo Cliente';
+  document.getElementById('field-id').value = editingId ?? '';
+  document.getElementById('field-nombre').value = data?.nombre ?? '';
+  document.getElementById('field-email').value = data?.email ?? '';
+  document.getElementById('field-telefono').value = data?.telefono ?? '';
+  document.getElementById('field-rfc').value = data?.rfc ?? '';
+  document.getElementById('field-direccion').value = data?.direccion ?? '';
+  document.getElementById('field-notas').value = data?.notas ?? '';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+function closeDetail() { document.getElementById('modal-detail').classList.remove('open'); }
+function edit(id) { const c = clientes.find(x => x.id === id); if(c) openModal(c); }
+
+async function save() {
+  const nombre = document.getElementById('field-nombre').value.trim();
+  if (!nombre) { Toast.show('El nombre es requerido', 'warning'); return; }
+  const body = {
+    nombre,
+    email: document.getElementById('field-email').value || null,
+    telefono: document.getElementById('field-telefono').value || null,
+    rfc: document.getElementById('field-rfc').value || null,
+    direccion: document.getElementById('field-direccion').value || null,
+    notas: document.getElementById('field-notas').value || null,
+  };
+  try {
+    if (editingId) await Api.put(`/admin/clientes/${editingId}`, body);
+    else await Api.post('/admin/clientes', body);
+    closeModal(); load(); Toast.show('Cliente guardado', 'success');
+  } catch(e) { Toast.show(e.message, 'error'); }
+}
+
+document.getElementById('search-input').addEventListener('input', load);
+document.getElementById('modal-overlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+document.getElementById('modal-detail').addEventListener('click', e => { if(e.target===e.currentTarget) closeDetail(); });
+document.addEventListener('DOMContentLoaded', load);
+</script>
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CMS | Moreh Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/admin.css">
+  <script src="../js/api.js"></script><script src="../js/layout.js"></script><script src="../js/auth.js"></script>
+</head>
+<body>
+<div class="admin-main"><div class="admin-content">
+  <div style="margin-bottom:24px;">
+    <h1 class="page-title">CMS del Sitio</h1>
+    <p class="page-subtitle">Banners, textos y configuraciones del sitio público</p>
+  </div>
+
+  <!-- Tabs -->
+  <div style="display:flex;gap:4px;margin-bottom:24px;border-bottom:2px solid var(--border);padding-bottom:0;">
+    <button class="cms-tab active" onclick="switchTab('banners')">Banners</button>
+    <button class="cms-tab" onclick="switchTab('settings')">Configuración</button>
+  </div>
+
+  <!-- Banners Tab -->
+  <div id="tab-banners">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+      <button class="btn-admin btn-primary" onclick="openBannerModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo banner
+      </button>
+    </div>
+    <div id="banners-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;"></div>
+  </div>
+
+  <!-- Settings Tab -->
+  <div id="tab-settings" style="display:none;">
+    <div class="card" style="padding:24px;max-width:720px;">
+      <div style="font-weight:700;font-size:.85rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:20px;">Información del Sitio</div>
+      <div id="settings-form"></div>
+      <div style="margin-top:20px;">
+        <button class="btn-admin btn-primary" onclick="saveSettings()">Guardar configuración</button>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<!-- Modal Banner -->
+<div class="modal-overlay" id="modal-banner">
+  <div class="modal-box modal-lg">
+    <div class="modal-header"><h4 class="modal-title" id="banner-modal-title">Nuevo Banner</h4><button class="modal-close" onclick="closeBannerModal()">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="banner-field-id">
+      <div class="form-group"><label class="form-label">Título</label><input class="form-control" id="banner-field-titulo" placeholder="Texto principal del banner"></div>
+      <div class="form-group"><label class="form-label">Subtítulo</label><input class="form-control" id="banner-field-subtitulo" placeholder="Texto secundario opcional"></div>
+      <div class="form-group"><label class="form-label">URL de imagen *</label><input class="form-control" id="banner-field-imagen_url" placeholder="https://..."></div>
+      <div class="form-group"><label class="form-label">Enlace (botón CTA)</label><input class="form-control" id="banner-field-enlace" placeholder="/contacto o https://..."></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Orden</label><input class="form-control" type="number" id="banner-field-orden" value="1" min="1"></div>
+        <div class="form-group"><label class="form-label">Estado</label>
+          <select class="form-select" id="banner-field-activo"><option value="true">Activo</option><option value="false">Inactivo</option></select>
+        </div>
+      </div>
+      <!-- Preview -->
+      <div id="banner-preview" style="display:none;margin-top:12px;border-radius:10px;overflow:hidden;position:relative;min-height:120px;background:#0d1b2a;">
+        <img id="preview-img" style="width:100%;height:160px;object-fit:cover;opacity:.7;" src="">
+        <div style="position:absolute;bottom:16px;left:20px;">
+          <div id="preview-title" style="color:#fff;font-weight:800;font-size:1.2rem;"></div>
+          <div id="preview-sub" style="color:rgba(255,255,255,.75);font-size:.85rem;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-admin btn-outline" onclick="closeBannerModal()">Cancelar</button>
+      <button class="btn-admin btn-primary" onclick="saveBanner()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.cms-tab { padding:10px 20px;border:none;background:none;cursor:pointer;font-size:.9rem;font-weight:600;color:var(--text-muted);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s; }
+.cms-tab.active { color:var(--navy);border-bottom-color:var(--navy); }
+.cms-tab:hover:not(.active) { color:var(--text); }
+.banner-card { background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden; }
+.banner-card img { width:100%;height:140px;object-fit:cover; }
+.banner-card-body { padding:14px 16px; }
+.banner-card-footer { padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:8px; }
+.setting-row { display:grid;grid-template-columns:200px 1fr;align-items:start;gap:16px;padding:14px 0;border-bottom:1px solid var(--border); }
+.setting-row:last-child { border-bottom:none; }
+.setting-label { font-weight:600;font-size:.85rem;padding-top:8px; }
+.setting-desc { font-size:.75rem;color:var(--text-muted);margin-top:2px; }
+</style>
+
+<script>
+let banners = [];
+let settings = {};
+let editingBannerId = null;
+
+const SETTINGS_SCHEMA = [
+  { key:'site_name', label:'Nombre del sitio', desc:'Nombre que aparece en el <title>', default:'Moreh Inhumaciones' },
+  { key:'site_phone', label:'Teléfono principal', desc:'Número de contacto en el header', default:'' },
+  { key:'site_email', label:'Email de contacto', desc:'Email público en el footer', default:'' },
+  { key:'site_address', label:'Dirección corporativa', desc:'Dirección en el footer', default:'' },
+  { key:'whatsapp_number', label:'WhatsApp', desc:'Número para el botón flotante (sin +)', default:'' },
+  { key:'facebook_url', label:'Facebook URL', desc:'Enlace a la página de Facebook', default:'' },
+  { key:'instagram_url', label:'Instagram URL', desc:'Enlace a Instagram', default:'' },
+  { key:'meta_description', label:'Meta description', desc:'Descripción SEO para buscadores (max 160 chars)', default:'', textarea:true },
+  { key:'footer_text', label:'Texto del footer', desc:'Aviso legal o texto inferior', default:'', textarea:true },
+];
+
+async function init() {
+  document.getElementById('topbar-page-title').textContent = 'CMS';
+  await Promise.all([loadBanners(), loadSettings()]);
+}
+
+async function loadBanners() {
+  try {
+    banners = await Api.get('/admin/banners');
+    renderBanners();
+  } catch(e) { document.getElementById('banners-grid').innerHTML = `<p style="color:var(--danger);">${e.message}</p>`; }
+}
+
+function renderBanners() {
+  const grid = document.getElementById('banners-grid');
+  if (!banners.length) { grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Sin banners. Crea el primero.</div>'; return; }
+  grid.innerHTML = banners.map(b => `
+    <div class="banner-card">
+      ${b.imagen_url ? `<img src="${b.imagen_url}" alt="${b.titulo ?? ''}" onerror="this.style.display='none'">` : `<div style="height:140px;background:linear-gradient(135deg,#0d1b2a,#1a2f47);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);font-size:.8rem;">Sin imagen</div>`}
+      <div class="banner-card-body">
+        <div style="font-weight:700;margin-bottom:4px;">${b.titulo ?? '(Sin título)'}</div>
+        ${b.subtitulo ? `<div style="font-size:.8rem;color:var(--text-muted);">${b.subtitulo}</div>` : ''}
+        <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+          <span class="pill ${b.activo?'pill-green':'pill-gray'}">${b.activo?'Activo':'Inactivo'}</span>
+          <span style="font-size:.75rem;color:var(--text-muted);">Orden: ${b.orden}</span>
+        </div>
+      </div>
+      <div class="banner-card-footer">
+        <button class="btn-admin btn-outline" style="flex:1;justify-content:center;font-size:.78rem;padding:6px;" onclick="editBanner(${b.id})">Editar</button>
+        <button class="btn-admin" style="flex:1;justify-content:center;font-size:.78rem;padding:6px;background:#fee2e2;border-color:#fca5a5;color:#b91c1c;" onclick="deleteBanner(${b.id},'${(b.titulo??'').replace(/'/g,"\\'")}')">Eliminar</button>
+      </div>
+    </div>`).join('');
+}
+
+async function loadSettings() {
+  try {
+    const data = await Api.get('/admin/settings');
+    data.forEach(s => settings[s.clave] = s.valor);
+    renderSettingsForm();
+  } catch {}
+}
+
+function renderSettingsForm() {
+  document.getElementById('settings-form').innerHTML = SETTINGS_SCHEMA.map(s => `
+    <div class="setting-row">
+      <div><div class="setting-label">${s.label}</div><div class="setting-desc">${s.desc}</div></div>
+      <div>${s.textarea
+        ? `<textarea class="form-control" id="setting-${s.key}" rows="3">${settings[s.key] ?? s.default}</textarea>`
+        : `<input class="form-control" id="setting-${s.key}" value="${settings[s.key] ?? s.default}">`
+      }</div>
+    </div>`).join('');
+}
+
+async function saveSettings() {
+  const updates = SETTINGS_SCHEMA.map(s => ({ clave: s.key, valor: document.getElementById(`setting-${s.key}`).value }));
+  try {
+    await Promise.all(updates.map(u => Api.put(`/admin/settings/${u.clave}`, { valor: u.valor })));
+    Toast.show('Configuración guardada', 'success');
+  } catch(e) { Toast.show(e.message, 'error'); }
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.cms-tab').forEach((t,i) => t.classList.toggle('active', ['banners','settings'][i] === tab));
+  document.getElementById('tab-banners').style.display = tab==='banners' ? '' : 'none';
+  document.getElementById('tab-settings').style.display = tab==='settings' ? '' : 'none';
+}
+
+function openBannerModal(data = null) {
+  editingBannerId = data?.id ?? null;
+  document.getElementById('banner-modal-title').textContent = editingBannerId ? 'Editar Banner' : 'Nuevo Banner';
+  document.getElementById('banner-field-id').value = editingBannerId ?? '';
+  document.getElementById('banner-field-titulo').value = data?.titulo ?? '';
+  document.getElementById('banner-field-subtitulo').value = data?.subtitulo ?? '';
+  document.getElementById('banner-field-imagen_url').value = data?.imagen_url ?? '';
+  document.getElementById('banner-field-enlace').value = data?.enlace ?? '';
+  document.getElementById('banner-field-orden').value = data?.orden ?? 1;
+  document.getElementById('banner-field-activo').value = String(data?.activo ?? true);
+  updateBannerPreview();
+  document.getElementById('modal-banner').classList.add('open');
+}
+function closeBannerModal() { document.getElementById('modal-banner').classList.remove('open'); }
+
+function editBanner(id) { const b = banners.find(x => x.id === id); if(b) openBannerModal(b); }
+
+function updateBannerPreview() {
+  const url = document.getElementById('banner-field-imagen_url').value;
+  const preview = document.getElementById('banner-preview');
+  if (url) {
+    preview.style.display = '';
+    document.getElementById('preview-img').src = url;
+    document.getElementById('preview-title').textContent = document.getElementById('banner-field-titulo').value;
+    document.getElementById('preview-sub').textContent = document.getElementById('banner-field-subtitulo').value;
+  } else { preview.style.display = 'none'; }
+}
+
+document.addEventListener('input', e => {
+  if (['banner-field-imagen_url','banner-field-titulo','banner-field-subtitulo'].includes(e.target.id)) updateBannerPreview();
+});
+
+async function saveBanner() {
+  const imagen_url = document.getElementById('banner-field-imagen_url').value.trim();
+  if (!imagen_url) { Toast.show('La URL de imagen es requerida', 'warning'); return; }
+  const body = {
+    titulo: document.getElementById('banner-field-titulo').value || null,
+    subtitulo: document.getElementById('banner-field-subtitulo').value || null,
+    imagen_url,
+    enlace: document.getElementById('banner-field-enlace').value || null,
+    orden: parseInt(document.getElementById('banner-field-orden').value) || 1,
+    activo: document.getElementById('banner-field-activo').value === 'true',
+  };
+  try {
+    if (editingBannerId) await Api.put(`/admin/banners/${editingBannerId}`, body);
+    else await Api.post('/admin/banners', body);
+    closeBannerModal(); await loadBanners(); Toast.show('Banner guardado', 'success');
+  } catch(e) { Toast.show(e.message, 'error'); }
+}
+
+async function deleteBanner(id, titulo) {
+  if (!confirm(`¿Eliminar el banner "${titulo}"?`)) return;
+  try { await Api.delete(`/admin/banners/${id}`); await loadBanners(); Toast.show('Banner eliminado', 'success'); }
+  catch(e) { Toast.show(e.message, 'error'); }
+}
+
+document.getElementById('modal-banner').addEventListener('click', e => { if(e.target===e.currentTarget) closeBannerModal(); });
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

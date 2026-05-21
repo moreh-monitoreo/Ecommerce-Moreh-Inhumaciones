@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inventario | Moreh Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/admin.css">
+  <script src="../js/api.js"></script><script src="../js/layout.js"></script><script src="../js/auth.js"></script>
+</head>
+<body>
+<div class="admin-main"><div class="admin-content">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+    <div><h1 class="page-title">Inventario</h1><p class="page-subtitle">Stock por sucursal</p></div>
+    <button class="btn-admin btn-primary" onclick="openModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Registrar movimiento
+    </button>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:24px;" id="stock-alerts"></div>
+
+  <div class="toolbar">
+    <div class="toolbar-search">
+      <svg class="toolbar-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" id="search-input" placeholder="Buscar producto...">
+    </div>
+    <select class="form-select" id="filter-branch" style="max-width:220px;"><option value="">Todas las sucursales</option></select>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="admin-table">
+      <thead><tr><th>Producto</th><th>Categoría</th><th>Sucursal</th><th>Stock actual</th><th>Stock mínimo</th><th>Estado</th></tr></thead>
+      <tbody id="table-body"><tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted);">Cargando...</td></tr></tbody>
+    </table>
+  </div>
+</div></div>
+
+<!-- Modal Movimiento -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header"><h4 class="modal-title">Registrar Movimiento</h4><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Sucursal *</label><select class="form-select" id="field-branch_id"><option value="">Seleccionar...</option></select></div>
+      <div class="form-group"><label class="form-label">Producto *</label><select class="form-select" id="field-producto_id"><option value="">Seleccionar...</option></select></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Tipo *</label>
+          <select class="form-select" id="field-tipo">
+            <option value="entrada">Entrada</option>
+            <option value="salida">Salida</option>
+            <option value="ajuste">Ajuste</option>
+            <option value="traslado_entrada">Traslado entrada</option>
+            <option value="traslado_salida">Traslado salida</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Cantidad *</label><input class="form-control" type="number" id="field-cantidad" min="1" value="1"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Motivo / Referencia</label><input class="form-control" id="field-motivo" placeholder="Ej. Compra a proveedor..."></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-admin btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn-admin btn-primary" onclick="save()">Registrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let inventario = [];
+let sucursales = [];
+let productos = [];
+
+async function init() {
+  document.getElementById('topbar-page-title').textContent = 'Inventario';
+  [sucursales, productos] = await Promise.all([Api.get('/sucursales'), Api.get('/productos')]);
+  const branchSel = document.getElementById('filter-branch');
+  branchSel.innerHTML = '<option value="">Todas las sucursales</option>' +
+    sucursales.map(b => `<option value="${b.id}">${b.nombre} (${b.ciudad})</option>`).join('');
+  load();
+  loadAlerts();
+}
+
+async function loadAlerts() {
+  try {
+    const low = await Api.get('/admin/inventario/stock-bajo');
+    const container = document.getElementById('stock-alerts');
+    if (!low.length) { container.innerHTML = ''; return; }
+    container.innerHTML = `<div style="grid-column:1/-1;font-size:.8rem;font-weight:700;color:var(--danger);margin-bottom:4px;">⚠ ${low.length} producto(s) con stock bajo</div>` +
+      low.slice(0,6).map(i => `
+        <div class="kpi-card" style="padding:14px 16px;border-left:3px solid var(--danger);">
+          <div class="kpi-info"><div style="font-weight:700;font-size:.82rem;">${i.producto?.nombre ?? '—'}</div>
+          <div style="font-size:.72rem;color:var(--text-muted);">${i.sucursal?.nombre ?? '—'}</div>
+          <div style="margin-top:4px;"><span class="pill pill-red">Stock: ${i.stock} / Mín: ${i.stock_minimo}</span></div></div>
+        </div>`).join('');
+  } catch {}
+}
+
+async function load() {
+  const branchId = document.getElementById('filter-branch').value;
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const tbody = document.getElementById('table-body');
+  try {
+    inventario = await Api.get('/admin/inventario' + (branchId ? `?branch_id=${branchId}` : ''));
+    let filtered = search ? inventario.filter(i => i.producto?.nombre?.toLowerCase().includes(search)) : inventario;
+    if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted);">Sin registros</td></tr>'; return; }
+    tbody.innerHTML = filtered.map(i => {
+      const bajo = i.stock <= i.stock_minimo;
+      return `<tr>
+        <td><div style="font-weight:600;">${i.producto?.nombre ?? '—'}</div></td>
+        <td><span class="pill ${i.producto?.categoria==='ataud'?'pill-blue':'pill-purple'}">${i.producto?.categoria==='ataud'?'Ataúd':'Urna'}</span></td>
+        <td>${i.sucursal?.nombre ?? '—'} <span style="color:var(--text-muted);font-size:.78rem;">(${i.sucursal?.ciudad ?? ''})</span></td>
+        <td style="font-weight:700;font-size:1.1rem;color:${bajo?'var(--danger)':'var(--text)'};">${i.stock}</td>
+        <td style="color:var(--text-muted);">${i.stock_minimo}</td>
+        <td><span class="pill ${bajo?'pill-red':'pill-green'}">${bajo?'Stock bajo':'OK'}</span></td>
+      </tr>`;
+    }).join('');
+  } catch(e) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--danger);padding:30px;">${e.message}</td></tr>`; }
+}
+
+function openModal() {
+  const branchSel = document.getElementById('field-branch_id');
+  const prodSel = document.getElementById('field-producto_id');
+  branchSel.innerHTML = '<option value="">Seleccionar...</option>' +
+    sucursales.map(b => `<option value="${b.id}">${b.nombre} (${b.ciudad})</option>`).join('');
+  prodSel.innerHTML = '<option value="">Seleccionar...</option>' +
+    productos.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
+  document.getElementById('field-cantidad').value = 1;
+  document.getElementById('field-motivo').value = '';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+async function save() {
+  const branch_id = +document.getElementById('field-branch_id').value;
+  const producto_id = +document.getElementById('field-producto_id').value;
+  const tipo = document.getElementById('field-tipo').value;
+  const cantidad = parseInt(document.getElementById('field-cantidad').value);
+  const motivo = document.getElementById('field-motivo').value;
+  if (!branch_id || !producto_id || !cantidad) { Toast.show('Completa los campos requeridos', 'warning'); return; }
+  try {
+    await Api.post('/admin/inventario/movimientos', { branch_id, producto_id, tipo, cantidad, motivo });
+    closeModal(); load(); loadAlerts(); Toast.show('Movimiento registrado', 'success');
+  } catch(e) { Toast.show(e.message, 'error'); }
+}
+
+document.getElementById('filter-branch').addEventListener('change', load);
+document.getElementById('search-input').addEventListener('input', load);
+document.getElementById('modal-overlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

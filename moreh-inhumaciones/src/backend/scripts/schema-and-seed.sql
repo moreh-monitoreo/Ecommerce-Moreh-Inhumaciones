@@ -14,18 +14,20 @@
 
 ------------------------------------------------------------------------------
 -- 1. Crear base de datos
+--    NOTA Azure SQL: comentar las líneas de abajo — la DB ya existe en Azure
+--    y USE no está soportado. Conectarse directamente a moreh_db en SSMS.
 ------------------------------------------------------------------------------
-IF DB_ID('moreh_db') IS NULL
-BEGIN
-    CREATE DATABASE moreh_db;
-    PRINT 'Base de datos moreh_db creada.';
-END
-ELSE
-    PRINT 'La base de datos moreh_db ya existe.';
-GO
+-- IF DB_ID('moreh_db') IS NULL
+-- BEGIN
+--     CREATE DATABASE moreh_db;
+--     PRINT 'Base de datos moreh_db creada.';
+-- END
+-- ELSE
+--     PRINT 'La base de datos moreh_db ya existe.';
+-- GO
 
-USE moreh_db;
-GO
+-- USE moreh_db;
+-- GO
 
 ------------------------------------------------------------------------------
 -- 2. Tablas

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reportes | Moreh Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/admin.css">
+  <script src="../js/api.js"></script><script src="../js/layout.js"></script><script src="../js/auth.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="admin-main"><div class="admin-content">
+  <div style="margin-bottom:24px;">
+    <h1 class="page-title">Reportes y Métricas</h1>
+    <p class="page-subtitle">Análisis de ventas, inventario y servicios funerarios</p>
+  </div>
+
+  <!-- Filtros globales -->
+  <div class="card" style="padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:8px;font-weight:600;font-size:.85rem;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Período:
+    </div>
+    <input type="date" class="form-control" id="filter-desde" style="max-width:160px;">
+    <span style="color:var(--text-muted);font-size:.85rem;">hasta</span>
+    <input type="date" class="form-control" id="filter-hasta" style="max-width:160px;">
+    <select class="form-select" id="filter-branch" style="max-width:220px;"><option value="">Todas las sucursales</option></select>
+    <button class="btn-admin btn-primary" onclick="loadAll()">Generar reporte</button>
+    <div style="margin-left:auto;display:flex;gap:8px;">
+      <button class="btn-admin btn-outline" onclick="exportExcel()" title="Exportar Excel">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Excel
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI Row -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:24px;" id="kpi-row">
+    <div class="kpi-card"><div class="kpi-info"><div class="kpi-label">Ventas totales</div><div class="kpi-value" id="kpi-ventas">—</div></div></div>
+    <div class="kpi-card"><div class="kpi-info"><div class="kpi-label">Órdenes</div><div class="kpi-value" id="kpi-ordenes">—</div></div></div>
+    <div class="kpi-card"><div class="kpi-info"><div class="kpi-label">Contratos</div><div class="kpi-value" id="kpi-contratos">—</div></div></div>
+    <div class="kpi-card"><div class="kpi-info"><div class="kpi-label">Ticket promedio</div><div class="kpi-value" id="kpi-ticket">—</div></div></div>
+  </div>
+
+  <!-- Charts Row 1 -->
+  <div class="chart-grid" style="margin-bottom:24px;">
+    <div class="chart-card">
+      <div class="chart-title">Ventas por sucursal</div>
+      <div class="chart-wrap"><canvas id="chart-sucursales"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Evolución mensual de ventas</div>
+      <div class="chart-wrap"><canvas id="chart-mensual"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Charts Row 2 -->
+  <div class="chart-grid" style="margin-bottom:24px;">
+    <div class="chart-card">
+      <div class="chart-title">Contratos por tipo</div>
+      <div class="chart-wrap"><canvas id="chart-contratos"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Leads por fuente</div>
+      <div class="chart-wrap"><canvas id="chart-leads"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Tabla productos más vendidos -->
+  <div class="card" style="padding:0;overflow:hidden;margin-bottom:24px;">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-weight:700;font-size:.95rem;">Productos más vendidos</div>
+    <div class="table-wrapper" style="border:none;">
+      <table class="admin-table">
+        <thead><tr><th>#</th><th>Producto</th><th>Categoría</th><th>Unidades vendidas</th><th>Ingresos</th></tr></thead>
+        <tbody id="top-products"><tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text-muted);">Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tabla contratos recientes -->
+  <div class="card" style="padding:0;overflow:hidden;">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-weight:700;font-size:.95rem;">Contratos del período</div>
+    <div class="table-wrapper" style="border:none;">
+      <table class="admin-table">
+        <thead><tr><th>#</th><th>Tipo</th><th>Responsable</th><th>Sucursal</th><th>Total</th><th>Estado</th><th>Fecha</th></tr></thead>
+        <tbody id="contracts-table"><tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted);">Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div></div>
+
+<script>
+const CHART_COLORS = ['#0d1b2a','#c9a86c','#1a2f47','#e8c98a','#2d4a6e','#f0d9a0','#3b5f8a','#d4aa70','#4a7399','#e0bd8a'];
+let chartSucursales, chartMensual, chartContratos, chartLeads;
+let reportData = {};
+let sucursales = [];
+
+const STATUS_PILL = { cotizado:'pill-gray',firmado:'pill-blue',en_curso:'pill-yellow',finalizado:'pill-green',cancelado:'pill-red' };
+const STATUS_LABEL = { cotizado:'Cotizado',firmado:'Firmado',en_curso:'En curso',finalizado:'Finalizado',cancelado:'Cancelado' };
+const TIPO_LABEL = { velacion_funeraria:'Vel. Funeraria',velacion_domicilio:'Vel. Domicilio',inhumacion:'Inhumación',exhumacion:'Exhumación',cremacion:'Cremación',plan_futuro:'Plan Futuro' };
+
+async function init() {
+  document.getElementById('topbar-page-title').textContent = 'Reportes';
+  const now = new Date();
+  const desde = new Date(now.getFullYear(), now.getMonth(), 1);
+  document.getElementById('filter-desde').value = desde.toISOString().slice(0,10);
+  document.getElementById('filter-hasta').value = now.toISOString().slice(0,10);
+  try {
+    sucursales = await Api.get('/sucursales');
+    document.getElementById('filter-branch').innerHTML = '<option value="">Todas las sucursales</option>' +
+      sucursales.map(b => `<option value="${b.id}">${b.nombre} (${b.ciudad})</option>`).join('');
+  } catch {}
+  loadAll();
+}
+
+async function loadAll() {
+  const desde = document.getElementById('filter-desde').value;
+  const hasta = document.getElementById('filter-hasta').value;
+  const branch = document.getElementById('filter-branch').value;
+  const qs = `desde=${desde}&hasta=${hasta}${branch?`&branch_id=${branch}`:''}`;
+
+  try {
+    const [kpis, bySuc, byMonth, byTipo, byLead, topProds, contracts] = await Promise.all([
+      Api.get(`/admin/reportes/kpis?${qs}`).catch(() => ({})),
+      Api.get(`/admin/reportes/ventas-por-sucursal?${qs}`).catch(() => []),
+      Api.get(`/admin/reportes/ventas-mensuales?${qs}`).catch(() => []),
+      Api.get(`/admin/reportes/contratos-por-tipo?${qs}`).catch(() => []),
+      Api.get(`/admin/reportes/leads-por-fuente?${qs}`).catch(() => []),
+      Api.get(`/admin/reportes/top-productos?${qs}`).catch(() => []),
+      Api.get(`/admin/contratos?${qs}`).catch(() => []),
+    ]);
+
+    document.getElementById('kpi-ventas').textContent = fmt.currency(kpis.totalVentas ?? 0);
+    document.getElementById('kpi-ordenes').textContent = kpis.totalOrdenes ?? 0;
+    document.getElementById('kpi-contratos').textContent = kpis.totalContratos ?? 0;
+    const orders = kpis.totalOrdenes ?? 0;
+    document.getElementById('kpi-ticket').textContent = orders > 0 ? fmt.currency((kpis.totalVentas ?? 0) / orders) : '—';
+
+    renderChartSucursales(bySuc);
+    renderChartMensual(byMonth);
+    renderChartContratos(byTipo);
+    renderChartLeads(byLead);
+    renderTopProducts(topProds);
+    renderContracts(contracts);
+    reportData = { kpis, bySuc, byMonth, byTipo, byLead, topProds, contracts };
+  } catch(e) { Toast.show(e.message, 'error'); }
+}
+
+function renderChartSucursales(data) {
+  const ctx = document.getElementById('chart-sucursales').getContext('2d');
+  if (chartSucursales) chartSucursales.destroy();
+  chartSucursales = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: data.map(d => d.nombre ?? d.sucursal ?? 'N/A'),
+      datasets: [{ label:'Ventas (MXN)', data: data.map(d => d.total ?? 0), backgroundColor: CHART_COLORS[0], borderRadius:6 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} }, scales:{ y:{ ticks:{ callback: v => '$'+v.toLocaleString('es-MX') } } } }
+  });
+}
+
+function renderChartMensual(data) {
+  const ctx = document.getElementById('chart-mensual').getContext('2d');
+  if (chartMensual) chartMensual.destroy();
+  chartMensual = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.map(d => d.mes ?? d.label),
+      datasets: [{ label:'Ventas', data: data.map(d => d.total ?? 0), borderColor: CHART_COLORS[1], backgroundColor:'rgba(201,168,108,.15)', tension:.4, fill:true, pointRadius:4 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} }, scales:{ y:{ ticks:{ callback: v => '$'+v.toLocaleString('es-MX') } } } }
+  });
+}
+
+function renderChartContratos(data) {
+  const ctx = document.getElementById('chart-contratos').getContext('2d');
+  if (chartContratos) chartContratos.destroy();
+  chartContratos = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: data.map(d => TIPO_LABEL[d.tipo] ?? d.tipo),
+      datasets: [{ data: data.map(d => d.total ?? d.count ?? 0), backgroundColor: CHART_COLORS.slice(0,data.length) }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{ font:{size:11} } } }, cutout:'60%' }
+  });
+}
+
+function renderChartLeads(data) {
+  const ctx = document.getElementById('chart-leads').getContext('2d');
+  if (chartLeads) chartLeads.destroy();
+  chartLeads = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: data.map(d => d.fuente ?? d.label),
+      datasets: [{ data: data.map(d => d.total ?? d.count ?? 0), backgroundColor: CHART_COLORS.slice(0,data.length) }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{ font:{size:11} } } } }
+  });
+}
+
+function renderTopProducts(data) {
+  const tbody = document.getElementById('top-products');
+  if (!data.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted);">Sin datos</td></tr>'; return; }
+  tbody.innerHTML = data.map((p,i) => `
+    <tr>
+      <td style="color:var(--text-muted);font-weight:700;">${i+1}</td>
+      <td><div style="font-weight:600;">${p.nombre ?? p.producto ?? '—'}</div></td>
+      <td><span class="pill pill-blue">${p.categoria ?? '—'}</span></td>
+      <td style="font-weight:700;text-align:center;">${p.unidades ?? p.qty ?? 0}</td>
+      <td style="font-weight:700;">${fmt.currency(p.ingresos ?? p.total ?? 0)}</td>
+    </tr>`).join('');
+}
+
+function renderContracts(data) {
+  const tbody = document.getElementById('contracts-table');
+  if (!data.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted);">Sin contratos en el período</td></tr>'; return; }
+  tbody.innerHTML = data.slice(0,20).map(c => `
+    <tr>
+      <td style="color:var(--text-muted);font-size:.8rem;">#${c.id}</td>
+      <td style="font-size:.8rem;font-weight:600;">${TIPO_LABEL[c.tipo] ?? c.tipo}</td>
+      <td>${c.responsable_nombre}</td>
+      <td>${c.sucursal?.nombre ?? '—'}</td>
+      <td style="font-weight:700;">${fmt.currency(c.total)}</td>
+      <td><span class="pill ${STATUS_PILL[c.status] ?? 'pill-gray'}">${STATUS_LABEL[c.status] ?? c.status}</span></td>
+      <td style="color:var(--text-muted);font-size:.8rem;">${fmt.date(c.fecha_inicio)}</td>
+    </tr>`).join('');
+}
+
+async function exportExcel() {
+  const desde = document.getElementById('filter-desde').value;
+  const hasta = document.getElementById('filter-hasta').value;
+  const branch = document.getElementById('filter-branch').value;
+  try {
+    const resp = await fetch(`${Api.BASE}/admin/reportes/export?desde=${desde}&hasta=${hasta}${branch?`&branch_id=${branch}`:''}&formato=excel`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('moreh_token')}` }
+    });
+    if (!resp.ok) { Toast.show('Error al exportar', 'error'); return; }
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `reporte-moreh-${desde}-${hasta}.xlsx`; a.click();
+    URL.revokeObjectURL(url);
+  } catch(e) { Toast.show(e.message, 'error'); }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

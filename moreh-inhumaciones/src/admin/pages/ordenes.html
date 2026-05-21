@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Órdenes | Moreh Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/admin.css">
+  <script src="../js/api.js"></script><script src="../js/layout.js"></script><script src="../js/auth.js"></script>
+</head>
+<body>
+<div class="admin-main"><div class="admin-content">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+    <div><h1 class="page-title">Órdenes</h1><p class="page-subtitle">Gestión de pedidos del e-commerce</p></div>
+    <button class="btn-admin btn-primary" onclick="openModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nueva orden
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-search">
+      <svg class="toolbar-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" id="search-input" placeholder="Buscar cliente...">
+    </div>
+    <select class="form-select" id="filter-status" style="max-width:180px;">
+      <option value="">Todos los estados</option>
+      <option value="pendiente">Pendiente</option>
+      <option value="pagada">Pagada</option>
+      <option value="en_preparacion">En preparación</option>
+      <option value="enviada">Enviada</option>
+      <option value="entregada">Entregada</option>
+      <option value="cancelada">Cancelada</option>
+    </select>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="admin-table">
+      <thead><tr><th>#</th><th>Cliente</th><th>Fecha</th><th>Total</th><th>Método pago</th><th>Estado</th><th class="actions">Acciones</th></tr></thead>
+      <tbody id="table-body"><tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted);">Cargando...</td></tr></tbody>
+    </table>
+  </div>
+</div></div>
+
+<!-- Modal Nueva Orden -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box modal-lg">
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-title">Nueva Orden</h4>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Nombre del cliente *</label><input class="form-control" id="field-cliente_nombre" placeholder="Nombre completo"></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-control" id="field-cliente_email" type="email"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Teléfono</label><input class="form-control" id="field-cliente_telefono"></div>
+        <div class="form-group"><label class="form-label">Método de pago</label>
+          <select class="form-select" id="field-metodo_pago">
+            <option value="">Seleccionar...</option>
+            <option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Cheque</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Dirección de envío</label><input class="form-control" id="field-direccion_envio"></div>
+      <hr style="border-color:var(--border);margin:16px 0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <strong style="font-size:.9rem;">Artículos</strong>
+        <button class="btn-admin btn-outline" type="button" onclick="addItem()" style="padding:5px 12px;font-size:.8rem;">+ Agregar</button>
+      </div>
+      <div id="items-container"></div>
+      <div style="text-align:right;margin-top:10px;font-size:1rem;font-weight:700;" id="total-display">Total: $0.00</div>
+      <div class="form-group" style="margin-top:12px;"><label class="form-label">Notas</label><textarea class="form-control" id="field-notas" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-admin btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn-admin btn-primary" onclick="save()">Crear orden</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Estado -->
+<div class="modal-overlay" id="modal-status">
+  <div class="modal-box modal-sm">
+    <div class="modal-header"><h4 class="modal-title">Cambiar estado</h4><button class="modal-close" onclick="closeStatusModal()">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="status-order-id">
+      <div class="form-group"><label class="form-label">Nuevo estado</label>
+        <select class="form-select" id="field-new-status">
+          <option value="pendiente">Pendiente</option>
+          <option value="pagada">Pagada</option>
+          <option value="en_preparacion">En preparación</option>
+          <option value="enviada">Enviada</option>
+          <option value="entregada">Entregada</option>
+          <option value="cancelada">Cancelada</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-admin btn-outline" onclick="closeStatusModal()">Cancelar</button>
+      <button class="btn-admin btn-primary" onclick="updateStatus()">Actualizar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let ordenes = [];
+const STATUS_PILL = { pendiente:'pill-yellow',pagada:'pill-blue',en_preparacion:'pill-purple',enviada:'pill-blue',entregada:'pill-green',cancelada:'pill-red' };
+const STATUS_LABEL = { pendiente:'Pendiente',pagada:'Pagada',en_preparacion:'En preparación',enviada:'Enviada',entregada:'Entregada',cancelada:'Cancelada' };
+
+async function load() {
+  const status = document.getElementById('filter-status').value;
+  const tbody = document.getElementById('table-body');
+  try {
+    ordenes = await Api.get('/admin/ordenes' + (status ? `?status=${status}` : ''));
+    const search = document.getElementById('search-input').value.toLowerCase();
+    const filtered = search ? ordenes.filter(o => o.cliente_nombre?.toLowerCase().includes(search)) : ordenes;
+    if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted);">Sin órdenes</td></tr>'; return; }
+    tbody.innerHTML = filtered.map(o => `
+      <tr>
+        <td style="color:var(--text-muted);font-size:.8rem;">#${o.id}</td>
+        <td><div style="font-weight:600;">${o.cliente_nombre}</div><div style="font-size:.73rem;color:var(--text-muted);">${o.cliente_email ?? ''}</div></td>
+        <td>${fmt.date(o.createdAt)}</td>
+        <td style="font-weight:700;">${fmt.currency(o.total)}</td>
+        <td>${o.metodo_pago ?? '—'}</td>
+        <td><span class="pill ${STATUS_PILL[o.status] ?? 'pill-gray'}">${STATUS_LABEL[o.status] ?? o.status}</span></td>
+        <td class="actions">
+          <button class="btn-icon" onclick="openStatusModal(${o.id},'${o.status}')" title="Cambiar estado"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></button>
+        </td>
+      </tr>`).join('');
+  } catch(e) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--danger);padding:30px;">${e.message}</td></tr>`; }
+}
+
+let itemCount = 0;
+function addItem() {
+  itemCount++;
+  const div = document.createElement('div');
+  div.id = `item-${itemCount}`;
+  div.style.cssText = 'display:grid;grid-template-columns:1fr auto auto auto;gap:8px;align-items:center;margin-bottom:8px;';
+  div.innerHTML = `
+    <input class="form-control" placeholder="Nombre del artículo" data-field="nombre">
+    <input class="form-control" type="number" min="1" value="1" style="width:70px;" data-field="cantidad" onchange="calcTotal()">
+    <input class="form-control" type="number" min="0" step="0.01" placeholder="Precio" style="width:120px;" data-field="precio" onchange="calcTotal()">
+    <button type="button" style="background:none;border:none;cursor:pointer;color:var(--danger);font-size:1.2rem;" onclick="this.parentElement.remove();calcTotal()">×</button>`;
+  document.getElementById('items-container').appendChild(div);
+}
+
+function calcTotal() {
+  let total = 0;
+  document.querySelectorAll('#items-container > div').forEach(div => {
+    const qty = parseFloat(div.querySelector('[data-field=cantidad]').value) || 0;
+    const price = parseFloat(div.querySelector('[data-field=precio]').value) || 0;
+    total += qty * price;
+  });
+  document.getElementById('total-display').textContent = 'Total: ' + fmt.currency(total);
+}
+
+function openModal() {
+  document.getElementById('items-container').innerHTML = '';
+  itemCount = 0;
+  ['cliente_nombre','cliente_email','cliente_telefono','direccion_envio','notas'].forEach(f => document.getElementById('field-'+f).value = '');
+  document.getElementById('field-metodo_pago').value = '';
+  document.getElementById('total-display').textContent = 'Total: $0.00';
+  addItem();
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+async function save() {
+  const nombre = document.getElementById('field-cliente_nombre').value.trim();
+  if (!nombre) { Toast.show('El nombre del cliente es requerido', 'warning'); return; }
+  const items = [];
+  let valid = true;
+  document.querySelectorAll('#items-container > div').forEach(div => {
+    const n = div.querySelector('[data-field=nombre]').value.trim();
+    const qty = parseInt(div.querySelector('[data-field=cantidad]').value);
+    const price = parseFloat(div.querySelector('[data-field=precio]').value);
+    if (!n || !qty || isNaN(price)) { valid = false; return; }
+    items.push({ nombre_producto: n, cantidad: qty, precio_unitario: price });
+  });
+  if (!valid || !items.length) { Toast.show('Completa todos los artículos', 'warning'); return; }
+  try {
+    await Api.post('/admin/ordenes', {
+      cliente_nombre: nombre,
+      cliente_email: document.getElementById('field-cliente_email').value || null,
+      cliente_telefono: document.getElementById('field-cliente_telefono').value || null,
+      metodo_pago: document.getElementById('field-metodo_pago').value || null,
+      direccion_envio: document.getElementById('field-direccion_envio').value || null,
+      notas: document.getElementById('field-notas').value || null,
+      items,
+    });
+    closeModal(); load(); Toast.show('Orden creada', 'success');
+  } catch(e) { Toast.show(e.message, 'error'); }
+}
+
+function openStatusModal(id, currentStatus) {
+  document.getElementById('status-order-id').value = id;
+  document.getElementById('field-new-status').value = currentStatus;
+  document.getElementById('modal-status').classList.add('open');
+}
+function closeStatusModal() { document.getElementById('modal-status').classList.remove('open'); }
+
+async function updateStatus() {
+  const id = document.getElementById('status-order-id').value;
+  const status = document.getElementById('field-new-status').value;
+  try {
+    await Api.patch(`/admin/ordenes/${id}/status`, { status });
+    closeStatusModal(); load(); Toast.show('Estado actualizado', 'success');
+  } catch(e) { Toast.show(e.message, 'error'); }
+}
+
+document.getElementById('filter-status').addEventListener('change', load);
+document.getElementById('search-input').addEventListener('input', load);
+document.getElementById('modal-overlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+document.getElementById('modal-status').addEventListener('click', e => { if(e.target===e.currentTarget) closeStatusModal(); });
+document.addEventListener('DOMContentLoaded', () => { document.getElementById('topbar-page-title').textContent = 'Órdenes'; load(); });
+</script>
+</body>
+</html>

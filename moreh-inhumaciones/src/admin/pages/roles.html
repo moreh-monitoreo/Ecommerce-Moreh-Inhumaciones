@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Roles y Permisos | Moreh Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/admin.css">
+  <script src="../js/api.js"></script><script src="../js/layout.js"></script><script src="../js/auth.js"></script>
+</head>
+<body>
+<div class="admin-main"><div class="admin-content">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+    <div><h1 class="page-title">Roles y Permisos</h1><p class="page-subtitle">Matriz de acceso por módulo y acción</p></div>
+    <button class="btn-admin btn-primary" onclick="openModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nuevo rol
+    </button>
+  </div>
+
+  <!-- Selector de rol -->
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;" id="role-tabs"></div>
+
+  <!-- Matriz de permisos -->
+  <div class="card" style="padding:0;overflow:hidden;" id="perm-matrix-card">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+      <div>
+        <div style="font-weight:700;font-size:.95rem;" id="matrix-role-name">Selecciona un rol</div>
+        <div style="font-size:.8rem;color:var(--text-muted);" id="matrix-role-desc"></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-admin btn-outline" onclick="editRole()" id="btn-edit-role" style="display:none;">Editar rol</button>
+        <button class="btn-admin btn-primary" onclick="savePermissions()" id="btn-save-perms" style="display:none;">Guardar permisos</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="admin-table" id="perm-table" style="min-width:700px;">
+        <thead><tr id="perm-head"></tr></thead>
+        <tbody id="perm-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div></div>
+
+<!-- Modal rol -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header"><h4 class="modal-title" id="modal-title">Nuevo Rol</h4><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="field-id">
+      <div class="form-group"><label class="form-label">Nombre del rol *</label><input class="form-control" id="field-nombre" placeholder="Ej. Gerente Sucursal"></div>
+      <div class="form-group"><label class="form-label">Descripción</label><textarea class="form-control" id="field-descripcion" rows="2" placeholder="Describe las responsabilidades de este rol..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-admin btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn-admin btn-primary" onclick="saveRole()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.role-tab { padding:8px 16px;border-radius:20px;border:2px solid var(--border);cursor:pointer;font-size:.82rem;font-weight:600;transition:all .15s;background:#fff;white-space:nowrap; }
+.role-tab.active { background:var(--navy);color:#fff;border-color:var(--navy); }
+.role-tab:hover:not(.active) { border-color:var(--navy);color:var(--navy); }
+.perm-check { width:20px;height:20px;accent-color:var(--navy);cursor:pointer; }
+.perm-module { font-weight:700;font-size:.82rem;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted); }
+</style>
+
+<script>
+const MODULES = [
+  { key:'dashboard', label:'Dashboard' },
+  { key:'productos', label:'Productos' },
+  { key:'categorias', label:'Categorías' },
+  { key:'inventario', label:'Inventario' },
+  { key:'ordenes', label:'Órdenes' },
+  { key:'contratos', label:'Contratos' },
+  { key:'clientes', label:'Clientes' },
+  { key:'leads', label:'Leads / CRM' },
+  { key:'sucursales', label:'Sucursales' },
+  { key:'usuarios', label:'Usuarios' },
+  { key:'roles', label:'Roles' },
+  { key:'cms', label:'CMS' },
+  { key:'reportes', label:'Reportes' },
+  { key:'auditoria', label:'Auditoría' },
+];
+const ACTIONS = ['ver','crear','editar','eliminar'];
+const ACTION_LABEL = { ver:'Ver', crear:'Crear', editar:'Editar', eliminar:'Eliminar' };
+
+let roles = [];
+let allPermissions = [];
+let selectedRoleId = null;
+let rolePermissions = new Set();
+let editingRoleId = null;
+
+async function init() {
+  document.getElementById('topbar-page-title').textContent = 'Roles y Permisos';
+  [roles, allPermissions] = await Promise.all([Api.get('/admin/roles'), Api.get('/admin/permisos')]);
+  renderRoleTabs();
+  buildPermTable();
+  if (roles.length) selectRole(roles[0].id);
+}
+
+function renderRoleTabs() {
+  document.getElementById('role-tabs').innerHTML = roles.map(r => `
+    <button class="role-tab ${r.id===selectedRoleId?'active':''}" onclick="selectRole(${r.id})">${r.nombre}</button>
+  `).join('');
+}
+
+function buildPermTable() {
+  const head = document.getElementById('perm-head');
+  head.innerHTML = '<th style="min-width:160px;">Módulo</th>' + ACTIONS.map(a => `<th style="text-align:center;width:90px;">${ACTION_LABEL[a]}</th>`).join('');
+
+  const body = document.getElementById('perm-body');
+  body.innerHTML = MODULES.map(m => `
+    <tr>
+      <td class="perm-module">${m.label}</td>
+      ${ACTIONS.map(a => {
+        const perm = allPermissions.find(p => p.modulo === m.key && p.accion === a);
+        return `<td style="text-align:center;">
+          ${perm ? `<input type="checkbox" class="perm-check" data-perm-id="${perm.id}" onchange="togglePerm(${perm.id},this.checked)">` : '<span style="color:var(--text-muted);">—</span>'}
+        </td>`;
+      }).join('')}
+    </tr>`).join('');
+}
+
+async function selectRole(id) {
+  selectedRoleId = id;
+  renderRoleTabs();
+  const role = roles.find(r => r.id === id);
+  document.getElementById('matrix-role-name').textContent = role?.nombre ?? '';
+  document.getElementById('matrix-role-desc').textContent = role?.descripcion ?? '';
+  document.getElementById('btn-edit-role').style.display = '';
+  document.getElementById('btn-save-perms').style.display = '';
+
+  try {
+    const perms = await Api.get(`/admin/roles/${id}/permisos`);
+    rolePermissions = new Set(perms.map(p => p.id));
+    document.querySelectorAll('.perm-check').forEach(cb => {
+      cb.checked = rolePermissions.has(+cb.dataset.permId);
+    });
+  } catch(e) { Toast.show(e.message, 'error'); }
+}
+
+function togglePerm(permId, checked) {
+  if (checked) rolePermissions.add(permId);
+  else rolePermissions.delete(permId);
+}
+
+async function savePermissions() {
+  if (!selectedRoleId) return;
+  try {
+    await Api.put(`/admin/roles/${selectedRoleId}/permisos`, { permission_ids: [...rolePermissions] });
+    Toast.show('Permisos guardados', 'success');
+  } catch(e) { Toast.show(e.message, 'error'); }
+}
+
+function openModal(data = null) {
+  editingRoleId = data?.id ?? null;
+  document.getElementById('modal-title').textContent = editingRoleId ? 'Editar Rol' : 'Nuevo Rol';
+  document.getElementById('field-id').value = editingRoleId ?? '';
+  document.getElementById('field-nombre').value = data?.nombre ?? '';
+  document.getElementById('field-descripcion').value = data?.descripcion ?? '';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+function editRole() { const r = roles.find(x => x.id === selectedRoleId); if(r) openModal(r); }
+
+async function saveRole() {
+  const nombre = document.getElementById('field-nombre').value.trim();
+  if (!nombre) { Toast.show('El nombre del rol es requerido', 'warning'); return; }
+  const body = { nombre, descripcion: document.getElementById('field-descripcion').value || null };
+  try {
+    if (editingRoleId) await Api.put(`/admin/roles/${editingRoleId}`, body);
+    else await Api.post('/admin/roles', body);
+    closeModal();
+    [roles] = await Promise.all([Api.get('/admin/roles')]);
+    renderRoleTabs();
+    Toast.show('Rol guardado', 'success');
+  } catch(e) { Toast.show(e.message, 'error'); }
+}
+
+document.getElementById('modal-overlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
