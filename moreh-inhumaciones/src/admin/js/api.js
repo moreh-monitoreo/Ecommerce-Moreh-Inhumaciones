@@ -4,6 +4,7 @@
 const BASE = (window.MOREH_API ?? 'http://localhost:3000') + '/api';
 
 const Api = {
+  BASE,
   token: () => localStorage.getItem('moreh_token'),
   setToken: (t) => localStorage.setItem('moreh_token', t),
   clearToken: () => localStorage.removeItem('moreh_token'),

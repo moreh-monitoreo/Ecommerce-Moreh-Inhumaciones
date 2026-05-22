@@ -11,7 +11,6 @@ export class ServiceContract extends Model<InferAttributes<ServiceContract>, Inf
   declare chapel_id: number | null;
   declare tipo: ContractType;
   declare fallecido_nombre: string | null;
-  declare fallecido_datos: string | null;
   declare responsable_nombre: string;
   declare responsable_telefono: string | null;
   declare responsable_email: string | null;
@@ -37,7 +36,6 @@ ServiceContract.init(
       validate: { isIn: [['velacion_funeraria', 'velacion_domicilio', 'inhumacion', 'exhumacion', 'cremacion', 'plan_futuro']] },
     },
     fallecido_nombre: { type: DataTypes.STRING(150), allowNull: true },
-    fallecido_datos: { type: DataTypes.TEXT, allowNull: true },
     responsable_nombre: { type: DataTypes.STRING(150), allowNull: false },
     responsable_telefono: { type: DataTypes.STRING(50), allowNull: true },
     responsable_email: { type: DataTypes.STRING(150), allowNull: true },

@@ -140,7 +140,27 @@
           ${svg('bell', 14)}
           <span class="bell-dot"></span>
         </button>
-        <button class="icon-btn" id="btn-more" aria-label="Más opciones">${svg('dots', 14)}</button>
+        <div style="position:relative;">
+          <button class="icon-btn" id="btn-more" aria-label="Más opciones">${svg('dots', 14)}</button>
+          <div id="topbar-menu" style="
+            display:none; position:absolute; right:0; top:calc(100% + 6px);
+            background:var(--surface); border:1px solid var(--border);
+            border-radius:var(--r-lg); box-shadow:0 4px 16px rgba(0,0,0,0.08);
+            min-width:180px; z-index:200; overflow:hidden;">
+            <div style="padding:10px 12px 8px; border-bottom:1px solid var(--border-soft);">
+              <div id="topbar-menu-name" style="font-size:12.5px; font-weight:600; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
+              <div id="topbar-menu-mail" style="font-size:11px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
+            </div>
+            <button id="btn-logout" style="
+              display:flex; align-items:center; gap:8px; width:100%;
+              padding:9px 12px; background:transparent; border:0;
+              font-size:12.5px; color:var(--red,#b91c1c); cursor:pointer;
+              text-align:left;">
+              ${svg('logout', 13)}
+              Cerrar sesión
+            </button>
+          </div>
+        </div>
       </div>
     </header>`;
 
@@ -160,6 +180,31 @@
   const sidebar = document.getElementById('admin-sidebar');
   if (toggle && sidebar) {
     toggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+  }
+
+  // ── Dropdown del botón "más opciones" (cerrar sesión) ──
+  const btnMore = document.getElementById('btn-more');
+  const topbarMenu = document.getElementById('topbar-menu');
+  if (btnMore && topbarMenu) {
+    btnMore.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = topbarMenu.style.display === 'block';
+      topbarMenu.style.display = open ? 'none' : 'block';
+    });
+    document.addEventListener('click', (e) => {
+      if (!topbarMenu.contains(e.target) && e.target !== btnMore) {
+        topbarMenu.style.display = 'none';
+      }
+    });
+  }
+
+  // ── Cerrar sesión ──
+  const btnLogout = document.getElementById('btn-logout');
+  if (btnLogout) {
+    btnLogout.addEventListener('click', () => {
+      localStorage.removeItem('moreh_token');
+      location.href = 'login.html';
+    });
   }
 
   // ── Cmd/Ctrl + K activa el buscador del sidebar ──
@@ -198,6 +243,10 @@
       if (n) n.textContent = name;
       if (e) e.textContent = email;
       if (a) a.textContent = initials || (name || '?').split(' ').map(s => s[0]).join('').slice(0,2).toUpperCase();
+      const mn = document.getElementById('topbar-menu-name');
+      const me = document.getElementById('topbar-menu-mail');
+      if (mn) mn.textContent = name;
+      if (me) me.textContent = email;
     },
   };
 })();

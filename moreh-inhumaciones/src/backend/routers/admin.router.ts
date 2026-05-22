@@ -14,6 +14,7 @@ import { orderService } from '../services/admin/order.service';
 import { contractService } from '../services/admin/contract.service';
 import { cmsService, leadService, customerService } from '../services/admin/cms.service';
 import { dashboardService } from '../services/admin/dashboard.service';
+import { reportesService } from '../services/admin/reportes.service';
 import { Category } from '../models';
 
 const router = Router();
@@ -51,6 +52,10 @@ router.delete('/usuarios/:id', requirePermission('usuarios', 'eliminar'), auditM
 // ─── Roles y Permisos ─────────────────────────────────────────────────────────
 router.get('/roles', requirePermission('roles', 'ver'), wrap(async (_req, res) => ok(res, await roleService.list())));
 router.get('/roles/permisos', requirePermission('roles', 'ver'), wrap(async (_req, res) => ok(res, await roleService.listPermissions())));
+router.get('/roles/:id/permisos', requirePermission('roles', 'ver'), wrap(async (req, res) => {
+  const role = await roleService.findById(+req.params.id);
+  ok(res, (role as any).permissions ?? []);
+}));
 router.get('/roles/:id', requirePermission('roles', 'ver'), wrap(async (req, res) => ok(res, await roleService.findById(+req.params.id))));
 router.post('/roles', requirePermission('roles', 'crear'), wrap(async (req, res) => ok(res, await roleService.create(req.body), 201)));
 router.put('/roles/:id', requirePermission('roles', 'editar'), wrap(async (req, res) => ok(res, await roleService.update(+req.params.id, req.body))));
@@ -77,6 +82,12 @@ router.put('/categorias/:id', requirePermission('productos', 'editar'), wrap(asy
   if (!c) throw HttpError.notFound('Categoría no encontrada');
   ok(res, await c.update(req.body));
 }));
+router.delete('/categorias/:id', requirePermission('productos', 'eliminar'), wrap(async (req, res) => {
+  const c = await Category.findByPk(+req.params.id);
+  if (!c) throw HttpError.notFound('Categoría no encontrada');
+  await c.destroy();
+  ok(res, { ok: true });
+}));
 
 // ─── Productos (admin) ────────────────────────────────────────────────────────
 router.get('/productos', requirePermission('productos', 'ver'), wrap(async (req, res) => ok(res, await productoAdminService.list(req.query as never))));
@@ -95,6 +106,8 @@ router.post('/inventario/movimientos', requirePermission('inventario', 'editar')
 
 // ─── Clientes ─────────────────────────────────────────────────────────────────
 router.get('/clientes', requirePermission('clientes', 'ver'), wrap(async (_req, res) => ok(res, await customerService.list())));
+router.get('/clientes/:id/ordenes', requirePermission('clientes', 'ver'), wrap(async (req, res) => ok(res, await customerService.listOrders(+req.params.id))));
+router.get('/clientes/:id/contratos', requirePermission('clientes', 'ver'), wrap(async (req, res) => ok(res, await customerService.listContracts(+req.params.id))));
 router.get('/clientes/:id', requirePermission('clientes', 'ver'), wrap(async (req, res) => ok(res, await customerService.findById(+req.params.id))));
 router.post('/clientes', requirePermission('clientes', 'crear'), wrap(async (req, res) => ok(res, await customerService.create(req.body), 201)));
 router.put('/clientes/:id', requirePermission('clientes', 'editar'), wrap(async (req, res) => ok(res, await customerService.update(+req.params.id, req.body))));
@@ -103,6 +116,7 @@ router.put('/clientes/:id', requirePermission('clientes', 'editar'), wrap(async 
 router.get('/leads', requirePermission('leads', 'ver'), wrap(async (req, res) => ok(res, await leadService.list(req.query as never))));
 router.post('/leads', requirePermission('leads', 'crear'), wrap(async (req, res) => ok(res, await leadService.create(req.body), 201)));
 router.put('/leads/:id', requirePermission('leads', 'editar'), wrap(async (req, res) => ok(res, await leadService.update(+req.params.id, req.body))));
+router.delete('/leads/:id', requirePermission('leads', 'eliminar'), wrap(async (req, res) => { await leadService.remove(+req.params.id); ok(res, { ok: true }); }));
 
 // ─── Órdenes ─────────────────────────────────────────────────────────────────
 router.get('/ordenes', requirePermission('ordenes', 'ver'), wrap(async (req, res) => ok(res, await orderService.list(req.query as never))));
@@ -126,5 +140,43 @@ router.delete('/banners/:id', requirePermission('cms', 'eliminar'), wrap(async (
 // ─── CMS — Settings ──────────────────────────────────────────────────────────
 router.get('/settings', wrap(async (_req, res) => ok(res, await cmsService.listSettings())));
 router.put('/settings/:clave', requirePermission('cms', 'editar'), wrap(async (req, res) => ok(res, await cmsService.upsertSetting(req.params.clave, req.body.valor, req.body.descripcion))));
+
+// ─── Auditoría (endpoint completo con filtros) ────────────────────────────────
+router.get('/auditoria/stats', requirePermission('auditoria', 'ver'), wrap(async (_req, res) => {
+  ok(res, await dashboardService.auditStats());
+}));
+router.get('/auditoria', requirePermission('auditoria', 'ver'), wrap(async (req, res) => {
+  const q = req.query;
+  ok(res, await dashboardService.auditLogsFiltered({
+    page:    parseInt(q.page    as string ?? '1',  10),
+    perPage: parseInt(q.per_page as string ?? '50', 10),
+    entidad: q.entidad as string | undefined,
+    accion:  q.accion  as string | undefined,
+    desde:   q.desde   as string | undefined,
+    hasta:   q.hasta   as string | undefined,
+    q:       q.q       as string | undefined,
+  }));
+}));
+
+// ─── Reportes ─────────────────────────────────────────────────────────────────
+const rp = (req: Request) => ({
+  desde:    req.query.desde    as string | undefined,
+  hasta:    req.query.hasta    as string | undefined,
+  branchId: req.query.branch_id ? +(req.query.branch_id as string) : undefined,
+});
+
+router.get('/reportes/kpis',              requirePermission('reportes', 'ver'), wrap(async (req, res) => { const p = rp(req); ok(res, await reportesService.kpis(p.desde, p.hasta, p.branchId)); }));
+router.get('/reportes/ventas-por-sucursal', requirePermission('reportes', 'ver'), wrap(async (req, res) => { const p = rp(req); ok(res, await reportesService.ventasPorSucursal(p.desde, p.hasta, p.branchId)); }));
+router.get('/reportes/ventas-mensuales',  requirePermission('reportes', 'ver'), wrap(async (req, res) => { const p = rp(req); ok(res, await reportesService.ventasMensuales(p.desde, p.hasta, p.branchId)); }));
+router.get('/reportes/contratos-por-tipo', requirePermission('reportes', 'ver'), wrap(async (req, res) => { const p = rp(req); ok(res, await reportesService.contratosPorTipo(p.desde, p.hasta, p.branchId)); }));
+router.get('/reportes/leads-por-fuente', requirePermission('reportes', 'ver'), wrap(async (req, res) => { const p = rp(req); ok(res, await reportesService.leadsPorFuente(p.desde, p.hasta)); }));
+router.get('/reportes/top-productos',    requirePermission('reportes', 'ver'), wrap(async (req, res) => { const p = rp(req); ok(res, await reportesService.topProductos(p.desde, p.hasta, p.branchId)); }));
+router.get('/reportes/export', requirePermission('reportes', 'ver'), wrap(async (req, res) => {
+  const p = rp(req);
+  const buffer = await reportesService.exportExcel(p.desde, p.hasta, p.branchId);
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', `attachment; filename="reporte-moreh-${p.desde ?? 'all'}-${p.hasta ?? 'all'}.xlsx"`);
+  res.send(buffer);
+}));
 
 export default router;

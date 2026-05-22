@@ -14,7 +14,7 @@ export const sequelize = new Sequelize(env.db.name, env.db.user, env.db.password
   port: env.db.port,
   dialect: 'mssql',
   dialectOptions,
-  logging: isDev ? (msg) => console.log(`[sql] ${msg}`) : false,
+  logging: false,
   define: {
     freezeTableName: false,
     timestamps: true,

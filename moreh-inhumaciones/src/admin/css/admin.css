@@ -946,3 +946,77 @@ h1, h2, h3, h4, h5, h6 { margin: 0; font-weight: 600; color: var(--ink); }
   .kpi-row { grid-template-columns: repeat(2, 1fr); }
   .form-row, .form-row.cols-3 { grid-template-columns: 1fr; }
 }
+
+/* ═══════════════════════════════════════════════════
+   LOGIN PAGE
+   ═══════════════════════════════════════════════════ */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  padding: 24px;
+}
+.login-panel {
+  width: 100%;
+  max-width: 400px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 40px 36px 32px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.06);
+}
+.login-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 28px;
+}
+.login-logo-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--ink);
+  border-radius: var(--r-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bg);
+  margin-bottom: 4px;
+}
+.login-logo-icon svg { width: 22px; height: 22px; }
+.login-brand {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -.02em;
+}
+.login-sub {
+  font-size: 11.5px;
+  color: var(--muted);
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+.login-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -.02em;
+  margin: 0 0 6px;
+}
+.login-desc {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 24px;
+}
+.login-error {
+  display: none;
+  background: var(--red-bg, #fef2f2);
+  color: var(--red, #b91c1c);
+  border: 1px solid var(--red-border, #fecaca);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  font-size: 12.5px;
+  margin-bottom: 16px;
+}

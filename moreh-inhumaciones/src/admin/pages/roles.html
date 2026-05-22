@@ -161,7 +161,7 @@ async function init() {
   try {
     [roles, allPermissions] = await Promise.all([
       Api.get('/admin/roles'),
-      Api.get('/admin/permisos'),
+      Api.get('/admin/roles/permisos'),
     ]);
   } catch (e) { Toast.show(e.message, 'error'); return; }
   document.getElementById('meta-roles').textContent = roles.length;

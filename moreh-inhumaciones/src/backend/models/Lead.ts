@@ -12,7 +12,6 @@ export class Lead extends Model<InferAttributes<Lead>, InferCreationAttributes<L
   declare fuente: CreationOptional<string>;
   declare status: CreationOptional<LeadStatus>;
   declare asignado_a: number | null;
-  declare notas: string | null;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 }
@@ -29,8 +28,7 @@ Lead.init(
       type: DataTypes.STRING(20), allowNull: false, defaultValue: 'nuevo',
       validate: { isIn: [['nuevo', 'contactado', 'calificado', 'convertido', 'descartado']] },
     },
-    asignado_a: { type: DataTypes.INTEGER, allowNull: true },
-    notas: { type: DataTypes.TEXT, allowNull: true },
+    asignado_a: { type: DataTypes.INTEGER, allowNull: true, field: 'assigned_to' },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
   },

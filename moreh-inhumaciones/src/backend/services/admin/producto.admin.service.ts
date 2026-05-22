@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { Producto, ProductImage, Category, Inventory } from '../../models';
+import { Producto, ProductImage, Inventory } from '../../models';
 import { HttpError } from '../../utils/HttpError';
 
 export const productoAdminService = {
@@ -12,7 +12,6 @@ export const productoAdminService = {
       where,
       include: [
         { model: ProductImage, as: 'imagenes', attributes: ['id', 'url', 'orden'] },
-        { model: Category, as: 'categoria_obj', attributes: ['id', 'nombre'] },
       ],
       order: [['categoria', 'ASC'], ['nombre', 'ASC']],
     });

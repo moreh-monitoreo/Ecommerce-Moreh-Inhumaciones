@@ -93,4 +93,52 @@ export const dashboardService = {
     });
     return { data: rows, total: count, page, limit };
   },
+
+  async auditLogsFiltered(opts: {
+    page?: number; perPage?: number; entidad?: string;
+    accion?: string; desde?: string; hasta?: string; q?: string;
+  }) {
+    const { page = 1, perPage = 50, entidad, accion, desde, hasta, q } = opts;
+    const where: Record<string, unknown> = {};
+    if (entidad) where.entidad = entidad;
+    if (accion) where.accion = accion;
+    if (desde || hasta) {
+      where.createdAt = {
+        ...(desde ? { [Op.gte]: new Date(desde) } : {}),
+        ...(hasta ? { [Op.lte]: new Date(hasta + 'T23:59:59') } : {}),
+      };
+    }
+    if (q) {
+      (where as any)[Op.or] = [
+        { user_email: { [Op.like]: `%${q}%` } },
+        { entidad: { [Op.like]: `%${q}%` } },
+        { accion: { [Op.like]: `%${q}%` } },
+      ];
+    }
+    const offset = (page - 1) * perPage;
+    const { rows, count } = await AuditLog.findAndCountAll({
+      where: where as any,
+      order: [['createdAt', 'DESC']],
+      limit: perPage,
+      offset,
+    });
+    return { data: rows, total: count, page, perPage };
+  },
+
+  async auditStats() {
+    const rows = await AuditLog.findAll({
+      attributes: ['accion', [fn('COUNT', col('id')), 'total']],
+      group: ['accion'],
+      raw: true,
+    }) as unknown as Array<{ accion: string; total: string }>;
+    const result: Record<string, number> = { CREATE: 0, UPDATE: 0, DELETE: 0, LOGIN: 0 };
+    rows.forEach(r => { result[r.accion] = Number(r.total); });
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    result.usuarios_activos = await AuditLog.count({
+      distinct: true,
+      col: 'user_email',
+      where: { createdAt: { [Op.gte]: thirtyDaysAgo } },
+    });
+    return result;
+  },
 };

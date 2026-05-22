@@ -8,7 +8,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/admin.css" />
+  <script src="../js/api.js"></script>
   <script src="../js/layout.js" defer></script>
+  <script src="../js/auth.js"></script>
 </head>
 <body>
 
@@ -20,7 +22,7 @@
       <div>
         <h1 class="page-title">Resumen general</h1>
         <div class="page-meta">
-          <span>Jueves, 21 mayo 2026</span>
+          <span id="dash-date">—</span>
           <span class="dot"></span>
           <span>Últimos 30 días</span>
           <span class="dot"></span>
@@ -57,7 +59,7 @@
     <!-- ── Banner ─────────────────────────────────────── -->
     <div class="banner banner-amber">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      <span><b>3 órdenes</b> requieren tu atención hoy. <b>8 productos</b> con stock bajo.</span>
+      <span id="banner-text">Cargando datos...</span>
       <span class="banner-act"><a href="#pendientes">Ver pendientes →</a></span>
     </div>
 
@@ -73,8 +75,8 @@
             <div class="section-sub">Total acumulado · MXN</div>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:22px; font-weight:600; letter-spacing:-0.025em; font-variant-numeric:tabular-nums;">$1,284,650</div>
-            <div style="font-size:11px; color:var(--green); font-weight:600;">+12.4% vs. periodo anterior</div>
+            <div id="chart-total-val" style="font-size:22px; font-weight:600; letter-spacing:-0.025em; font-variant-numeric:tabular-nums;">—</div>
+            <div id="chart-total-delta" style="font-size:11px; color:var(--green); font-weight:600;"></div>
           </div>
         </div>
         <div id="sales-chart"></div>
@@ -165,83 +167,15 @@
 
 <script>
 /* =========================================================
-   MOCK DATA — reemplaza por llamadas reales a tu API
-   ========================================================= */
-const KPIS = [
-  { label: 'Ventas del mes',    val: '$1,284,650', delta: '+12.4%', up: true,  spark: [12,14,13,16,15,18,17,21,20,23,22,26] },
-  { label: 'Órdenes activas',   val: '38',         delta: '+6',     up: true,  spark: [4,6,5,7,6,8,7,9,8,10,9,12] },
-  { label: 'Contratos activos', val: '124',        delta: '−2',     up: false, spark: [10,12,11,13,12,14,13,12,11,10,9,10] },
-  { label: 'Leads nuevos',      val: '47',         delta: '+18.2%', up: true,  spark: [3,5,4,6,5,7,6,8,9,11,10,14] },
-  { label: 'Stock bajo',        val: '8',          delta: '+3',     up: false, spark: [2,3,3,4,5,5,6,7,6,7,8,8] },
-  { label: 'Productos activos', val: '142',        delta: '+4',     up: true,  spark: [120,122,125,128,130,132,134,136,138,140,141,142] },
-];
-
-const CONTRACTS = [
-  { type: 'Velación funeraria', val: 42, pct: 34 },
-  { type: 'Inhumación',         val: 31, pct: 25 },
-  { type: 'Cremación',          val: 24, pct: 19 },
-  { type: 'Plan a futuro',      val: 18, pct: 15 },
-  { type: 'Otros',              val:  9, pct:  7 },
-];
-
-const ATTENTION = [
-  { tag:'Contrato',  tone:'amber',  title:'CON-0912 firma pendiente',           meta:'Cliente: García López · vence en 2 días', cta:'Revisar' },
-  { tag:'Pago',      tone:'red',    title:'ORD-2837 pago vencido',              meta:'$ 18,400 · 5 días de atraso',             cta:'Cobrar'  },
-  { tag:'Stock',     tone:'red',    title:'Urna Pequeña Memorial sin stock',    meta:'Sucursal Polanco · 0 unidades',           cta:'Reponer' },
-  { tag:'Lead',      tone:'blue',   title:'6 leads sin responder',              meta:'El más antiguo: hace 3 horas',            cta:'Asignar' },
-  { tag:'Auditoría', tone:'gold',   title:'2 cambios pendientes de aprobación', meta:'Precios catálogo · roles',                cta:'Aprobar' },
-];
-
-const BRANCHES = [
-  { city:'CDMX · Polanco',     val: 286 },
-  { city:'CDMX · Coyoacán',    val: 218 },
-  { city:'Guadalajara',        val: 192 },
-  { city:'Monterrey · Centro', val: 174 },
-  { city:'Puebla',             val: 138 },
-  { city:'Querétaro',          val: 121 },
-  { city:'Mérida',             val:  94 },
-];
-
-const TOP_PRODUCTS = [
-  { rank:1, name:'Ataúd Metálico Cobre',  cat:'Ataúdes', sold:47, trend:'+22%' },
-  { rank:2, name:'Urna Mármol Onyx',      cat:'Urnas',   sold:38, trend:'+14%' },
-  { rank:3, name:'Ataúd Roble Clásico',   cat:'Ataúdes', sold:31, trend:'+8%'  },
-  { rank:4, name:'Urna Bronce Premium',   cat:'Urnas',   sold:24, trend:'+5%'  },
-  { rank:5, name:'Ataúd Caoba Sello',     cat:'Ataúdes', sold:19, trend:'−3%'  },
-];
-
-const ACTIVITY = [
-  { time:'hace 4 min',  tag:'Órdenes',     tone:'gold',  what:'creó orden',                    ref:'#ORD-2841',                who:'Laura Méndez'  },
-  { time:'hace 18 min', tag:'Inventario',  tone:'red',   what:'detectó stock bajo en',         ref:'Urna Premium Bronce',      who:'Sistema'       },
-  { time:'hace 32 min', tag:'Contratos',   tone:'green', what:'firmó contrato',                ref:'#CON-0917',                who:'Carlos Ortega' },
-  { time:'hace 1 h',    tag:'Clientes',    tone:'blue',  what:'actualizó cliente',             ref:'Familia Hernández',        who:'María Reyes'   },
-  { time:'hace 2 h',    tag:'Órdenes',     tone:'green', what:'cobró orden',                   ref:'#ORD-2839',                who:'Laura Méndez'  },
-  { time:'hace 3 h',    tag:'Inventario',  tone:'gold',  what:'sincronizó inventario en',      ref:'Sucursal Polanco',         who:'Sistema'       },
-];
-
-/* =========================================================
    HELPERS
    ========================================================= */
-function el(tag, props, ...children) {
-  const n = document.createElement(tag);
-  if (props) for (const k in props) {
-    if (k === 'style' && typeof props[k] === 'object') Object.assign(n.style, props[k]);
-    else if (k.startsWith('on') && typeof props[k] === 'function') n.addEventListener(k.slice(2).toLowerCase(), props[k]);
-    else if (k === 'class') n.className = props[k];
-    else if (k === 'html') n.innerHTML = props[k];
-    else n.setAttribute(k, props[k]);
-  }
-  for (const c of children) if (c != null) n.append(c.nodeType ? c : document.createTextNode(c));
-  return n;
-}
-
 function sparklineSVG(data, color, w, h) {
   w = w || 60; h = h || 18;
-  if (!data || !data.length) return '';
+  if (!data || data.length < 2) return '';
   const min = Math.min(...data), max = Math.max(...data), span = max - min || 1;
   const step = w / (data.length - 1);
-  const pts = data.map((v, i) => [i*step, h - 2 - ((v - min)/span)*(h - 4)]);
-  const path = pts.map((p, i) => (i===0?'M':'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  const pts = data.map((v, i) => [i * step, h - 2 - ((v - min) / span) * (h - 4)]);
+  const path = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
   return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block;">
     <path d="${path}" fill="none" stroke="${color}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
     <circle cx="${pts[pts.length-1][0]}" cy="${pts[pts.length-1][1]}" r="2" fill="${color}"/>
@@ -255,148 +189,235 @@ function arrow(up, size) {
     : `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`;
 }
 
+function timeSince(dateStr) {
+  if (!dateStr) return '—';
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'ahora';
+  if (mins < 60) return `hace ${mins} min`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `hace ${hrs} h`;
+  return `hace ${Math.floor(hrs / 24)} d`;
+}
+
+const TIPO_LABEL = {
+  velacion_funeraria: 'Velación funeraria', velacion_domicilio: 'Velación domicilio',
+  inhumacion: 'Inhumación', exhumacion: 'Exhumación',
+  cremacion: 'Cremación', plan_futuro: 'Plan a futuro',
+};
+const ACCION_TONE = { CREATE: 'green', UPDATE: 'blue', DELETE: 'red', LOGIN: 'gold' };
+const ACCION_LABEL = { CREATE: 'Crear', UPDATE: 'Actualizar', DELETE: 'Eliminar', LOGIN: 'Login' };
+
 /* =========================================================
    RENDER
    ========================================================= */
-function renderKpis() {
-  const row = document.getElementById('kpi-row');
-  row.innerHTML = KPIS.map(k => {
-    const color = k.up ? '#15803d' : '#b91c1c';
-    return `
-      <div class="kpi">
-        <div class="kpi-label">${k.label}</div>
-        <div class="kpi-val">${k.val}</div>
-        <div class="kpi-foot">
-          <span class="delta ${k.up ? 'delta-up' : 'delta-down'}">${arrow(k.up)} ${k.delta}</span>
-          ${sparklineSVG(k.spark, color)}
-        </div>
-      </div>`;
-  }).join('');
+function renderDateHeader() {
+  const el = document.getElementById('dash-date');
+  if (el) el.textContent = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 }
 
-function renderSalesChart() {
-  const W = 760, H = 200, padL = 32, padR = 8, padT = 6, padB = 22;
-  const innerW = W - padL - padR, innerH = H - padT - padB;
-  const days = 30;
-  const series = [];
-  let v = 24;
-  for (let i = 0; i < days; i++) {
-    v += (Math.sin(i/2.1) * 4) + (i * 0.22) + (i === 12 ? 5 : 0);
-    series.push(Math.max(15, v));
-  }
-  const max = Math.max(...series);
-  const xStep = innerW / (days - 1);
-  const yScale = vv => padT + innerH - (vv / max) * innerH;
-  const linePath = series.map((vv, i) => (i===0?'M':'L') + (padL + i*xStep) + ',' + yScale(vv).toFixed(1)).join(' ');
-  const barW = innerW / days * 0.55;
+function renderBanner(kpis) {
+  const span = document.getElementById('banner-text');
+  if (span) span.innerHTML = `<b>${kpis.ordenes_activas ?? 0} órdenes activas</b> requieren seguimiento. <b>${kpis.stock_bajo ?? 0} productos</b> con stock bajo.`;
+}
 
-  const gridLines = [0, max/4, max/2, 3*max/4, max].map((vv, i) => `
-    <line x1="${padL}" x2="${W-padR}" y1="${yScale(vv)}" y2="${yScale(vv)}" stroke="#f1f1f1" stroke-width="1" ${i===0?'':'stroke-dasharray="2 3"'} />
-    <text x="${padL-6}" y="${yScale(vv)+3}" font-size="10" text-anchor="end" fill="#a1a1aa" style="font-variant-numeric:tabular-nums;">$${Math.round(vv*1.2)}k</text>
-  `).join('');
+function renderKpis(kpis) {
+  const items = [
+    { label: 'Ventas del mes',    val: fmt.currency(kpis.ventas_mes ?? 0),        up: true  },
+    { label: 'Órdenes activas',   val: String(kpis.ordenes_activas ?? 0),          up: true  },
+    { label: 'Contratos activos', val: String(kpis.contratos_activos ?? 0),        up: true  },
+    { label: 'Leads nuevos',      val: String(kpis.leads_nuevos ?? 0),             up: true  },
+    { label: 'Stock bajo',        val: String(kpis.stock_bajo ?? 0),               up: (kpis.stock_bajo ?? 0) === 0 },
+    { label: 'Productos activos', val: String(kpis.total_productos ?? 0),          up: true  },
+  ];
+  document.getElementById('kpi-row').innerHTML = items.map(k => `
+    <div class="kpi">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-val">${k.val}</div>
+      <div class="kpi-foot">
+        <span class="delta ${k.up ? 'delta-up' : 'delta-down'}" style="color:${k.up ? 'var(--green)' : 'var(--red)'};">${arrow(k.up)}</span>
+      </div>
+    </div>`).join('');
+}
+
+function renderSalesChart(data) {
+  const chartEl = document.getElementById('sales-chart');
+  const totalVal = document.getElementById('chart-total-val');
+  const totalDelta = document.getElementById('chart-total-delta');
+
+  if (!data || !data.length) {
+    chartEl.innerHTML = '<div style="height:200px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;">Sin datos de ventas en el periodo</div>';
+    if (totalVal) totalVal.textContent = fmt.currency(0);
+    if (totalDelta) totalDelta.style.display = 'none';
+    return;
+  }
+
+  const series = data.map(d => Number(d.total ?? 0));
+  const labels = data.map(d => {
+    const [y, m] = (d.mes ?? '').split('-');
+    return new Date(+y, +m - 1, 1).toLocaleDateString('es-MX', { month: 'short' });
+  });
+  const totalSum = series.reduce((a, b) => a + b, 0);
+  if (totalVal) totalVal.textContent = fmt.currency(totalSum);
+  if (totalDelta) totalDelta.style.display = 'none';
+
+  const W = 760, H = 200, padL = 40, padR = 8, padT = 6, padB = 22;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const max = Math.max(...series, 1);
+  const n = series.length;
+  const xStep = n > 1 ? innerW / (n - 1) : innerW;
+  const yScale = vv => padT + innerH - (vv / max) * innerH;
+  const linePath = series.map((vv, i) => (i === 0 ? 'M' : 'L') + (padL + i * xStep).toFixed(1) + ',' + yScale(vv).toFixed(1)).join(' ');
+  const barW = (innerW / n) * 0.5;
+
+  const gridLines = [0, max / 4, max / 2, 3 * max / 4, max].map((vv, i) => `
+    <line x1="${padL}" x2="${W - padR}" y1="${yScale(vv).toFixed(1)}" y2="${yScale(vv).toFixed(1)}" stroke="#f1f1f1" stroke-width="1" ${i === 0 ? '' : 'stroke-dasharray="2 3"'} />
+    <text x="${padL - 6}" y="${(yScale(vv) + 3).toFixed(1)}" font-size="10" text-anchor="end" fill="#a1a1aa">$${Math.round(vv / 1000)}k</text>`).join('');
 
   const bars = series.map((vv, i) => `
-    <rect x="${padL + i*xStep - barW/2}" y="${yScale(vv)}" width="${barW}" height="${innerH - (yScale(vv) - padT)}" fill="#f6f6f7"/>
-  `).join('');
+    <rect x="${(padL + i * xStep - barW / 2).toFixed(1)}" y="${yScale(vv).toFixed(1)}" width="${barW.toFixed(1)}" height="${(innerH - (yScale(vv) - padT)).toFixed(1)}" fill="#f6f6f7"/>`).join('');
 
-  const xLabels = [0,7,14,21,28].map((t, i) => {
-    const labels = ['May 01','May 08','May 15','May 22','May 29'];
-    return `<text x="${padL + t*xStep}" y="${H-6}" font-size="10" text-anchor="middle" fill="#a1a1aa">${labels[i]}</text>`;
+  const step = Math.max(1, Math.floor(n / 6));
+  const xLabels = labels.filter((_, i) => i % step === 0 || i === n - 1).map((lbl, idx, arr) => {
+    const origIdx = labels.indexOf(lbl);
+    return `<text x="${(padL + origIdx * xStep).toFixed(1)}" y="${H - 6}" font-size="10" text-anchor="middle" fill="#a1a1aa">${lbl}</text>`;
   }).join('');
 
-  document.getElementById('sales-chart').innerHTML = `
-    <svg viewBox="0 0 ${W} ${H}" width="100%" preserveAspectRatio="none" style="display:block;">
-      ${gridLines}
-      ${bars}
-      <path d="${linePath}" fill="none" stroke="#0a0a0a" stroke-width="1.5"/>
-      <circle cx="${padL + 12*xStep}" cy="${yScale(series[12])}" r="3" fill="#fff" stroke="#0a0a0a" stroke-width="1.5"/>
-      ${xLabels}
-    </svg>`;
+  chartEl.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" preserveAspectRatio="none" style="display:block;">
+    ${gridLines}${bars}
+    <path d="${linePath}" fill="none" stroke="#0a0a0a" stroke-width="1.5"/>
+    ${xLabels}
+  </svg>`;
 }
 
-function renderContracts() {
+function renderContracts(data) {
+  const total = data.reduce((s, d) => s + Number(d.total ?? 0), 0);
+  const sub = document.querySelector('#contracts-by-type')?.previousElementSibling?.querySelector?.('.section-sub');
+  if (sub) sub.textContent = `${total} vigentes`;
   const host = document.getElementById('contracts-by-type');
-  host.innerHTML = CONTRACTS.map((d, i) => `
-    <div style="padding:6px 0; ${i < CONTRACTS.length-1 ? 'border-bottom:1px solid var(--border-soft);' : ''}">
-      <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
-        <span style="color:var(--ink-soft); font-weight:500;">${d.type}</span>
-        <span style="color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums;">
-          ${d.val} <span style="color:var(--muted); font-weight:400; margin-left:4px;">(${d.pct}%)</span>
-        </span>
+  if (!data.length) { host.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:10px 0;">Sin contratos activos</div>'; return; }
+  host.innerHTML = data.map((d, i) => {
+    const pct = total > 0 ? Math.round((Number(d.total ?? 0) / total) * 100) : 0;
+    return `<div style="padding:6px 0;${i < data.length - 1 ? 'border-bottom:1px solid var(--border-soft);' : ''}">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+        <span style="color:var(--ink-soft);font-weight:500;">${TIPO_LABEL[d.tipo] ?? d.tipo}</span>
+        <span style="color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">${d.total} <span style="color:var(--muted);font-weight:400;margin-left:4px;">(${pct}%)</span></span>
       </div>
-      <div class="mini-bar ${i === 1 ? 'gold' : ''}"><i style="width:${d.pct}%;"></i></div>
-    </div>
-  `).join('');
-}
-
-function renderAttention() {
-  const host = document.getElementById('attention-list');
-  host.innerHTML = ATTENTION.map(a => `
-    <div style="display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-top:1px solid var(--border-soft);">
-      <span class="pill pill-${a.tone}">${a.tag}</span>
-      <div style="flex:1; min-width:0;">
-        <div style="font-size:12.5px; font-weight:600; color:var(--ink);">${a.title}</div>
-        <div style="font-size:11px; color:var(--muted); margin-top:2px;">${a.meta}</div>
-      </div>
-      <button class="btn" style="padding:3px 8px; font-size:11.5px;">${a.cta} →</button>
-    </div>
-  `).join('');
-}
-
-function renderBranches() {
-  const max = Math.max(...BRANCHES.map(b => b.val));
-  document.getElementById('branches-list').innerHTML = BRANCHES.map((b, i) => {
-    const pct = (b.val / max) * 100;
-    return `
-      <div style="display:grid; grid-template-columns:120px 1fr 50px; align-items:center; gap:12px; padding:5px 0;">
-        <span style="font-size:11.5px; color:var(--ink-soft);">${b.city}</span>
-        <div class="mini-bar ${i === 0 ? 'gold' : ''}" style="height:6px;"><i style="width:${pct}%;"></i></div>
-        <span style="font-size:11.5px; font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; text-align:right;">$${b.val}k</span>
-      </div>`;
+      <div class="mini-bar ${i === 1 ? 'gold' : ''}"><i style="width:${pct}%;"></i></div>
+    </div>`;
   }).join('');
 }
 
-function renderTopProducts() {
-  document.querySelector('#top-products-table tbody').innerHTML = TOP_PRODUCTS.map(p => `
-    <tr>
-      <td style="width:24px; color:var(--light); font-variant-numeric:tabular-nums; font-size:11px;">${String(p.rank).padStart(2,'0')}</td>
-      <td>
-        <div class="row-name" style="font-size:12px;">${p.name}</div>
-        <div class="row-sub">${p.cat}</div>
-      </td>
-      <td style="text-align:right; font-variant-numeric:tabular-nums; font-weight:600; font-size:12px;">${p.sold}</td>
-      <td style="text-align:right; font-size:11px; font-weight:600; color:${p.trend.startsWith('−') ? 'var(--red)' : 'var(--green)'};">${p.trend}</td>
-    </tr>
-  `).join('');
+function renderAttention(kpis) {
+  const items = [];
+  if ((kpis.ordenes_activas ?? 0) > 0)
+    items.push({ tag: 'Órdenes',   tone: 'amber', title: `${kpis.ordenes_activas} órdenes activas`,       meta: 'Pendientes de atención',           href: 'ordenes.html',    cta: 'Revisar' });
+  if ((kpis.stock_bajo ?? 0) > 0)
+    items.push({ tag: 'Stock',     tone: 'red',   title: `${kpis.stock_bajo} productos con stock bajo`,   meta: 'Requieren reposición',             href: 'inventario.html', cta: 'Reponer' });
+  if ((kpis.leads_nuevos ?? 0) > 0)
+    items.push({ tag: 'Leads',     tone: 'blue',  title: `${kpis.leads_nuevos} leads sin atender`,        meta: 'Prospectos esperando respuesta',   href: 'leads.html',      cta: 'Asignar' });
+  if ((kpis.contratos_activos ?? 0) > 0)
+    items.push({ tag: 'Contratos', tone: 'green', title: `${kpis.contratos_activos} contratos activos`,   meta: 'Firmados o en curso',              href: 'contratos.html',  cta: 'Ver'     });
+
+  const sub = document.querySelector('#attention-col .section-sub');
+  if (sub) sub.textContent = `${items.length} elemento${items.length !== 1 ? 's' : ''} · por urgencia`;
+
+  const host = document.getElementById('attention-list');
+  host.innerHTML = items.length
+    ? items.map(a => `
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-top:1px solid var(--border-soft);">
+          <span class="pill pill-${a.tone}">${a.tag}</span>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:12.5px;font-weight:600;color:var(--ink);">${a.title}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">${a.meta}</div>
+          </div>
+          <a href="${a.href}" class="btn" style="padding:3px 8px;font-size:11.5px;">${a.cta} →</a>
+        </div>`).join('')
+    : '<div style="color:var(--muted);font-size:12px;padding:10px 0;text-align:center;">Sin alertas activas</div>';
 }
 
-function renderActivity() {
-  document.getElementById('activity-table').innerHTML = ACTIVITY.map(a => `
-    <tr>
-      <td style="color:var(--muted); font-variant-numeric:tabular-nums;">${a.time}</td>
-      <td><span class="pill pill-${a.tone}">${a.tag}</span></td>
-      <td>${a.what}</td>
-      <td><span style="font-weight:600; color:var(--ink);">${a.ref}</span></td>
-      <td style="color:var(--muted);">${a.who}</td>
-      <td style="text-align:right;">
-        <button class="icon-btn" aria-label="Abrir">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        </button>
-      </td>
-    </tr>
-  `).join('');
+function renderBranches(data) {
+  const sorted = [...data]
+    .map(b => ({ ...b, _total: Number(b.ventas_ordenes ?? 0) + Number(b.ventas_contratos ?? 0) }))
+    .sort((a, b) => b._total - a._total).slice(0, 7);
+  const max = Math.max(...sorted.map(b => b._total), 1);
+  document.getElementById('branches-list').innerHTML = sorted.length
+    ? sorted.map((b, i) => {
+        const pct = (b._total / max) * 100;
+        const k = (b._total / 1000).toFixed(0);
+        return `<div style="display:grid;grid-template-columns:120px 1fr 50px;align-items:center;gap:12px;padding:5px 0;">
+          <span style="font-size:11.5px;color:var(--ink-soft);" title="${b.sucursal ?? ''} · ${b.ciudad ?? ''}">${b.sucursal ?? b.nombre ?? '—'}</span>
+          <div class="mini-bar ${i === 0 ? 'gold' : ''}" style="height:6px;"><i style="width:${pct.toFixed(1)}%;"></i></div>
+          <span style="font-size:11.5px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;text-align:right;">$${k}k</span>
+        </div>`;
+      }).join('')
+    : '<div style="color:var(--muted);font-size:12px;padding:10px 0;">Sin datos de sucursales</div>';
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function renderTopProducts(data) {
+  document.querySelector('#top-products-table tbody').innerHTML = data.length
+    ? data.slice(0, 5).map((p, i) => `
+        <tr>
+          <td style="width:24px;color:var(--light);font-variant-numeric:tabular-nums;font-size:11px;">${String(i + 1).padStart(2, '0')}</td>
+          <td>
+            <div class="row-name" style="font-size:12px;">${p.nombre ?? '—'}</div>
+            <div class="row-sub">${p.categoria ?? '—'}</div>
+          </td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600;font-size:12px;">${p.unidades_vendidas ?? 0}</td>
+          <td></td>
+        </tr>`).join('')
+    : '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--muted);">Sin ventas registradas</td></tr>';
+}
+
+function renderActivity(data) {
+  document.getElementById('activity-table').innerHTML = data.length
+    ? data.map(l => `
+        <tr>
+          <td style="color:var(--muted);font-variant-numeric:tabular-nums;">${timeSince(l.createdAt)}</td>
+          <td><span class="pill pill-${ACCION_TONE[l.accion] ?? 'gray'}">${l.entidad ?? '—'}</span></td>
+          <td>${ACCION_LABEL[l.accion] ?? l.accion}</td>
+          <td><span style="font-weight:600;color:var(--ink);">#${l.entidad_id ?? '—'}</span></td>
+          <td style="color:var(--muted);">${l.user_email ?? 'Sistema'}</td>
+          <td></td>
+        </tr>`).join('')
+    : '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted);">Sin actividad reciente</td></tr>';
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+async function init() {
   if (window.AdminLayout) window.AdminLayout.setPageTitle('Dashboard');
-  renderKpis();
-  renderSalesChart();
-  renderContracts();
-  renderAttention();
-  renderBranches();
-  renderTopProducts();
-  renderActivity();
-});
+  renderDateHeader();
+
+  const now = new Date();
+  const desde = new Date(now.getFullYear() - 1, now.getMonth(), 1).toISOString().slice(0, 10);
+  const hasta = now.toISOString().slice(0, 10);
+
+  try {
+    const [kpis, activity, salesByBranch, topProducts, contractsByType, salesMonthly] = await Promise.all([
+      Api.get('/admin/dashboard/kpis').catch(() => ({})),
+      Api.get('/admin/dashboard/activity').catch(() => []),
+      Api.get('/admin/dashboard/sales-by-branch').catch(() => []),
+      Api.get('/admin/dashboard/top-products').catch(() => []),
+      Api.get('/admin/dashboard/contracts-by-type').catch(() => []),
+      Api.get(`/admin/reportes/ventas-mensuales?desde=${desde}&hasta=${hasta}`).catch(() => []),
+    ]);
+
+    renderBanner(kpis);
+    renderKpis(kpis);
+    renderSalesChart(salesMonthly);
+    renderContracts(contractsByType);
+    renderAttention(kpis);
+    renderBranches(salesByBranch);
+    renderTopProducts(topProducts);
+    renderActivity(activity);
+  } catch (e) {
+    Toast.show('Error cargando dashboard: ' + e.message, 'error');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>

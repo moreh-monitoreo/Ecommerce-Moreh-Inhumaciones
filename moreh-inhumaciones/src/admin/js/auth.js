@@ -13,14 +13,10 @@ if (!PUBLIC_PAGES.includes(currentPage) && !Api.token()) {
 async function loadUserInfo() {
   try {
     const user = await Api.get('/auth/me');
-    const role = user.role?.nombre ?? 'Admin';
-    const initials = user.nombre?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() ?? 'U';
-    const nameEl = document.getElementById('sidebar-user-name');
-    const roleEl = document.getElementById('sidebar-user-role');
-    const avatarEl = document.getElementById('sidebar-avatar');
-    if (nameEl) nameEl.textContent = user.nombre;
-    if (roleEl) roleEl.textContent = role;
-    if (avatarEl) avatarEl.textContent = initials;
+    const name = user.nombre ?? user.email ?? '';
+    const email = user.email ?? '';
+    const initials = name.split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase() || 'U';
+    if (window.AdminLayout) window.AdminLayout.setUser(name, email, initials);
   } catch {}
 }
 
