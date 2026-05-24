@@ -1,6 +1,7 @@
 import { Op } from 'sequelize';
 import { Producto, ProductImage, ProductVariant, Inventory } from '../../models';
 import { HttpError } from '../../utils/HttpError';
+import { deleteFromFirebase } from './upload.service';
 
 export const productoAdminService = {
   async list(query: { categoria?: string; search?: string; activo?: string }) {
@@ -50,6 +51,7 @@ export const productoAdminService = {
   async removeImage(imageId: number) {
     const img = await ProductImage.findByPk(imageId);
     if (!img) throw HttpError.notFound('Imagen no encontrada');
+    await deleteFromFirebase(img.url);
     await img.destroy();
   },
 

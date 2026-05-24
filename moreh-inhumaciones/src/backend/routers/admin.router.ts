@@ -1,8 +1,10 @@
 import { Router, Request, Response, NextFunction } from 'express';
+import multer from 'multer';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { requirePermission } from '../middlewares/rbac.middleware';
 import { auditMiddleware } from '../middlewares/audit.middleware';
 import { HttpError } from '../utils/HttpError';
+import { uploadToFirebase } from '../services/admin/upload.service';
 
 // Services
 import { userService } from '../services/admin/user.service';
@@ -18,6 +20,16 @@ import { reportesService } from '../services/admin/reportes.service';
 import { Category } from '../models';
 
 const router = Router();
+
+// ── Upload de imágenes (multer memoryStorage → Firebase Storage) ──────────────
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (/^image\//.test(file.mimetype)) cb(null, true);
+    else cb(new Error('Solo se permiten imágenes'));
+  },
+});
 
 // Todos los endpoints admin requieren autenticación
 router.use(authMiddleware);
@@ -88,6 +100,15 @@ router.delete('/categorias/:id', requirePermission('productos', 'eliminar'), wra
   await c.destroy();
   ok(res, { ok: true });
 }));
+
+// ─── Upload imágenes → Firebase Storage ──────────────────────────────────────
+router.post('/upload', requirePermission('productos', 'editar'), upload.single('file'),
+  wrap(async (req, res) => {
+    if (!req.file) { res.status(400).json({ error: 'Sin archivo' }); return; }
+    const url = await uploadToFirebase(req.file.buffer, req.file.originalname, req.file.mimetype);
+    res.json({ url });
+  })
+);
 
 // ─── Productos (admin) ────────────────────────────────────────────────────────
 router.get('/productos', requirePermission('productos', 'ver'), wrap(async (req, res) => ok(res, await productoAdminService.list(req.query as never))));

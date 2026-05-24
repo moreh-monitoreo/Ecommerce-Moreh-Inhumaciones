@@ -11,6 +11,50 @@
   <script src="../js/api.js"></script>
   <script src="../js/layout.js" defer></script>
   <script src="../js/auth.js"></script>
+  <style>
+    /* ── galería de imágenes ─────────────────────────── */
+    .img-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:10px; }
+    .img-card {
+      position:relative; border-radius:var(--r-md); overflow:hidden;
+      border:1.5px solid var(--border); background:var(--surface-alt);
+      aspect-ratio:1/1;
+    }
+    .img-card img { width:100%; height:100%; object-fit:cover; display:block; }
+    .img-card.img-main { border-color:var(--ink); box-shadow:0 0 0 2px var(--ink); }
+    .img-card-label {
+      position:absolute; bottom:0; left:0; right:0;
+      background:rgba(0,0,0,.55); color:#fff; font-size:10px;
+      font-weight:600; text-align:center; padding:3px 0; letter-spacing:.03em;
+    }
+    .img-card-del {
+      position:absolute; top:4px; right:4px;
+      background:rgba(0,0,0,.6); color:#fff; border:0; border-radius:50%;
+      width:22px; height:22px; cursor:pointer; display:flex;
+      align-items:center; justify-content:center; opacity:0;
+      transition:opacity .15s;
+    }
+    .img-card:hover .img-card-del { opacity:1; }
+    .img-card-empty {
+      display:flex; flex-direction:column; align-items:center;
+      justify-content:center; gap:6px; color:var(--light);
+      font-size:11px; text-align:center; padding:8px;
+    }
+    .img-add-btn {
+      border:1.5px dashed var(--border); border-radius:var(--r-md);
+      background:var(--bg); display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:6px;
+      color:var(--muted); font-size:11.5px; font-weight:500;
+      cursor:pointer; aspect-ratio:1/1; transition:border-color .15s, color .15s;
+    }
+    .img-add-btn:hover { border-color:var(--ink); color:var(--ink); }
+    .img-url-row { display:flex; gap:8px; align-items:flex-end; margin-top:12px; }
+    .img-url-row .form-control { flex:1; }
+    .img-preview-strip { display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
+    .img-preview-thumb {
+      width:56px; height:56px; object-fit:cover; border-radius:6px;
+      border:1.5px solid var(--border);
+    }
+  </style>
 </head>
 <body>
 
@@ -57,7 +101,7 @@
         <option value="true">Activo</option>
         <option value="false">Inactivo</option>
       </select>
-      <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
+      <div style="margin-left:auto;">
         <span style="font-size:11.5px; color:var(--muted);" id="lbl-count">—</span>
       </div>
     </div>
@@ -66,15 +110,15 @@
       <thead>
         <tr>
           <th style="width:28px;"><input type="checkbox" id="chk-all" /></th>
-          <th style="width:60px;">ID</th>
+          <th style="width:56px;">ID</th>
           <th>Producto</th>
-          <th style="width:90px;">Categoría</th>
-          <th style="width:120px; text-align:right;">Precio base</th>
+          <th style="width:88px;">Categoría</th>
+          <th style="width:118px; text-align:right;">Precio base</th>
           <th style="width:90px;">Material</th>
-          <th style="width:100px; text-align:center;">Variantes</th>
-          <th style="width:80px; text-align:right;">Stock</th>
-          <th style="width:110px;">Estado</th>
-          <th style="width:110px; text-align:right;">Acciones</th>
+          <th style="width:95px; text-align:center;">Variantes</th>
+          <th style="width:75px; text-align:right;">Stock</th>
+          <th style="width:100px;">Estado</th>
+          <th style="width:120px; text-align:right;">Acciones</th>
         </tr>
       </thead>
       <tbody id="tbody">
@@ -90,19 +134,21 @@
   </div>
 </div>
 
-<!-- ── Modal: Producto ────────────────────────────────── -->
+<!-- ══════════════════════════════════════════════════════════
+     Modal: Producto (datos básicos)
+══════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="modal">
   <div class="modal-box modal-lg">
     <div class="modal-head">
       <h4 class="modal-title" id="modal-title">Nuevo producto</h4>
-      <button class="modal-close" onclick="closeModal()" aria-label="Cerrar">✕</button>
+      <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="field-id" />
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Nombre *</label>
-          <input class="form-control" id="field-nombre" type="text" placeholder="Ej. Ataúd Metálico Cobre" />
+          <input class="form-control" id="field-nombre" placeholder="Ej. Ataúd Metálico Cobre" />
         </div>
         <div class="form-group">
           <label class="form-label">Categoría *</label>
@@ -119,7 +165,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">Material</label>
-          <input class="form-control" id="field-material" type="text" placeholder="Metálico, Madera..." />
+          <input class="form-control" id="field-material" placeholder="Metálico, Madera..." />
         </div>
         <div class="form-group">
           <label class="form-label">Stock</label>
@@ -129,10 +175,6 @@
       <div class="form-group">
         <label class="form-label">Descripción</label>
         <textarea class="form-control" id="field-descripcion" rows="3" placeholder="Descripción del producto..."></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">URL de imagen</label>
-        <input class="form-control" id="field-imagen_url" type="text" placeholder="https://... o /img/producto.webp" />
       </div>
       <div class="form-group" id="group-activo" style="display:none;">
         <label class="form-label">Estado</label>
@@ -149,37 +191,138 @@
   </div>
 </div>
 
-<!-- ── Modal: Variantes ───────────────────────────────── -->
+<!-- ══════════════════════════════════════════════════════════
+     Modal: Imágenes del producto
+══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-imgs">
+  <div class="modal-box modal-lg">
+    <div class="modal-head">
+      <div>
+        <h4 class="modal-title" id="img-product-name">Imágenes</h4>
+        <div style="font-size:11.5px; color:var(--muted); margin-top:2px;" id="img-product-sub">—</div>
+      </div>
+      <button class="modal-close" onclick="closeImgs()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Imagen principal -->
+      <div style="margin-bottom:20px;">
+        <div class="section-h" style="margin-bottom:10px;">
+          <div class="section-title">Imagen principal</div>
+          <div class="section-sub">Se muestra como foto destacada del producto</div>
+        </div>
+        <div style="display:flex; gap:14px; align-items:flex-start;">
+          <div id="main-img-preview" style="
+            width:88px; height:88px; border-radius:var(--r-md);
+            border:1.5px solid var(--border); background:var(--surface-alt);
+            flex-shrink:0; overflow:hidden; display:flex; align-items:center; justify-content:center;
+            color:var(--light); font-size:11px; cursor:pointer;"
+            onclick="document.getElementById('main-file-input').click()" title="Clic para cambiar imagen">
+            Sin imagen
+          </div>
+          <div style="flex:1;">
+            <input type="file" id="main-file-input" accept="image/*" style="display:none;" onchange="onMainFileSelect(this)" />
+            <label class="form-label">Imagen principal</label>
+            <div style="display:flex; gap:8px; margin-top:4px;">
+              <button class="btn" type="button" onclick="document.getElementById('main-file-input').click()"
+                style="white-space:nowrap; flex-shrink:0; display:flex; align-items:center; gap:5px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Seleccionar archivo
+              </button>
+              <input class="form-control" id="field-imagen_url" placeholder="o pega una URL directamente..."
+                oninput="previewMain(this.value); mainFileSelected=null;" style="min-width:0;" />
+              <button class="btn btn-primary" onclick="saveMainImg()" style="white-space:nowrap; flex-shrink:0;">Guardar</button>
+            </div>
+            <div id="main-file-name" style="font-size:11.5px; color:var(--muted); margin-top:5px;">
+              Recomendado: 800×800 px · .webp, .jpg o .png · máx. 5 MB
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid var(--border-soft); margin-bottom:18px;"></div>
+
+      <!-- Imágenes secundarias -->
+      <div>
+        <div class="section-h" style="margin-bottom:12px;">
+          <div class="section-title">Galería de imágenes</div>
+          <div class="section-sub">
+            Fotos adicionales que forman el catálogo del producto
+            (<span id="img-count">0</span> imagen<span id="img-count-s">es</span>)
+          </div>
+        </div>
+
+        <div class="img-grid" id="img-grid">
+          <!-- renderizado por JS -->
+        </div>
+
+        <!-- Agregar imagen secundaria -->
+        <div style="margin-top:16px; border:1px solid var(--border); border-radius:var(--r-lg); padding:14px; background:var(--bg);">
+          <div style="font-size:11.5px; font-weight:600; color:var(--ink-soft); margin-bottom:10px;">
+            Agregar imagen al catálogo
+          </div>
+          <input type="file" id="new-file-input" accept="image/*" style="display:none;" onchange="onNewFileSelect(this)" />
+          <div style="display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap;">
+            <div style="flex:1; min-width:180px;">
+              <label class="form-label">Imagen</label>
+              <div style="display:flex; gap:6px; margin-top:4px;">
+                <button class="btn" type="button" onclick="document.getElementById('new-file-input').click()"
+                  style="white-space:nowrap; flex-shrink:0; display:flex; align-items:center; gap:5px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  Seleccionar
+                </button>
+                <input class="form-control" id="new-img-url" placeholder="o pega URL directamente..."
+                  oninput="previewNewImg(this.value); newFileSelected=null;" style="min-width:0;" />
+              </div>
+            </div>
+            <div style="width:70px; flex-shrink:0;">
+              <label class="form-label">Orden</label>
+              <input class="form-control" id="new-img-orden" type="number" value="0" min="0" style="text-align:center;" />
+            </div>
+            <button class="btn btn-primary" onclick="addSecondaryImg()" style="white-space:nowrap; flex-shrink:0; align-self:flex-end;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Agregar
+            </button>
+          </div>
+          <div id="new-img-preview-wrap" style="margin-top:8px; display:none;">
+            <div style="font-size:11px; color:var(--muted); margin-bottom:6px;">Vista previa:</div>
+            <img id="new-img-preview" class="img-preview-thumb" src="" alt="" onerror="this.style.display='none'" />
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-primary" onclick="closeImgs()">Listo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     Modal: Variantes
+══════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="modal-variantes">
   <div class="modal-box modal-lg">
     <div class="modal-head">
       <div>
         <h4 class="modal-title" id="var-product-name">Variantes</h4>
         <div style="font-size:11.5px; color:var(--muted); margin-top:2px;">
-          Precio base del producto: <b id="var-precio-base">—</b>
+          Precio base: <b id="var-precio-base">—</b>
         </div>
       </div>
-      <button class="modal-close" onclick="closeVariantes()" aria-label="Cerrar">✕</button>
+      <button class="modal-close" onclick="closeVariantes()">✕</button>
     </div>
     <div class="modal-body">
-
-      <!-- Explicación -->
       <div class="banner banner-blue" style="margin-bottom:16px;">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         Las variantes permiten ofrecer el mismo producto con distintos servicios y precios. Ej: <b>Velación en Domicilio</b> vs <b>Velación en Funeraria</b>.
       </div>
-
-      <!-- Lista de variantes existentes -->
       <div id="var-list" style="margin-bottom:20px;"></div>
-
-      <!-- Formulario agregar/editar variante -->
       <div style="border:1px solid var(--border); border-radius:var(--r-lg); padding:16px; background:var(--bg);">
-        <div style="font-size:12px; font-weight:600; color:var(--ink); margin-bottom:12px; letter-spacing:.02em; text-transform:uppercase;" id="var-form-title">
-          Nueva variante
-        </div>
+        <div style="font-size:12px; font-weight:600; color:var(--ink); margin-bottom:12px; letter-spacing:.02em; text-transform:uppercase;" id="var-form-title">Nueva variante</div>
         <input type="hidden" id="var-field-id" />
         <div class="form-row cols-3">
-          <div class="form-group" style="grid-column: span 2;">
+          <div class="form-group" style="grid-column:span 2;">
             <label class="form-label">Nombre de la variante *</label>
             <input class="form-control" id="var-field-nombre" placeholder="Ej. Velación en Funeraria" />
           </div>
@@ -191,11 +334,11 @@
         <div class="form-row cols-3">
           <div class="form-group">
             <label class="form-label">Stock</label>
-            <input class="form-control" id="var-field-stock" type="number" placeholder="0" value="0" />
+            <input class="form-control" id="var-field-stock" type="number" value="0" />
           </div>
           <div class="form-group">
-            <label class="form-label">Orden (visualización)</label>
-            <input class="form-control" id="var-field-orden" type="number" placeholder="0" value="0" />
+            <label class="form-label">Orden</label>
+            <input class="form-control" id="var-field-orden" type="number" value="0" />
           </div>
           <div class="form-group" id="var-group-activo" style="display:none;">
             <label class="form-label">Estado</label>
@@ -226,34 +369,70 @@ let allProducts = [];
 let page = 1;
 let editingId = null;
 
+// imágenes
+let imgProductId   = null;
+let imgProductData = null;
+let mainFileSelected = null;  // File object seleccionado para imagen principal
+let newFileSelected  = null;  // File object seleccionado para galería
+
+const API_BASE = (window.MOREH_API ?? 'http://localhost:3000') + '/api';
+
+async function uploadFile(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  const r = await fetch(`${API_BASE}/admin/upload`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${localStorage.getItem('moreh_token')}` },
+    body: fd,
+  });
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({}));
+    throw new Error(err.error ?? 'Error al subir imagen');
+  }
+  return (await r.json()).url;
+}
+
 // variantes
 let varProductId   = null;
 let varEditingId   = null;
 let variantesCache = [];
 
-const CAT_LABEL  = { ataud: 'Ataúd', urna: 'Urna' };
-const varIcon    = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`;
-const editIcon   = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
-const trashIcon  = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>`;
+const CAT_LABEL = { ataud: 'Ataúd', urna: 'Urna' };
 
-/* ── helpers ──────────────────────────────────────────────── */
+const imgIcon  = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
+const varIcon  = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`;
+const editIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+const trashIcon= `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>`;
+const delCircle= `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+
+/* ── helpers ─────────────────────────────────────────── */
 function statusEl(p) {
   if (!p.activo)        return '<span class="status status-off">Inactivo</span>';
   if (p.stock === 0)    return '<span class="status status-out">Agotado</span>';
-  if ((p.stock??0) <=5) return '<span class="status status-low">Stock bajo</span>';
+  if ((p.stock??0)<=5)  return '<span class="status status-low">Stock bajo</span>';
   return '<span class="status status-ok">Activo</span>';
 }
 function stockColor(p) {
-  if (p.stock === 0 || p.stock === null) return 'var(--red)';
+  if (!p.stock) return 'var(--red)';
   if (p.stock <= 5) return 'var(--amber)';
   return 'var(--ink)';
+}
+
+function imgBadge(p) {
+  const imgs = (p.imagenes ?? []);
+  const main = p.imagen_url ? 1 : 0;
+  const total = main + imgs.length;
+  const color = total === 0 ? 'color:var(--light);' : '';
+  return `<span style="font-size:11.5px; ${color} cursor:pointer;" onclick="openImgs(${p.id})">
+    ${imgIcon} ${total === 0 ? 'Sin fotos' : total + ' foto' + (total>1?'s':'')}
+  </span>`;
 }
 
 function rowHTML(p) {
   const imgSrc = p.imagen_url ?? (p.imagenes?.[0]?.url ?? '');
   const thumb  = imgSrc
-    ? `<img src="${imgSrc}" style="width:32px;height:32px;object-fit:cover;border-radius:4px;border:1px solid var(--border);" onerror="this.style.display='none'" />`
-    : `<div style="width:32px;height:32px;border-radius:4px;background:var(--surface-alt);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--light);font-size:10px;">IMG</div>`;
+    ? `<img src="${imgSrc}" style="width:36px;height:36px;object-fit:cover;border-radius:5px;border:1px solid var(--border);flex-shrink:0;" onerror="this.style.display='none'" />`
+    : `<div style="width:36px;height:36px;border-radius:5px;background:var(--surface-alt);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${imgIcon}</div>`;
 
   const varCount = p.variantes?.length ?? 0;
   const varBadge = varCount > 0
@@ -269,331 +448,431 @@ function rowHTML(p) {
           ${thumb}
           <div>
             <div class="row-name">${p.nombre}</div>
-            <div class="row-sub">SKU MRH-${p.id}</div>
+            <div class="row-sub" style="display:flex; align-items:center; gap:6px;">
+              ${imgBadge(p)}
+            </div>
           </div>
         </div>
       </td>
-      <td><span class="pill pill-${p.categoria === 'ataud' ? 'blue' : 'gold'}">${CAT_LABEL[p.categoria] ?? p.categoria}</span></td>
+      <td><span class="pill pill-${p.categoria==='ataud'?'blue':'gold'}">${CAT_LABEL[p.categoria]??p.categoria}</span></td>
       <td style="text-align:right; font-variant-numeric:tabular-nums; font-weight:600;">${fmt.currency(p.precio)}</td>
-      <td style="color:var(--muted);">${p.material ?? '—'}</td>
+      <td style="color:var(--muted);">${p.material??'—'}</td>
       <td style="text-align:center;">${varBadge}</td>
-      <td style="text-align:right; font-variant-numeric:tabular-nums; font-weight:500; color:${stockColor(p)};">${p.stock ?? 0}</td>
+      <td style="text-align:right; font-variant-numeric:tabular-nums; font-weight:500; color:${stockColor(p)};">${p.stock??0}</td>
       <td>${statusEl(p)}</td>
       <td>
         <div class="row-actions">
+          <button class="icon-btn" title="Imágenes" onclick="openImgs(${p.id})" style="color:var(--ink-soft);">${imgIcon}</button>
           <button class="icon-btn" title="Variantes" onclick="openVariantes(${p.id})" style="color:var(--blue,#2563eb);">${varIcon}</button>
           <button class="icon-btn" title="Editar" onclick="openEdit(${p.id})">${editIcon}</button>
-          <button class="icon-btn" title="Eliminar" onclick="remove(${p.id},'${p.nombre.replace(/'/g,"\\'")}')" style="color:var(--red);">${trashIcon}</button>
+          <button class="icon-btn" title="Eliminar" onclick="remove(${p.id},'${p.nombre.replace(/'/g,"\\'")}')'" style="color:var(--red);">${trashIcon}</button>
         </div>
       </td>
     </tr>`;
 }
 
-/* ── filtros y paginación ─────────────────────────────────── */
+/* ── filtros + paginación ────────────────────────────── */
 function filtered() {
-  const q    = (document.getElementById('filter-q').value || '').toLowerCase();
-  const cat  = document.getElementById('filter-cat').value;
-  const stat = document.getElementById('filter-status').value;
+  const q   = (document.getElementById('filter-q').value||'').toLowerCase();
+  const cat = document.getElementById('filter-cat').value;
+  const st  = document.getElementById('filter-status').value;
   return allProducts.filter(p => {
-    if (q && !p.nombre.toLowerCase().includes(q) && !String(p.id).includes(q) && !(p.material ?? '').toLowerCase().includes(q)) return false;
-    if (cat  && p.categoria !== cat) return false;
-    if (stat === 'true'  && !p.activo) return false;
-    if (stat === 'false' &&  p.activo) return false;
+    if (q && !p.nombre.toLowerCase().includes(q) && !String(p.id).includes(q) && !(p.material??'').toLowerCase().includes(q)) return false;
+    if (cat && p.categoria !== cat) return false;
+    if (st==='true'  && !p.activo) return false;
+    if (st==='false' &&  p.activo) return false;
     return true;
   });
 }
 
 function renderStats(prods) {
   document.getElementById('meta-total').textContent   = prods.length;
-  document.getElementById('meta-activos').textContent = prods.filter(p => p.activo).length;
-  document.getElementById('meta-low').textContent     = prods.filter(p => p.activo && (p.stock??0)>0 && (p.stock??0)<=5).length;
-  document.getElementById('meta-out').textContent     = prods.filter(p => p.activo && p.stock===0).length;
+  document.getElementById('meta-activos').textContent = prods.filter(p=>p.activo).length;
+  document.getElementById('meta-low').textContent     = prods.filter(p=>p.activo&&(p.stock??0)>0&&(p.stock??0)<=5).length;
+  document.getElementById('meta-out').textContent     = prods.filter(p=>p.activo&&p.stock===0).length;
 }
 
 function renderTable() {
-  const rows = filtered();
+  const rows  = filtered();
   const total = rows.length;
-  const start = (page - 1) * PER_PAGE;
-  const pageRows = rows.slice(start, start + PER_PAGE);
-  const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
-
-  document.getElementById('lbl-count').textContent = `${total} resultado${total !== 1 ? 's' : ''}`;
-  document.getElementById('foot-summary').textContent =
-    total ? `Mostrando ${start + 1} — ${Math.min(start + PER_PAGE, total)} de ${total}` : '0 resultados';
-
-  const tbody = document.getElementById('tbody');
-  tbody.innerHTML = pageRows.length
-    ? pageRows.map(rowHTML).join('')
-    : `<tr><td colspan="10"><div class="empty-state"><h3>Sin resultados</h3><p>Prueba otros términos o limpia los filtros.</p></div></td></tr>`;
-
-  renderPagination(page, totalPages);
+  const start = (page-1)*PER_PAGE;
+  const pg    = rows.slice(start, start+PER_PAGE);
+  const pages = Math.max(1, Math.ceil(total/PER_PAGE));
+  document.getElementById('lbl-count').textContent = `${total} resultado${total!==1?'s':''}`;
+  document.getElementById('foot-summary').textContent = total
+    ? `Mostrando ${start+1} — ${Math.min(start+PER_PAGE,total)} de ${total}` : '0 resultados';
+  document.getElementById('tbody').innerHTML = pg.length
+    ? pg.map(rowHTML).join('')
+    : `<tr><td colspan="10"><div class="empty-state"><h3>Sin resultados</h3><p>Prueba otros términos.</p></div></td></tr>`;
+  renderPagination(page, pages);
 }
 
 function renderPagination(cur, total) {
   const pg = document.getElementById('pagination');
-  if (total <= 1) { pg.innerHTML = ''; return; }
-  const btn = (n, label, ghost) =>
-    `<button class="btn ${ghost ? 'btn-ghost' : ''}" style="padding:3px 7px;font-size:11.5px;" onclick="goPage(${n})">${label ?? n}</button>`;
-  let html = btn(cur - 1, '← Anterior', true);
-  for (let i = 1; i <= total; i++) {
-    if (total > 7 && i > 2 && i < total - 1 && Math.abs(i - cur) > 1) {
-      if (i === 3 || i === total - 2) html += `<span style="color:var(--light);padding:0 2px;">…</span>`;
-    } else {
-      html += `<button class="btn ${i === cur ? '' : 'btn-ghost'}" style="padding:3px 7px;font-size:11.5px;" onclick="goPage(${i})">${i}</button>`;
-    }
+  if (total<=1) { pg.innerHTML=''; return; }
+  const b = (n,lbl,ghost) => `<button class="btn ${ghost?'btn-ghost':''}" style="padding:3px 7px;font-size:11.5px;" onclick="goPage(${n})">${lbl??n}</button>`;
+  let h = b(cur-1,'← Ant.',true);
+  for (let i=1;i<=total;i++) {
+    if (total>7&&i>2&&i<total-1&&Math.abs(i-cur)>1) { if(i===3||i===total-2) h+=`<span style="color:var(--light);">…</span>`; }
+    else h+=b(i,i,i!==cur);
   }
-  html += btn(cur + 1, 'Siguiente →', true);
-  pg.innerHTML = html;
-  document.querySelector('#pagination button:first-child').disabled = cur <= 1;
-  document.querySelector('#pagination button:last-child').disabled  = cur >= total;
+  h+=b(cur+1,'Sig. →',true);
+  pg.innerHTML=h;
+  pg.querySelector('button:first-child').disabled = cur<=1;
+  pg.querySelector('button:last-child').disabled  = cur>=total;
 }
 
 function goPage(n) {
-  page = Math.max(1, Math.min(Math.ceil(filtered().length / PER_PAGE), n));
+  page = Math.max(1, Math.min(Math.ceil(filtered().length/PER_PAGE), n));
   renderTable();
 }
 
-/* ── carga ────────────────────────────────────────────────── */
+/* ── carga ───────────────────────────────────────────── */
 async function load() {
   if (window.AdminLayout) window.AdminLayout.setPageTitle('Productos');
   try {
     allProducts = await Api.get('/admin/productos');
-    renderStats(allProducts);
-    page = 1;
-    renderTable();
-  } catch (e) {
-    document.getElementById('tbody').innerHTML =
-      `<tr><td colspan="10" style="text-align:center;color:var(--red);padding:30px;">${e.message}</td></tr>`;
+    renderStats(allProducts); page=1; renderTable();
+  } catch(e) {
+    document.getElementById('tbody').innerHTML=`<tr><td colspan="10" style="text-align:center;color:var(--red);padding:30px;">${e.message}</td></tr>`;
   }
 }
 
-/* ── modal producto ───────────────────────────────────────── */
+/* ── modal producto ──────────────────────────────────── */
 function openNew() {
   editingId = null;
-  ['field-id','field-nombre','field-precio','field-material','field-descripcion','field-imagen_url'].forEach(id => {
-    document.getElementById(id).value = '';
-  });
-  document.getElementById('field-categoria').value = 'ataud';
-  document.getElementById('field-stock').value = '0';
-  document.getElementById('group-activo').style.display = 'none';
-  document.getElementById('modal-title').textContent = 'Nuevo producto';
+  ['field-id','field-nombre','field-precio','field-material','field-descripcion'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('field-categoria').value='ataud';
+  document.getElementById('field-stock').value='0';
+  document.getElementById('group-activo').style.display='none';
+  document.getElementById('modal-title').textContent='Nuevo producto';
   document.getElementById('modal').classList.add('open');
 }
-
 function openEdit(id) {
-  const p = allProducts.find(x => x.id === id);
-  if (!p) return;
-  editingId = id;
+  const p = allProducts.find(x=>x.id===id); if(!p) return;
+  editingId=id;
   document.getElementById('field-id').value          = id;
-  document.getElementById('field-nombre').value      = p.nombre ?? '';
-  document.getElementById('field-categoria').value   = p.categoria ?? 'ataud';
-  document.getElementById('field-precio').value      = p.precio ?? '';
-  document.getElementById('field-material').value    = p.material ?? '';
-  document.getElementById('field-stock').value       = p.stock ?? 0;
-  document.getElementById('field-descripcion').value = p.descripcion ?? '';
-  document.getElementById('field-imagen_url').value  = p.imagen_url ?? '';
-  document.getElementById('field-activo').value      = String(p.activo ?? true);
-  document.getElementById('group-activo').style.display = '';
-  document.getElementById('modal-title').textContent = 'Editar producto';
+  document.getElementById('field-nombre').value      = p.nombre??'';
+  document.getElementById('field-categoria').value   = p.categoria??'ataud';
+  document.getElementById('field-precio').value      = p.precio??'';
+  document.getElementById('field-material').value    = p.material??'';
+  document.getElementById('field-stock').value       = p.stock??0;
+  document.getElementById('field-descripcion').value = p.descripcion??'';
+  document.getElementById('field-activo').value      = String(p.activo??true);
+  document.getElementById('group-activo').style.display='';
+  document.getElementById('modal-title').textContent='Editar producto';
   document.getElementById('modal').classList.add('open');
 }
-
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
 
 async function save() {
   const nombre = document.getElementById('field-nombre').value.trim();
   const precio = parseFloat(document.getElementById('field-precio').value);
-  if (!nombre)       { Toast.show('El nombre es requerido', 'warning'); return; }
-  if (isNaN(precio)) { Toast.show('El precio es requerido', 'warning'); return; }
-
+  if(!nombre)        { Toast.show('El nombre es requerido','warning'); return; }
+  if(isNaN(precio))  { Toast.show('El precio es requerido','warning'); return; }
   const body = {
     nombre, precio,
     categoria:   document.getElementById('field-categoria').value,
-    material:    document.getElementById('field-material').value.trim() || null,
-    stock:       parseInt(document.getElementById('field-stock').value) || 0,
-    descripcion: document.getElementById('field-descripcion').value.trim() || null,
-    imagen_url:  document.getElementById('field-imagen_url').value.trim() || null,
-    activo:      editingId ? document.getElementById('field-activo').value === 'true' : true,
+    material:    document.getElementById('field-material').value.trim()||null,
+    stock:       parseInt(document.getElementById('field-stock').value)||0,
+    descripcion: document.getElementById('field-descripcion').value.trim()||null,
+    activo:      editingId ? document.getElementById('field-activo').value==='true' : true,
   };
-
   const btn = document.getElementById('btn-save');
-  btn.disabled = true; btn.textContent = 'Guardando...';
+  btn.disabled=true; btn.textContent='Guardando...';
   try {
-    if (editingId) await Api.put(`/admin/productos/${editingId}`, body);
-    else           await Api.post('/admin/productos', body);
+    if(editingId) await Api.put(`/admin/productos/${editingId}`, body);
+    else          await Api.post('/admin/productos', body);
     closeModal(); await load();
-    Toast.show(editingId ? 'Producto actualizado' : 'Producto creado', 'success');
-  } catch (e) { Toast.show(e.message, 'error'); }
-  finally { btn.disabled = false; btn.textContent = 'Guardar producto'; }
+    Toast.show(editingId?'Producto actualizado':'Producto creado','success');
+  } catch(e) { Toast.show(e.message,'error'); }
+  finally { btn.disabled=false; btn.textContent='Guardar producto'; }
 }
 
-async function remove(id, nombre) {
-  if (!confirm(`¿Eliminar "${nombre}"? Esta acción lo marcará como inactivo.`)) return;
-  try { await Api.delete(`/admin/productos/${id}`); await load(); Toast.show('Producto eliminado', 'success'); }
-  catch (e) { Toast.show(e.message, 'error'); }
+async function remove(id,nombre) {
+  if(!confirm(`¿Eliminar "${nombre}"? Se marcará como inactivo.`)) return;
+  try { await Api.delete(`/admin/productos/${id}`); await load(); Toast.show('Producto eliminado','success'); }
+  catch(e) { Toast.show(e.message,'error'); }
 }
 
-/* ── modal variantes ──────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════
+   IMÁGENES
+══════════════════════════════════════════════════════ */
+async function openImgs(productId) {
+  const p = allProducts.find(x=>x.id===productId); if(!p) return;
+  imgProductId   = productId;
+  imgProductData = p;
+
+  document.getElementById('img-product-name').textContent = p.nombre;
+  document.getElementById('img-product-sub').textContent  = CAT_LABEL[p.categoria]??p.categoria;
+
+  // imagen principal
+  document.getElementById('field-imagen_url').value = p.imagen_url??'';
+  previewMain(p.imagen_url??'');
+
+  // limpiar campos de nueva imagen
+  document.getElementById('new-img-url').value  = '';
+  document.getElementById('new-img-orden').value = '0';
+  document.getElementById('new-img-preview-wrap').style.display='none';
+
+  document.getElementById('modal-imgs').classList.add('open');
+  renderImgGrid();
+}
+
+function closeImgs() {
+  document.getElementById('modal-imgs').classList.remove('open');
+  mainFileSelected = null;
+  newFileSelected  = null;
+  load();
+}
+
+function onMainFileSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  mainFileSelected = file;
+  document.getElementById('field-imagen_url').value = '';
+  document.getElementById('main-file-name').textContent = `📎 ${file.name} (${(file.size/1024).toFixed(0)} KB)`;
+  const reader = new FileReader();
+  reader.onload = e => previewMain(e.target.result);
+  reader.readAsDataURL(file);
+  input.value = '';
+}
+
+function onNewFileSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  newFileSelected = file;
+  document.getElementById('new-img-url').value = file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const wrap = document.getElementById('new-img-preview-wrap');
+    const img  = document.getElementById('new-img-preview');
+    img.src = e.target.result; img.style.display = ''; wrap.style.display = '';
+  };
+  reader.readAsDataURL(file);
+  input.value = '';
+}
+
+function previewMain(url) {
+  const el = document.getElementById('main-img-preview');
+  if(url) {
+    el.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;"
+      onerror="this.parentElement.innerHTML='Sin imagen'" />`;
+  } else {
+    el.innerHTML='Sin imagen';
+  }
+}
+
+function renderImgGrid() {
+  const p = imgProductData;
+  const imgs = p.imagenes??[];
+  const grid = document.getElementById('img-grid');
+  const count = imgs.length;
+
+  document.getElementById('img-count').textContent = count;
+  document.getElementById('img-count-s').textContent = count===1?'':'es';
+
+  if(!count) {
+    grid.innerHTML=`<div style="grid-column:1/-1; text-align:center; padding:20px 0; color:var(--muted); font-size:12.5px;">
+      Sin imágenes adicionales. Agrega la primera abajo.
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = imgs.map(img=>`
+    <div class="img-card">
+      ${img.url
+        ? `<img src="${img.url}" onerror="this.outerHTML='<div class=img-card-empty>Error</div>'" />`
+        : `<div class="img-card-empty"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Sin URL</div>`}
+      <div class="img-card-label">Foto ${img.orden??''}</div>
+      <button class="img-card-del" onclick="deleteSecondaryImg(${img.id})" title="Eliminar imagen">${delCircle}</button>
+    </div>`).join('');
+}
+
+async function saveMainImg() {
+  const btn = document.querySelector('#modal-imgs .modal-foot .btn-primary');
+  const prevText = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = 'Guardando...'; }
+  try {
+    let url;
+    if (mainFileSelected) {
+      Toast.show('Subiendo imagen...', 'info');
+      url = await uploadFile(mainFileSelected);
+      mainFileSelected = null;
+      document.getElementById('main-file-name').textContent = 'Recomendado: 800×800 px · .webp, .jpg o .png · máx. 5 MB';
+    } else {
+      url = document.getElementById('field-imagen_url').value.trim() || null;
+    }
+    await Api.put(`/admin/productos/${imgProductId}`, { imagen_url: url });
+    const p = allProducts.find(x=>x.id===imgProductId);
+    if (p) { p.imagen_url = url; imgProductData = p; }
+    document.getElementById('field-imagen_url').value = url ?? '';
+    previewMain(url ?? '');
+    Toast.show('Imagen principal guardada', 'success');
+    renderTable();
+  } catch(e) { Toast.show(e.message, 'error'); }
+  finally { if (btn) { btn.disabled = false; btn.textContent = prevText; } }
+}
+
+function previewNewImg(url) {
+  const wrap = document.getElementById('new-img-preview-wrap');
+  const img  = document.getElementById('new-img-preview');
+  if(url) { img.src=url; img.style.display=''; wrap.style.display=''; }
+  else { wrap.style.display='none'; }
+}
+
+async function addSecondaryImg() {
+  const orden = parseInt(document.getElementById('new-img-orden').value)||0;
+  if (!newFileSelected && !document.getElementById('new-img-url').value.trim()) {
+    Toast.show('Selecciona una imagen o pega una URL', 'warning'); return;
+  }
+  const addBtn = document.querySelector('#modal-imgs [onclick="addSecondaryImg()"]');
+  if (addBtn) { addBtn.disabled = true; addBtn.textContent = 'Subiendo...'; }
+  try {
+    let url;
+    if (newFileSelected) {
+      Toast.show('Subiendo imagen...', 'info');
+      url = await uploadFile(newFileSelected);
+      newFileSelected = null;
+    } else {
+      url = document.getElementById('new-img-url').value.trim();
+    }
+    const resp = await Api.post(`/admin/productos/${imgProductId}/imagenes`, { url, orden });
+    const p = allProducts.find(x=>x.id===imgProductId);
+    if(p) { p.imagenes = p.imagenes??[]; p.imagenes.push(resp.data??resp); imgProductData=p; }
+    document.getElementById('new-img-url').value='';
+    document.getElementById('new-img-orden').value='0';
+    document.getElementById('new-img-preview-wrap').style.display='none';
+    renderImgGrid();
+    Toast.show('Imagen agregada', 'success');
+  } catch(e) { Toast.show(e.message,'error'); }
+  finally {
+    if (addBtn) {
+      addBtn.disabled = false;
+      addBtn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Agregar`;
+    }
+  }
+}
+
+async function deleteSecondaryImg(imgId) {
+  if(!confirm('¿Eliminar esta imagen?')) return;
+  try {
+    await Api.delete(`/admin/imagenes/${imgId}`);
+    const p = allProducts.find(x=>x.id===imgProductId);
+    if(p) { p.imagenes=(p.imagenes??[]).filter(i=>i.id!==imgId); imgProductData=p; }
+    renderImgGrid();
+    Toast.show('Imagen eliminada','success');
+  } catch(e) { Toast.show(e.message,'error'); }
+}
+
+/* ══════════════════════════════════════════════════════
+   VARIANTES
+══════════════════════════════════════════════════════ */
 async function openVariantes(productId) {
-  const p = allProducts.find(x => x.id === productId);
-  if (!p) return;
-  varProductId = productId;
-  varEditingId = null;
+  const p = allProducts.find(x=>x.id===productId); if(!p) return;
+  varProductId=productId; varEditingId=null;
   document.getElementById('var-product-name').textContent = p.nombre;
   document.getElementById('var-precio-base').textContent  = fmt.currency(p.precio);
   resetVariantForm();
   document.getElementById('modal-variantes').classList.add('open');
   await loadVariantes();
 }
-
 function closeVariantes() {
   document.getElementById('modal-variantes').classList.remove('open');
-  load(); // refresca el badge del producto en la tabla
+  load();
 }
-
 async function loadVariantes() {
-  try {
-    variantesCache = await Api.get(`/admin/productos/${varProductId}/variantes`);
-    renderVariantList();
-  } catch (e) { Toast.show(e.message, 'error'); }
+  try { variantesCache=await Api.get(`/admin/productos/${varProductId}/variantes`); renderVariantList(); }
+  catch(e) { Toast.show(e.message,'error'); }
 }
-
 function renderVariantList() {
-  const el = document.getElementById('var-list');
-  if (!variantesCache.length) {
-    el.innerHTML = `<div style="text-align:center; padding:16px 0; color:var(--muted); font-size:13px;">
-      Sin variantes. Agrega la primera abajo.
-    </div>`;
+  const el=document.getElementById('var-list');
+  if(!variantesCache.length) {
+    el.innerHTML=`<div style="text-align:center;padding:16px 0;color:var(--muted);font-size:13px;">Sin variantes. Agrega la primera abajo.</div>`;
     return;
   }
-  el.innerHTML = `
-    <div style="border:1px solid var(--border); border-radius:var(--r-lg); overflow:hidden;">
-      <table class="admin-table" style="margin:0;">
-        <thead>
-          <tr>
-            <th>Variante</th>
-            <th style="width:130px; text-align:right;">Precio</th>
-            <th style="width:80px; text-align:right;">Stock</th>
-            <th style="width:90px;">Estado</th>
-            <th style="width:80px; text-align:right;">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${variantesCache.map(v => `
-            <tr>
-              <td>
-                <div class="row-name">${v.nombre}</div>
-              </td>
-              <td style="text-align:right; font-variant-numeric:tabular-nums; font-weight:600;">
-                ${fmt.currency(v.precio)}
-              </td>
-              <td style="text-align:right; font-variant-numeric:tabular-nums; color:${v.stock===0?'var(--red)':v.stock<=5?'var(--amber)':'var(--ink)'};">
-                ${v.stock}
-              </td>
-              <td>${v.activo ? '<span class="status status-ok">Activo</span>' : '<span class="status status-off">Inactivo</span>'}</td>
-              <td style="text-align:right;">
-                <div class="row-actions">
-                  <button class="icon-btn" title="Editar" onclick="editVariant(${v.id})">${editIcon}</button>
-                  <button class="icon-btn" title="Eliminar" onclick="removeVariant(${v.id},'${v.nombre.replace(/'/g,"\\'")}')" style="color:var(--red);">${trashIcon}</button>
-                </div>
-              </td>
-            </tr>`).join('')}
-        </tbody>
-      </table>
-    </div>`;
+  el.innerHTML=`<div style="border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;">
+    <table class="admin-table" style="margin:0;">
+      <thead><tr><th>Variante</th><th style="width:130px;text-align:right;">Precio</th><th style="width:80px;text-align:right;">Stock</th><th style="width:90px;">Estado</th><th style="width:80px;text-align:right;">Acciones</th></tr></thead>
+      <tbody>${variantesCache.map(v=>`
+        <tr>
+          <td><div class="row-name">${v.nombre}</div></td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600;">${fmt.currency(v.precio)}</td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums;color:${v.stock===0?'var(--red)':v.stock<=5?'var(--amber)':'var(--ink)'};">${v.stock}</td>
+          <td>${v.activo?'<span class="status status-ok">Activo</span>':'<span class="status status-off">Inactivo</span>'}</td>
+          <td style="text-align:right;"><div class="row-actions">
+            <button class="icon-btn" onclick="editVariant(${v.id})">${editIcon}</button>
+            <button class="icon-btn" onclick="removeVariant(${v.id},'${v.nombre.replace(/'/g,"\\'")}')" style="color:var(--red);">${trashIcon}</button>
+          </div></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
 }
-
 function editVariant(id) {
-  const v = variantesCache.find(x => x.id === id);
-  if (!v) return;
-  varEditingId = id;
+  const v=variantesCache.find(x=>x.id===id); if(!v) return;
+  varEditingId=id;
   document.getElementById('var-field-id').value     = id;
   document.getElementById('var-field-nombre').value = v.nombre;
   document.getElementById('var-field-precio').value = v.precio;
   document.getElementById('var-field-stock').value  = v.stock;
-  document.getElementById('var-field-orden').value  = v.orden ?? 0;
+  document.getElementById('var-field-orden').value  = v.orden??0;
   document.getElementById('var-field-activo').value = String(v.activo);
-  document.getElementById('var-group-activo').style.display = '';
-  document.getElementById('var-form-title').textContent     = 'Editar variante';
-  document.getElementById('var-btn-save').textContent       = 'Guardar cambios';
-  document.getElementById('var-btn-cancel').style.display   = '';
+  document.getElementById('var-group-activo').style.display='';
+  document.getElementById('var-form-title').textContent = 'Editar variante';
+  document.getElementById('var-btn-save').textContent   = 'Guardar cambios';
+  document.getElementById('var-btn-cancel').style.display='';
   document.getElementById('var-field-nombre').focus();
 }
-
-function cancelVariantEdit() {
-  varEditingId = null;
-  resetVariantForm();
-}
-
+function cancelVariantEdit() { varEditingId=null; resetVariantForm(); }
 function resetVariantForm() {
-  varEditingId = null;
-  document.getElementById('var-field-id').value     = '';
-  document.getElementById('var-field-nombre').value = '';
-  document.getElementById('var-field-precio').value = '';
-  document.getElementById('var-field-stock').value  = '0';
-  document.getElementById('var-field-orden').value  = '0';
-  document.getElementById('var-group-activo').style.display = 'none';
-  document.getElementById('var-form-title').textContent   = 'Nueva variante';
-  document.getElementById('var-btn-save').innerHTML =
-    `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Agregar variante`;
-  document.getElementById('var-btn-cancel').style.display = 'none';
+  varEditingId=null;
+  ['var-field-id','var-field-nombre','var-field-precio'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('var-field-stock').value='0';
+  document.getElementById('var-field-orden').value='0';
+  document.getElementById('var-group-activo').style.display='none';
+  document.getElementById('var-form-title').textContent='Nueva variante';
+  document.getElementById('var-btn-save').innerHTML=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Agregar variante`;
+  document.getElementById('var-btn-cancel').style.display='none';
 }
-
 async function saveVariant() {
-  const nombre = document.getElementById('var-field-nombre').value.trim();
-  const precio = parseFloat(document.getElementById('var-field-precio').value);
-  if (!nombre)       { Toast.show('El nombre de la variante es requerido', 'warning'); return; }
-  if (isNaN(precio) || precio <= 0) { Toast.show('Ingresa un precio válido', 'warning'); return; }
-
-  const body = {
-    nombre, precio,
-    stock:  parseInt(document.getElementById('var-field-stock').value) || 0,
-    orden:  parseInt(document.getElementById('var-field-orden').value) || 0,
-    ...(varEditingId ? { activo: document.getElementById('var-field-activo').value === 'true' } : {}),
+  const nombre=document.getElementById('var-field-nombre').value.trim();
+  const precio=parseFloat(document.getElementById('var-field-precio').value);
+  if(!nombre)            { Toast.show('El nombre es requerido','warning'); return; }
+  if(isNaN(precio)||precio<=0) { Toast.show('Precio inválido','warning'); return; }
+  const body={nombre,precio,
+    stock: parseInt(document.getElementById('var-field-stock').value)||0,
+    orden: parseInt(document.getElementById('var-field-orden').value)||0,
+    ...(varEditingId?{activo:document.getElementById('var-field-activo').value==='true'}:{}),
   };
-
-  const btn = document.getElementById('var-btn-save');
-  btn.disabled = true;
+  const btn=document.getElementById('var-btn-save'); btn.disabled=true;
   try {
-    if (varEditingId) {
-      await Api.put(`/admin/variantes/${varEditingId}`, body);
-      Toast.show('Variante actualizada', 'success');
-    } else {
-      await Api.post(`/admin/productos/${varProductId}/variantes`, body);
-      Toast.show('Variante creada', 'success');
-    }
-    resetVariantForm();
-    await loadVariantes();
-  } catch (e) { Toast.show(e.message, 'error'); }
-  finally { btn.disabled = false; }
+    if(varEditingId) await Api.put(`/admin/variantes/${varEditingId}`, body);
+    else             await Api.post(`/admin/productos/${varProductId}/variantes`, body);
+    Toast.show(varEditingId?'Variante actualizada':'Variante creada','success');
+    resetVariantForm(); await loadVariantes();
+  } catch(e) { Toast.show(e.message,'error'); }
+  finally { btn.disabled=false; }
+}
+async function removeVariant(id,nombre) {
+  if(!confirm(`¿Eliminar la variante "${nombre}"?`)) return;
+  try { await Api.delete(`/admin/variantes/${id}`); Toast.show('Variante eliminada','success'); await loadVariantes(); }
+  catch(e) { Toast.show(e.message,'error'); }
 }
 
-async function removeVariant(id, nombre) {
-  if (!confirm(`¿Eliminar la variante "${nombre}"?`)) return;
-  try {
-    await Api.delete(`/admin/variantes/${id}`);
-    Toast.show('Variante eliminada', 'success');
-    await loadVariantes();
-  } catch (e) { Toast.show(e.message, 'error'); }
-}
-
-/* ── init ─────────────────────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', () => {
+/* ── init ────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', ()=>{
   load();
-  document.getElementById('filter-q').addEventListener('input',    () => { page = 1; renderTable(); });
-  document.getElementById('filter-cat').addEventListener('change', () => { page = 1; renderTable(); });
-  document.getElementById('filter-status').addEventListener('change', () => { page = 1; renderTable(); });
+  document.getElementById('filter-q').addEventListener('input',      ()=>{ page=1; renderTable(); });
+  document.getElementById('filter-cat').addEventListener('change',   ()=>{ page=1; renderTable(); });
+  document.getElementById('filter-status').addEventListener('change',()=>{ page=1; renderTable(); });
   document.getElementById('btn-new').addEventListener('click', openNew);
-  document.getElementById('modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
-  document.getElementById('modal-variantes').addEventListener('click', e => { if (e.target === e.currentTarget) closeVariantes(); });
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      closeModal();
-      closeVariantes();
-    }
-  });
-  document.getElementById('chk-all').addEventListener('change', e => {
-    document.querySelectorAll('#tbody input[type="checkbox"]').forEach(c => { c.checked = e.target.checked; });
+  document.getElementById('modal').addEventListener('click',          e=>{ if(e.target===e.currentTarget) closeModal(); });
+  document.getElementById('modal-imgs').addEventListener('click',     e=>{ if(e.target===e.currentTarget) closeImgs(); });
+  document.getElementById('modal-variantes').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeVariantes(); });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeModal(); closeImgs(); closeVariantes(); } });
+  document.getElementById('chk-all').addEventListener('change', e=>{
+    document.querySelectorAll('#tbody input[type="checkbox"]').forEach(c=>c.checked=e.target.checked);
   });
 });
 </script>

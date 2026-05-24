@@ -5,3 +5,5 @@ dist/
 npm-debug.log*
 .DS_Store
 .vscode/
+src/backend/config/firebase-config.json
+uploads/

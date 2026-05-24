@@ -47,14 +47,23 @@ export const dashboardService = {
   async salesByBranch() {
     return sequelize.query(
       `SELECT b.nombre AS sucursal, b.ciudad,
-              COALESCE(SUM(o.total), 0) AS ventas_ordenes,
-              COALESCE(SUM(sc.total), 0) AS ventas_contratos
+              COALESCE(vo.total, 0) AS ventas_ordenes,
+              COALESCE(vc.total, 0) AS ventas_contratos
        FROM Branches b
-       LEFT JOIN Orders o ON o.branch_id = b.id AND o.status != 'cancelada'
-       LEFT JOIN ServiceContracts sc ON sc.branch_id = b.id AND sc.status != 'cancelado'
+       LEFT JOIN (
+           SELECT branch_id, SUM(total) AS total
+           FROM Orders
+           WHERE status != 'cancelada'
+           GROUP BY branch_id
+       ) vo ON vo.branch_id = b.id
+       LEFT JOIN (
+           SELECT branch_id, SUM(total) AS total
+           FROM ServiceContracts
+           WHERE status != 'cancelado'
+           GROUP BY branch_id
+       ) vc ON vc.branch_id = b.id
        WHERE b.activo = 1
-       GROUP BY b.id, b.nombre, b.ciudad
-       ORDER BY ventas_ordenes + ventas_contratos DESC`,
+       ORDER BY COALESCE(vo.total, 0) + COALESCE(vc.total, 0) DESC`,
       { type: 'SELECT' as never }
     );
   },
