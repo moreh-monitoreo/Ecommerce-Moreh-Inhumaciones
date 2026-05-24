@@ -98,6 +98,12 @@ router.delete('/productos/:id', requirePermission('productos', 'eliminar'), audi
 router.post('/productos/:id/imagenes', requirePermission('productos', 'editar'), wrap(async (req, res) => ok(res, await productoAdminService.addImage(+req.params.id, req.body.url, req.body.orden), 201)));
 router.delete('/imagenes/:id', requirePermission('productos', 'editar'), wrap(async (req, res) => { await productoAdminService.removeImage(+req.params.id); ok(res, { ok: true }); }));
 
+// Variantes
+router.get('/productos/:id/variantes', requirePermission('productos', 'ver'), wrap(async (req, res) => ok(res, await productoAdminService.listVariants(+req.params.id))));
+router.post('/productos/:id/variantes', requirePermission('productos', 'editar'), wrap(async (req, res) => ok(res, await productoAdminService.createVariant(+req.params.id, req.body), 201)));
+router.put('/variantes/:id', requirePermission('productos', 'editar'), wrap(async (req, res) => ok(res, await productoAdminService.updateVariant(+req.params.id, req.body))));
+router.delete('/variantes/:id', requirePermission('productos', 'eliminar'), wrap(async (req, res) => { await productoAdminService.removeVariant(+req.params.id); ok(res, { ok: true }); }));
+
 // ─── Inventario ───────────────────────────────────────────────────────────────
 router.get('/inventario', requirePermission('inventario', 'ver'), wrap(async (req, res) => ok(res, await inventoryService.list(req.query.branch_id ? +req.query.branch_id : undefined))));
 router.get('/inventario/stock-bajo', requirePermission('inventario', 'ver'), wrap(async (_req, res) => ok(res, await inventoryService.lowStock())));

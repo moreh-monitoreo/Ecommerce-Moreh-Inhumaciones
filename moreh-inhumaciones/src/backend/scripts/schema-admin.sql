@@ -187,6 +187,27 @@ PRINT 'Columnas adicionales en Productos verificadas.';
 GO
 
 -- ============================================================================
+-- PRODUCT_VARIANTS (Variantes de producto: Velación Domicilio, Funeraria, etc.)
+-- ============================================================================
+IF OBJECT_ID('dbo.ProductVariants', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ProductVariants (
+        id          INT IDENTITY(1,1) PRIMARY KEY,
+        producto_id INT            NOT NULL REFERENCES dbo.Productos(id) ON DELETE CASCADE,
+        nombre      NVARCHAR(150)  NOT NULL,
+        precio      DECIMAL(12,2)  NOT NULL,
+        stock       INT            NOT NULL DEFAULT 0,
+        activo      BIT            NOT NULL DEFAULT 1,
+        orden       INT            NOT NULL DEFAULT 0,
+        createdAt   DATETIME2      NOT NULL DEFAULT GETDATE(),
+        updatedAt   DATETIME2      NOT NULL DEFAULT GETDATE()
+    );
+    CREATE INDEX IX_ProductVariants_producto ON dbo.ProductVariants(producto_id);
+    PRINT 'Tabla ProductVariants creada.';
+END ELSE PRINT 'ProductVariants ya existe.';
+GO
+
+-- ============================================================================
 -- INVENTORY
 -- ============================================================================
 IF OBJECT_ID('dbo.Inventories', 'U') IS NULL

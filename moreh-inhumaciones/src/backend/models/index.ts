@@ -20,6 +20,7 @@ import { ServiceContract } from './ServiceContract';
 import { Lead } from './Lead';
 import { Banner } from './Banner';
 import { SiteSetting } from './SiteSetting';
+import { ProductVariant } from './ProductVariant';
 
 // ── Cotizaciones ──────────────────────────────────────────────────────────────
 Cotizacion.hasMany(CotizacionItem, {
@@ -47,6 +48,10 @@ Chapel.belongsTo(Branch, { as: 'branch', foreignKey: 'branch_id' });
 // ── Productos e Imágenes ───────────────────────────────────────────────────────
 Producto.hasMany(ProductImage, { as: 'imagenes', foreignKey: 'producto_id', onDelete: 'CASCADE' });
 ProductImage.belongsTo(Producto, { foreignKey: 'producto_id' });
+
+// ── Variantes de Producto ──────────────────────────────────────────────────────
+Producto.hasMany(ProductVariant, { as: 'variantes', foreignKey: 'producto_id', onDelete: 'CASCADE' });
+ProductVariant.belongsTo(Producto, { as: 'producto', foreignKey: 'producto_id' });
 
 // ── Inventario ─────────────────────────────────────────────────────────────────
 Producto.hasMany(Inventory, { as: 'inventarios', foreignKey: 'producto_id' });
@@ -90,5 +95,5 @@ export {
   Branch, Chapel, Category, ProductImage,
   Inventory, InventoryMovement,
   Customer, Order, OrderItem, ServiceContract,
-  Lead, Banner, SiteSetting,
+  Lead, Banner, SiteSetting, ProductVariant,
 };

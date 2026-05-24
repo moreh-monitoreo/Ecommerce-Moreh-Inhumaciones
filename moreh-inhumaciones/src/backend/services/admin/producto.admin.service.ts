@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { Producto, ProductImage, Inventory } from '../../models';
+import { Producto, ProductImage, ProductVariant, Inventory } from '../../models';
 import { HttpError } from '../../utils/HttpError';
 
 export const productoAdminService = {
@@ -11,7 +11,8 @@ export const productoAdminService = {
     return Producto.findAll({
       where,
       include: [
-        { model: ProductImage, as: 'imagenes', attributes: ['id', 'url', 'orden'] },
+        { model: ProductImage,   as: 'imagenes',  attributes: ['id', 'url', 'orden'] },
+        { model: ProductVariant, as: 'variantes', attributes: ['id', 'nombre', 'precio', 'stock', 'activo', 'orden'], where: { activo: true }, required: false },
       ],
       order: [['categoria', 'ASC'], ['nombre', 'ASC']],
     });
@@ -20,8 +21,9 @@ export const productoAdminService = {
   async findById(id: number) {
     const p = await Producto.findByPk(id, {
       include: [
-        { model: ProductImage, as: 'imagenes' },
-        { model: Inventory, as: 'inventarios' },
+        { model: ProductImage,   as: 'imagenes' },
+        { model: ProductVariant, as: 'variantes', order: [['orden', 'ASC']] as any },
+        { model: Inventory,      as: 'inventarios' },
       ],
     });
     if (!p) throw HttpError.notFound(`Producto ${id} no encontrado`);
@@ -49,5 +51,27 @@ export const productoAdminService = {
     const img = await ProductImage.findByPk(imageId);
     if (!img) throw HttpError.notFound('Imagen no encontrada');
     await img.destroy();
+  },
+
+  // ── Variantes ────────────────────────────────────────────────────────────────
+  listVariants: (productoId: number) =>
+    ProductVariant.findAll({ where: { producto_id: productoId }, order: [['orden', 'ASC'], ['nombre', 'ASC']] }),
+
+  async createVariant(productoId: number, data: { nombre: string; precio: number; stock?: number; orden?: number }) {
+    const p = await Producto.findByPk(productoId);
+    if (!p) throw HttpError.notFound(`Producto ${productoId} no encontrado`);
+    return ProductVariant.create({ producto_id: productoId, ...data } as never);
+  },
+
+  async updateVariant(variantId: number, data: Partial<{ nombre: string; precio: number; stock: number; activo: boolean; orden: number }>) {
+    const v = await ProductVariant.findByPk(variantId);
+    if (!v) throw HttpError.notFound(`Variante ${variantId} no encontrada`);
+    return v.update(data);
+  },
+
+  async removeVariant(variantId: number) {
+    const v = await ProductVariant.findByPk(variantId);
+    if (!v) throw HttpError.notFound(`Variante ${variantId} no encontrada`);
+    await v.destroy();
   },
 };

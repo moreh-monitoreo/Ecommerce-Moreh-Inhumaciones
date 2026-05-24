@@ -42,7 +42,6 @@
       </div>
     </div>
 
-    <!-- ── Toolbar de filtros ─────────────────────────── -->
     <div class="table-toolbar">
       <label class="search">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -60,13 +59,9 @@
       </select>
       <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
         <span style="font-size:11.5px; color:var(--muted);" id="lbl-count">—</span>
-        <div class="seg">
-          <button class="on">Tabla</button>
-        </div>
       </div>
     </div>
 
-    <!-- ── Tabla ──────────────────────────────────────── -->
     <table class="admin-table">
       <thead>
         <tr>
@@ -74,15 +69,16 @@
           <th style="width:60px;">ID</th>
           <th>Producto</th>
           <th style="width:90px;">Categoría</th>
-          <th style="width:110px; text-align:right;">Precio</th>
+          <th style="width:120px; text-align:right;">Precio base</th>
           <th style="width:90px;">Material</th>
+          <th style="width:100px; text-align:center;">Variantes</th>
           <th style="width:80px; text-align:right;">Stock</th>
           <th style="width:110px;">Estado</th>
-          <th style="width:90px; text-align:right;">Acciones</th>
+          <th style="width:110px; text-align:right;">Acciones</th>
         </tr>
       </thead>
       <tbody id="tbody">
-        <tr><td colspan="9" style="text-align:center; padding:40px; color:var(--muted);">Cargando...</td></tr>
+        <tr><td colspan="10" style="text-align:center; padding:40px; color:var(--muted);">Cargando...</td></tr>
       </tbody>
     </table>
 
@@ -94,7 +90,7 @@
   </div>
 </div>
 
-<!-- ── Modal ─────────────────────────────────────────── -->
+<!-- ── Modal: Producto ────────────────────────────────── -->
 <div class="modal-overlay" id="modal">
   <div class="modal-box modal-lg">
     <div class="modal-head">
@@ -118,7 +114,7 @@
       </div>
       <div class="form-row cols-3">
         <div class="form-group">
-          <label class="form-label">Precio (MXN) *</label>
+          <label class="form-label">Precio base (MXN) *</label>
           <input class="form-control" id="field-precio" type="number" step="0.01" placeholder="0.00" />
         </div>
         <div class="form-group">
@@ -153,25 +149,100 @@
   </div>
 </div>
 
+<!-- ── Modal: Variantes ───────────────────────────────── -->
+<div class="modal-overlay" id="modal-variantes">
+  <div class="modal-box modal-lg">
+    <div class="modal-head">
+      <div>
+        <h4 class="modal-title" id="var-product-name">Variantes</h4>
+        <div style="font-size:11.5px; color:var(--muted); margin-top:2px;">
+          Precio base del producto: <b id="var-precio-base">—</b>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeVariantes()" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Explicación -->
+      <div class="banner banner-blue" style="margin-bottom:16px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Las variantes permiten ofrecer el mismo producto con distintos servicios y precios. Ej: <b>Velación en Domicilio</b> vs <b>Velación en Funeraria</b>.
+      </div>
+
+      <!-- Lista de variantes existentes -->
+      <div id="var-list" style="margin-bottom:20px;"></div>
+
+      <!-- Formulario agregar/editar variante -->
+      <div style="border:1px solid var(--border); border-radius:var(--r-lg); padding:16px; background:var(--bg);">
+        <div style="font-size:12px; font-weight:600; color:var(--ink); margin-bottom:12px; letter-spacing:.02em; text-transform:uppercase;" id="var-form-title">
+          Nueva variante
+        </div>
+        <input type="hidden" id="var-field-id" />
+        <div class="form-row cols-3">
+          <div class="form-group" style="grid-column: span 2;">
+            <label class="form-label">Nombre de la variante *</label>
+            <input class="form-control" id="var-field-nombre" placeholder="Ej. Velación en Funeraria" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Precio (MXN) *</label>
+            <input class="form-control" id="var-field-precio" type="number" step="0.01" placeholder="0.00" />
+          </div>
+        </div>
+        <div class="form-row cols-3">
+          <div class="form-group">
+            <label class="form-label">Stock</label>
+            <input class="form-control" id="var-field-stock" type="number" placeholder="0" value="0" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Orden (visualización)</label>
+            <input class="form-control" id="var-field-orden" type="number" placeholder="0" value="0" />
+          </div>
+          <div class="form-group" id="var-group-activo" style="display:none;">
+            <label class="form-label">Estado</label>
+            <select class="form-select" id="var-field-activo">
+              <option value="true">Activo</option>
+              <option value="false">Inactivo</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:4px;">
+          <button class="btn" id="var-btn-cancel" onclick="cancelVariantEdit()" style="display:none;">Cancelar</button>
+          <button class="btn btn-primary" id="var-btn-save" onclick="saveVariant()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Agregar variante
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-primary" onclick="closeVariantes()">Listo</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const PER_PAGE = 15;
 let allProducts = [];
 let page = 1;
 let editingId = null;
 
-const CAT_LABEL = { ataud: 'Ataúd', urna: 'Urna' };
-const eyeIcon  = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
-const editIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
-const trashIcon= `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>`;
+// variantes
+let varProductId   = null;
+let varEditingId   = null;
+let variantesCache = [];
 
-/* ── helpers ──────────────────────────────────────── */
+const CAT_LABEL  = { ataud: 'Ataúd', urna: 'Urna' };
+const varIcon    = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`;
+const editIcon   = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+const trashIcon  = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>`;
+
+/* ── helpers ──────────────────────────────────────────────── */
 function statusEl(p) {
-  if (!p.activo)     return '<span class="status status-off">Inactivo</span>';
-  if (p.stock === 0) return '<span class="status status-out">Agotado</span>';
-  if ((p.stock ?? 0) <= 5) return '<span class="status status-low">Stock bajo</span>';
+  if (!p.activo)        return '<span class="status status-off">Inactivo</span>';
+  if (p.stock === 0)    return '<span class="status status-out">Agotado</span>';
+  if ((p.stock??0) <=5) return '<span class="status status-low">Stock bajo</span>';
   return '<span class="status status-ok">Activo</span>';
 }
-
 function stockColor(p) {
   if (p.stock === 0 || p.stock === null) return 'var(--red)';
   if (p.stock <= 5) return 'var(--amber)';
@@ -180,9 +251,14 @@ function stockColor(p) {
 
 function rowHTML(p) {
   const imgSrc = p.imagen_url ?? (p.imagenes?.[0]?.url ?? '');
-  const thumb = imgSrc
+  const thumb  = imgSrc
     ? `<img src="${imgSrc}" style="width:32px;height:32px;object-fit:cover;border-radius:4px;border:1px solid var(--border);" onerror="this.style.display='none'" />`
     : `<div style="width:32px;height:32px;border-radius:4px;background:var(--surface-alt);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--light);font-size:10px;">IMG</div>`;
+
+  const varCount = p.variantes?.length ?? 0;
+  const varBadge = varCount > 0
+    ? `<span class="pill pill-blue" style="cursor:pointer;" onclick="openVariantes(${p.id})">${varCount} variante${varCount>1?'s':''}</span>`
+    : `<span style="color:var(--light); font-size:11px;">—</span>`;
 
   return `
     <tr>
@@ -200,39 +276,38 @@ function rowHTML(p) {
       <td><span class="pill pill-${p.categoria === 'ataud' ? 'blue' : 'gold'}">${CAT_LABEL[p.categoria] ?? p.categoria}</span></td>
       <td style="text-align:right; font-variant-numeric:tabular-nums; font-weight:600;">${fmt.currency(p.precio)}</td>
       <td style="color:var(--muted);">${p.material ?? '—'}</td>
+      <td style="text-align:center;">${varBadge}</td>
       <td style="text-align:right; font-variant-numeric:tabular-nums; font-weight:500; color:${stockColor(p)};">${p.stock ?? 0}</td>
       <td>${statusEl(p)}</td>
       <td>
         <div class="row-actions">
+          <button class="icon-btn" title="Variantes" onclick="openVariantes(${p.id})" style="color:var(--blue,#2563eb);">${varIcon}</button>
           <button class="icon-btn" title="Editar" onclick="openEdit(${p.id})">${editIcon}</button>
-          <button class="icon-btn" title="Eliminar" onclick="remove(${p.id}, '${p.nombre.replace(/'/g, "\\'")}')" style="color:var(--red);">${trashIcon}</button>
+          <button class="icon-btn" title="Eliminar" onclick="remove(${p.id},'${p.nombre.replace(/'/g,"\\'")}')" style="color:var(--red);">${trashIcon}</button>
         </div>
       </td>
     </tr>`;
 }
 
-/* ── datos filtrados ──────────────────────────────── */
+/* ── filtros y paginación ─────────────────────────────────── */
 function filtered() {
   const q    = (document.getElementById('filter-q').value || '').toLowerCase();
   const cat  = document.getElementById('filter-cat').value;
   const stat = document.getElementById('filter-status').value;
   return allProducts.filter(p => {
-    if (q && !p.nombre.toLowerCase().includes(q) &&
-             !String(p.id).includes(q) &&
-             !(p.material ?? '').toLowerCase().includes(q)) return false;
-    if (cat && p.categoria !== cat) return false;
+    if (q && !p.nombre.toLowerCase().includes(q) && !String(p.id).includes(q) && !(p.material ?? '').toLowerCase().includes(q)) return false;
+    if (cat  && p.categoria !== cat) return false;
     if (stat === 'true'  && !p.activo) return false;
-    if (stat === 'false' && p.activo)  return false;
+    if (stat === 'false' &&  p.activo) return false;
     return true;
   });
 }
 
-/* ── render ───────────────────────────────────────── */
 function renderStats(prods) {
   document.getElementById('meta-total').textContent   = prods.length;
   document.getElementById('meta-activos').textContent = prods.filter(p => p.activo).length;
-  document.getElementById('meta-low').textContent     = prods.filter(p => p.activo && (p.stock ?? 0) > 0 && (p.stock ?? 0) <= 5).length;
-  document.getElementById('meta-out').textContent     = prods.filter(p => p.activo && p.stock === 0).length;
+  document.getElementById('meta-low').textContent     = prods.filter(p => p.activo && (p.stock??0)>0 && (p.stock??0)<=5).length;
+  document.getElementById('meta-out').textContent     = prods.filter(p => p.activo && p.stock===0).length;
 }
 
 function renderTable() {
@@ -249,10 +324,9 @@ function renderTable() {
   const tbody = document.getElementById('tbody');
   tbody.innerHTML = pageRows.length
     ? pageRows.map(rowHTML).join('')
-    : `<tr><td colspan="9"><div class="empty-state"><h3>Sin resultados</h3><p>Prueba otros términos o limpia los filtros.</p></div></td></tr>`;
+    : `<tr><td colspan="10"><div class="empty-state"><h3>Sin resultados</h3><p>Prueba otros términos o limpia los filtros.</p></div></td></tr>`;
 
   renderPagination(page, totalPages);
-  syncSelectAll();
 }
 
 function renderPagination(cur, total) {
@@ -271,21 +345,15 @@ function renderPagination(cur, total) {
   html += btn(cur + 1, 'Siguiente →', true);
   pg.innerHTML = html;
   document.querySelector('#pagination button:first-child').disabled = cur <= 1;
-  document.querySelector('#pagination button:last-child').disabled = cur >= total;
+  document.querySelector('#pagination button:last-child').disabled  = cur >= total;
 }
 
 function goPage(n) {
-  const total = Math.ceil(filtered().length / PER_PAGE);
-  page = Math.max(1, Math.min(total, n));
+  page = Math.max(1, Math.min(Math.ceil(filtered().length / PER_PAGE), n));
   renderTable();
 }
 
-function syncSelectAll() {
-  const chkAll = document.getElementById('chk-all');
-  if (chkAll) chkAll.checked = false;
-}
-
-/* ── carga ────────────────────────────────────────── */
+/* ── carga ────────────────────────────────────────────────── */
 async function load() {
   if (window.AdminLayout) window.AdminLayout.setPageTitle('Productos');
   try {
@@ -295,45 +363,39 @@ async function load() {
     renderTable();
   } catch (e) {
     document.getElementById('tbody').innerHTML =
-      `<tr><td colspan="9" style="text-align:center;color:var(--red);padding:30px;">${e.message}</td></tr>`;
+      `<tr><td colspan="10" style="text-align:center;color:var(--red);padding:30px;">${e.message}</td></tr>`;
   }
 }
 
-/* ── modal ────────────────────────────────────────── */
-function openModal(title) {
-  document.getElementById('modal-title').textContent = title ?? 'Nuevo producto';
-  document.getElementById('modal').classList.add('open');
-}
-
+/* ── modal producto ───────────────────────────────────────── */
 function openNew() {
   editingId = null;
-  document.getElementById('field-id').value       = '';
-  document.getElementById('field-nombre').value   = '';
-  document.getElementById('field-categoria').value= 'ataud';
-  document.getElementById('field-precio').value   = '';
-  document.getElementById('field-material').value = '';
-  document.getElementById('field-stock').value    = '0';
-  document.getElementById('field-descripcion').value = '';
-  document.getElementById('field-imagen_url').value  = '';
+  ['field-id','field-nombre','field-precio','field-material','field-descripcion','field-imagen_url'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('field-categoria').value = 'ataud';
+  document.getElementById('field-stock').value = '0';
   document.getElementById('group-activo').style.display = 'none';
-  openModal('Nuevo producto');
+  document.getElementById('modal-title').textContent = 'Nuevo producto';
+  document.getElementById('modal').classList.add('open');
 }
 
 function openEdit(id) {
   const p = allProducts.find(x => x.id === id);
   if (!p) return;
   editingId = id;
-  document.getElementById('field-id').value       = id;
-  document.getElementById('field-nombre').value   = p.nombre ?? '';
-  document.getElementById('field-categoria').value= p.categoria ?? 'ataud';
-  document.getElementById('field-precio').value   = p.precio ?? '';
-  document.getElementById('field-material').value = p.material ?? '';
-  document.getElementById('field-stock').value    = p.stock ?? 0;
+  document.getElementById('field-id').value          = id;
+  document.getElementById('field-nombre').value      = p.nombre ?? '';
+  document.getElementById('field-categoria').value   = p.categoria ?? 'ataud';
+  document.getElementById('field-precio').value      = p.precio ?? '';
+  document.getElementById('field-material').value    = p.material ?? '';
+  document.getElementById('field-stock').value       = p.stock ?? 0;
   document.getElementById('field-descripcion').value = p.descripcion ?? '';
   document.getElementById('field-imagen_url').value  = p.imagen_url ?? '';
-  document.getElementById('field-activo').value   = String(p.activo ?? true);
+  document.getElementById('field-activo').value      = String(p.activo ?? true);
   document.getElementById('group-activo').style.display = '';
-  openModal('Editar producto');
+  document.getElementById('modal-title').textContent = 'Editar producto';
+  document.getElementById('modal').classList.add('open');
 }
 
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
@@ -345,9 +407,8 @@ async function save() {
   if (isNaN(precio)) { Toast.show('El precio es requerido', 'warning'); return; }
 
   const body = {
-    nombre,
+    nombre, precio,
     categoria:   document.getElementById('field-categoria').value,
-    precio,
     material:    document.getElementById('field-material').value.trim() || null,
     stock:       parseInt(document.getElementById('field-stock').value) || 0,
     descripcion: document.getElementById('field-descripcion').value.trim() || null,
@@ -356,42 +417,181 @@ async function save() {
   };
 
   const btn = document.getElementById('btn-save');
-  btn.disabled = true;
-  btn.textContent = 'Guardando...';
+  btn.disabled = true; btn.textContent = 'Guardando...';
   try {
     if (editingId) await Api.put(`/admin/productos/${editingId}`, body);
     else           await Api.post('/admin/productos', body);
-    closeModal();
-    await load();
+    closeModal(); await load();
     Toast.show(editingId ? 'Producto actualizado' : 'Producto creado', 'success');
-  } catch (e) {
-    Toast.show(e.message, 'error');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Guardar producto';
-  }
+  } catch (e) { Toast.show(e.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'Guardar producto'; }
 }
 
 async function remove(id, nombre) {
   if (!confirm(`¿Eliminar "${nombre}"? Esta acción lo marcará como inactivo.`)) return;
+  try { await Api.delete(`/admin/productos/${id}`); await load(); Toast.show('Producto eliminado', 'success'); }
+  catch (e) { Toast.show(e.message, 'error'); }
+}
+
+/* ── modal variantes ──────────────────────────────────────── */
+async function openVariantes(productId) {
+  const p = allProducts.find(x => x.id === productId);
+  if (!p) return;
+  varProductId = productId;
+  varEditingId = null;
+  document.getElementById('var-product-name').textContent = p.nombre;
+  document.getElementById('var-precio-base').textContent  = fmt.currency(p.precio);
+  resetVariantForm();
+  document.getElementById('modal-variantes').classList.add('open');
+  await loadVariantes();
+}
+
+function closeVariantes() {
+  document.getElementById('modal-variantes').classList.remove('open');
+  load(); // refresca el badge del producto en la tabla
+}
+
+async function loadVariantes() {
   try {
-    await Api.delete(`/admin/productos/${id}`);
-    await load();
-    Toast.show('Producto eliminado', 'success');
+    variantesCache = await Api.get(`/admin/productos/${varProductId}/variantes`);
+    renderVariantList();
   } catch (e) { Toast.show(e.message, 'error'); }
 }
 
-/* ── init ─────────────────────────────────────────── */
+function renderVariantList() {
+  const el = document.getElementById('var-list');
+  if (!variantesCache.length) {
+    el.innerHTML = `<div style="text-align:center; padding:16px 0; color:var(--muted); font-size:13px;">
+      Sin variantes. Agrega la primera abajo.
+    </div>`;
+    return;
+  }
+  el.innerHTML = `
+    <div style="border:1px solid var(--border); border-radius:var(--r-lg); overflow:hidden;">
+      <table class="admin-table" style="margin:0;">
+        <thead>
+          <tr>
+            <th>Variante</th>
+            <th style="width:130px; text-align:right;">Precio</th>
+            <th style="width:80px; text-align:right;">Stock</th>
+            <th style="width:90px;">Estado</th>
+            <th style="width:80px; text-align:right;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${variantesCache.map(v => `
+            <tr>
+              <td>
+                <div class="row-name">${v.nombre}</div>
+              </td>
+              <td style="text-align:right; font-variant-numeric:tabular-nums; font-weight:600;">
+                ${fmt.currency(v.precio)}
+              </td>
+              <td style="text-align:right; font-variant-numeric:tabular-nums; color:${v.stock===0?'var(--red)':v.stock<=5?'var(--amber)':'var(--ink)'};">
+                ${v.stock}
+              </td>
+              <td>${v.activo ? '<span class="status status-ok">Activo</span>' : '<span class="status status-off">Inactivo</span>'}</td>
+              <td style="text-align:right;">
+                <div class="row-actions">
+                  <button class="icon-btn" title="Editar" onclick="editVariant(${v.id})">${editIcon}</button>
+                  <button class="icon-btn" title="Eliminar" onclick="removeVariant(${v.id},'${v.nombre.replace(/'/g,"\\'")}')" style="color:var(--red);">${trashIcon}</button>
+                </div>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function editVariant(id) {
+  const v = variantesCache.find(x => x.id === id);
+  if (!v) return;
+  varEditingId = id;
+  document.getElementById('var-field-id').value     = id;
+  document.getElementById('var-field-nombre').value = v.nombre;
+  document.getElementById('var-field-precio').value = v.precio;
+  document.getElementById('var-field-stock').value  = v.stock;
+  document.getElementById('var-field-orden').value  = v.orden ?? 0;
+  document.getElementById('var-field-activo').value = String(v.activo);
+  document.getElementById('var-group-activo').style.display = '';
+  document.getElementById('var-form-title').textContent     = 'Editar variante';
+  document.getElementById('var-btn-save').textContent       = 'Guardar cambios';
+  document.getElementById('var-btn-cancel').style.display   = '';
+  document.getElementById('var-field-nombre').focus();
+}
+
+function cancelVariantEdit() {
+  varEditingId = null;
+  resetVariantForm();
+}
+
+function resetVariantForm() {
+  varEditingId = null;
+  document.getElementById('var-field-id').value     = '';
+  document.getElementById('var-field-nombre').value = '';
+  document.getElementById('var-field-precio').value = '';
+  document.getElementById('var-field-stock').value  = '0';
+  document.getElementById('var-field-orden').value  = '0';
+  document.getElementById('var-group-activo').style.display = 'none';
+  document.getElementById('var-form-title').textContent   = 'Nueva variante';
+  document.getElementById('var-btn-save').innerHTML =
+    `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Agregar variante`;
+  document.getElementById('var-btn-cancel').style.display = 'none';
+}
+
+async function saveVariant() {
+  const nombre = document.getElementById('var-field-nombre').value.trim();
+  const precio = parseFloat(document.getElementById('var-field-precio').value);
+  if (!nombre)       { Toast.show('El nombre de la variante es requerido', 'warning'); return; }
+  if (isNaN(precio) || precio <= 0) { Toast.show('Ingresa un precio válido', 'warning'); return; }
+
+  const body = {
+    nombre, precio,
+    stock:  parseInt(document.getElementById('var-field-stock').value) || 0,
+    orden:  parseInt(document.getElementById('var-field-orden').value) || 0,
+    ...(varEditingId ? { activo: document.getElementById('var-field-activo').value === 'true' } : {}),
+  };
+
+  const btn = document.getElementById('var-btn-save');
+  btn.disabled = true;
+  try {
+    if (varEditingId) {
+      await Api.put(`/admin/variantes/${varEditingId}`, body);
+      Toast.show('Variante actualizada', 'success');
+    } else {
+      await Api.post(`/admin/productos/${varProductId}/variantes`, body);
+      Toast.show('Variante creada', 'success');
+    }
+    resetVariantForm();
+    await loadVariantes();
+  } catch (e) { Toast.show(e.message, 'error'); }
+  finally { btn.disabled = false; }
+}
+
+async function removeVariant(id, nombre) {
+  if (!confirm(`¿Eliminar la variante "${nombre}"?`)) return;
+  try {
+    await Api.delete(`/admin/variantes/${id}`);
+    Toast.show('Variante eliminada', 'success');
+    await loadVariantes();
+  } catch (e) { Toast.show(e.message, 'error'); }
+}
+
+/* ── init ─────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
   load();
-
-  document.getElementById('filter-q').addEventListener('input', () => { page = 1; renderTable(); });
+  document.getElementById('filter-q').addEventListener('input',    () => { page = 1; renderTable(); });
   document.getElementById('filter-cat').addEventListener('change', () => { page = 1; renderTable(); });
   document.getElementById('filter-status').addEventListener('change', () => { page = 1; renderTable(); });
   document.getElementById('btn-new').addEventListener('click', openNew);
   document.getElementById('modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-
+  document.getElementById('modal-variantes').addEventListener('click', e => { if (e.target === e.currentTarget) closeVariantes(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closeModal();
+      closeVariantes();
+    }
+  });
   document.getElementById('chk-all').addEventListener('change', e => {
     document.querySelectorAll('#tbody input[type="checkbox"]').forEach(c => { c.checked = e.target.checked; });
   });
