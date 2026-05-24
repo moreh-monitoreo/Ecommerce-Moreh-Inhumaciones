@@ -28,8 +28,8 @@ export function auditMiddleware(entidad: string) {
 }
 
 function methodToAction(method: string): string {
-  const map: Record<string, string> = { GET: 'listar', POST: 'crear', PUT: 'actualizar', PATCH: 'actualizar', DELETE: 'eliminar' };
-  return map[method] ?? method.toLowerCase();
+  const map: Record<string, string> = { POST: 'CREATE', PUT: 'UPDATE', PATCH: 'UPDATE', DELETE: 'DELETE' };
+  return map[method] ?? 'UPDATE';
 }
 
 function extractId(body: unknown): unknown {

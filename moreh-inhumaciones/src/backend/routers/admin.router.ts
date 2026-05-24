@@ -117,6 +117,7 @@ router.post('/productos', requirePermission('productos', 'crear'), auditMiddlewa
 router.put('/productos/:id', requirePermission('productos', 'editar'), auditMiddleware('Producto'), wrap(async (req, res) => ok(res, await productoAdminService.update(+req.params.id, req.body))));
 router.delete('/productos/:id', requirePermission('productos', 'eliminar'), auditMiddleware('Producto'), wrap(async (req, res) => { await productoAdminService.remove(+req.params.id); ok(res, { ok: true }); }));
 router.post('/productos/:id/imagenes', requirePermission('productos', 'editar'), wrap(async (req, res) => ok(res, await productoAdminService.addImage(+req.params.id, req.body.url, req.body.orden), 201)));
+router.patch('/imagenes/:id', requirePermission('productos', 'editar'), wrap(async (req, res) => ok(res, await productoAdminService.updateImage(+req.params.id, req.body))));
 router.delete('/imagenes/:id', requirePermission('productos', 'editar'), wrap(async (req, res) => { await productoAdminService.removeImage(+req.params.id); ok(res, { ok: true }); }));
 
 // Variantes

@@ -48,6 +48,12 @@ export const productoAdminService = {
   addImage: (productoId: number, url: string, orden = 0) =>
     ProductImage.create({ producto_id: productoId, url, orden }),
 
+  async updateImage(imageId: number, data: Partial<{ orden: number }>) {
+    const img = await ProductImage.findByPk(imageId);
+    if (!img) throw HttpError.notFound('Imagen no encontrada');
+    return img.update(data);
+  },
+
   async removeImage(imageId: number) {
     const img = await ProductImage.findByPk(imageId);
     if (!img) throw HttpError.notFound('Imagen no encontrada');

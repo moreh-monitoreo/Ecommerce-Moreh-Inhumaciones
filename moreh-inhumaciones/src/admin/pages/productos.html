@@ -34,6 +34,10 @@
       transition:opacity .15s;
     }
     .img-card:hover .img-card-del { opacity:1; }
+    .img-card[draggable="true"] { cursor:grab; user-select:none; }
+    .img-card[draggable="true"]:active { cursor:grabbing; }
+    .img-card.drag-over { border-color:var(--ink); box-shadow:0 0 0 3px rgba(0,0,0,.15); transform:scale(1.04); }
+    .img-card.drag-src  { opacity:.4; }
     .img-card-empty {
       display:flex; flex-direction:column; align-items:center;
       justify-content:center; gap:6px; color:var(--light);
@@ -671,6 +675,8 @@ function renderImgGrid() {
 
   document.getElementById('img-count').textContent = count;
   document.getElementById('img-count-s').textContent = count===1?'':'es';
+  // auto-incrementa el campo orden para la próxima imagen
+  document.getElementById('new-img-orden').value = count;
 
   if(!count) {
     grid.innerHTML=`<div style="grid-column:1/-1; text-align:center; padding:20px 0; color:var(--muted); font-size:12.5px;">
@@ -679,12 +685,17 @@ function renderImgGrid() {
     return;
   }
 
-  grid.innerHTML = imgs.map(img=>`
-    <div class="img-card">
+  grid.innerHTML = imgs.map((img, idx)=>`
+    <div class="img-card" draggable="true"
+      ondragstart="imgDragStart(event,${idx})"
+      ondragover="imgDragOver(event,${idx})"
+      ondragleave="imgDragLeave(event)"
+      ondrop="imgDragDrop(event,${idx})"
+      ondragend="imgDragEnd()">
       ${img.url
         ? `<img src="${img.url}" onerror="this.outerHTML='<div class=img-card-empty>Error</div>'" />`
         : `<div class="img-card-empty"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Sin URL</div>`}
-      <div class="img-card-label">Foto ${img.orden??''}</div>
+      <div class="img-card-label">Foto ${idx}</div>
       <button class="img-card-del" onclick="deleteSecondaryImg(${img.id})" title="Eliminar imagen">${delCircle}</button>
     </div>`).join('');
 }
@@ -858,6 +869,54 @@ async function removeVariant(id,nombre) {
   if(!confirm(`¿Eliminar la variante "${nombre}"?`)) return;
   try { await Api.delete(`/admin/variantes/${id}`); Toast.show('Variante eliminada','success'); await loadVariantes(); }
   catch(e) { Toast.show(e.message,'error'); }
+}
+
+/* ══════════════════════════════════════════════════════
+   DRAG & DROP — reordenar galería
+══════════════════════════════════════════════════════ */
+let dragSrcIdx = null;
+
+function imgDragStart(e, idx) {
+  dragSrcIdx = idx;
+  e.dataTransfer.effectAllowed = 'move';
+  e.currentTarget.classList.add('drag-src');
+}
+function imgDragOver(e, idx) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('#img-grid .img-card').forEach((c, i) => {
+    c.classList.toggle('drag-over', i === idx && i !== dragSrcIdx);
+  });
+}
+function imgDragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+function imgDragEnd() {
+  document.querySelectorAll('#img-grid .img-card').forEach(c => {
+    c.classList.remove('drag-over', 'drag-src');
+  });
+}
+async function imgDragDrop(e, idx) {
+  e.preventDefault();
+  imgDragEnd();
+  if (dragSrcIdx === null || dragSrcIdx === idx) { dragSrcIdx = null; return; }
+
+  // Reordenar en cache local
+  const imgs = imgProductData.imagenes;
+  const [moved] = imgs.splice(dragSrcIdx, 1);
+  imgs.splice(idx, 0, moved);
+  imgs.forEach((img, i) => img.orden = i);
+  dragSrcIdx = null;
+
+  renderImgGrid();
+
+  // Guardar nuevo orden en backend
+  try {
+    await Promise.all(imgs.map((img, i) => Api.patch(`/admin/imagenes/${img.id}`, { orden: i })));
+    Toast.show('Orden actualizado', 'success');
+  } catch(err) {
+    Toast.show('Error al guardar el orden', 'error');
+  }
 }
 
 /* ── init ────────────────────────────────────────────── */
