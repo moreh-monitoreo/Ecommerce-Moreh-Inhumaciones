@@ -14,6 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/estilos.css">
     <link rel="stylesheet" href="../css/sale-cart.css">
+    <link rel="stylesheet" href="../css/side-cart.css">
     <style>
         .cart-hero { background: #fff; min-height: 90px; display: flex; align-items: center; border-bottom: 1px solid #f0f0f0; }
         #cart-section { background: #fff; min-height: 420px; }
@@ -162,7 +163,7 @@
                                 <span style="color:#762252;font-size:1.2rem;" id="summary-total">$ 0.00</span>
                             </div>
                             <button class="btn-wa" id="btn-request-quote">
-                                <i class="fa fa-whatsapp"></i> Solicitar cotización por WhatsApp
+                                Finalizar compra
                             </button>
                             <a href="contactus.html" class="btn-cta">Contáctenos</a>
                             <p style="text-align:center;font-size:.78rem;color:#aaa;margin-top:14px;margin-bottom:0;">
@@ -228,6 +229,7 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/side-cart.js"></script>
 <script>
 (function () {
     'use strict';
@@ -351,13 +353,7 @@
     document.getElementById('btn-request-quote').addEventListener('click', function () {
         var cart = getCart();
         if (cart.length === 0) return;
-        var lines = cart.map(function (i) {
-            var line = i.cantidad + 'x ' + i.nombre;
-            if (i.variante) line += ' (' + i.variante + ')';
-            return line;
-        }).join(', ');
-        var msg = 'Hola, me gustaría cotizar los siguientes productos: ' + lines;
-        window.open('https://wa.me/526677125030?text=' + encodeURIComponent(msg), '_blank');
+        if (window.MorehCart) window.MorehCart.openModal();
     });
 
     renderCart();
