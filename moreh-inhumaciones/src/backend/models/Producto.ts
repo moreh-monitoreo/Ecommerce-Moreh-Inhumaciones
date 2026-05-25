@@ -20,6 +20,11 @@ export class Producto extends Model<
   declare categoria: CategoriaProducto;
   declare material: string | null;
   declare imagen_url: string | null;
+  declare categoria_id: number | null;
+  declare sku: string | null;
+  declare precio_mayoreo: number | null;
+  declare iva: number | null;
+  declare slug: string | null;
   declare activo: CreationOptional<boolean>;
   declare stock: number | null;
   declare createdAt: CreationOptional<Date>;
@@ -60,6 +65,34 @@ Producto.init(
     },
     imagen_url: {
       type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    categoria_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    sku: {
+      type: DataTypes.STRING(80),
+      allowNull: true,
+    },
+    precio_mayoreo: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true,
+      get() {
+        const raw = this.getDataValue('precio_mayoreo');
+        return raw === null ? null : parseFloat(raw as unknown as string);
+      },
+    },
+    iva: {
+      type: DataTypes.DECIMAL(5, 4),
+      allowNull: true,
+      get() {
+        const raw = this.getDataValue('iva');
+        return raw === null ? null : parseFloat(raw as unknown as string);
+      },
+    },
+    slug: {
+      type: DataTypes.STRING(160),
       allowNull: true,
     },
     activo: {

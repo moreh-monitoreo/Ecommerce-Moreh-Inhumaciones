@@ -155,6 +155,21 @@ END ELSE PRINT 'Categories ya existe.';
 GO
 
 -- ============================================================================
+-- PRODUCTOS — agregar categoria_id FK a Categories
+-- ============================================================================
+IF NOT EXISTS (
+    SELECT 1 FROM sys.columns
+    WHERE object_id = OBJECT_ID('dbo.Productos') AND name = 'categoria_id'
+)
+BEGIN
+    ALTER TABLE dbo.Productos ADD categoria_id INT NULL;
+    ALTER TABLE dbo.Productos ADD CONSTRAINT FK_Productos_Categories
+        FOREIGN KEY (categoria_id) REFERENCES dbo.Categories(id);
+    PRINT 'Columna categoria_id agregada a Productos.';
+END ELSE PRINT 'categoria_id ya existe en Productos.';
+GO
+
+-- ============================================================================
 -- PRODUCT_IMAGES
 -- ============================================================================
 IF OBJECT_ID('dbo.ProductImages', 'U') IS NULL

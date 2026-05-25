@@ -88,12 +88,15 @@
         <div class="container">
 
             <!-- Encabezado tienda -->
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 gap-3">
                 <div>
-                    <h1 class="h3 mb-0">Planes funerarios</h1>
+                    <h1 class="h3 mb-0">Catálogo de productos</h1>
                     <p class="text-muted mb-0">Moreh Inhumaciones</p>
                 </div>
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 align-items-center">
+                    <button class="btn btn-outline-secondary btn-sm" id="btn-filter" title="Filtrar" data-bs-toggle="offcanvas" data-bs-target="#filterOffcanvas">
+                        <i class="fa fa-sliders"></i>
+                    </button>
                     <div class="input-group" style="max-width:260px;">
                         <input type="search" class="form-control form-control-sm" placeholder="Buscar..." id="searchInput">
                         <button class="btn btn-outline-secondary btn-sm"><i class="fa fa-search"></i></button>
@@ -110,249 +113,10 @@
 
             <!-- Grid de productos -->
             <div class="row g-4" id="productGrid">
-
-                <!-- Ataúdes -->
-                <div class="col-6 col-md-4 col-lg-3 product-card" data-name="METALICO BÁSICO" data-price="24678">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="overflow-hidden" style="height:200px;">
-                            <img src="../img/METALICO BÁSICO.webp" class="card-img-top w-100 h-100" style="object-fit:cover;" alt="METALICO BÁSICO" loading="lazy">
-                        </div>
-                        <div class="card-body d-flex flex-column p-3">
-                            <p class="card-title fw-bold mb-1 small">METALICO BÁSICO</p>
-                            <p class="text-primary fw-bold mb-3">$24,678.00</p>
-                            <button class="btn btn-primary btn-sm mt-auto add-to-cart" data-product="METALICO BÁSICO" data-price="24678">
-                                <i class="fa fa-shopping-cart me-1"></i> Agregar al carrito
-                            </button>
-                        </div>
-                    </div>
+                <div class="col-12 text-center py-5" id="grid-loading">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="text-muted mt-2 mb-0">Cargando productos...</p>
                 </div>
-
-                <div class="col-6 col-md-4 col-lg-3 product-card" data-name="METALICO MEDIO" data-price="32784">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="overflow-hidden" style="height:200px;">
-                            <img src="../img/METALICO MEDIO.webp" class="card-img-top w-100 h-100" style="object-fit:cover;" alt="METALICO MEDIO" loading="lazy">
-                        </div>
-                        <div class="card-body d-flex flex-column p-3">
-                            <p class="card-title fw-bold mb-1 small">METALICO MEDIO</p>
-                            <p class="text-primary fw-bold mb-3">$32,784.00</p>
-                            <button class="btn btn-primary btn-sm mt-auto add-to-cart" data-product="METALICO MEDIO" data-price="32784">
-                                <i class="fa fa-shopping-cart me-1"></i> Agregar al carrito
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-4 col-lg-3 product-card" data-name="METALICO ECONÓMICO" data-price="19428">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="overflow-hidden" style="height:200px;">
-                            <img src="../img/METALICO ECONÓMICO.webp" class="card-img-top w-100 h-100" style="object-fit:cover;" alt="METALICO ECONÓMICO" loading="lazy">
-                        </div>
-                        <div class="card-body d-flex flex-column p-3">
-                            <p class="card-title fw-bold mb-1 small">METALICO ECONÓMICO</p>
-                            <p class="text-primary fw-bold mb-3">$19,428.00</p>
-                            <button class="btn btn-primary btn-sm mt-auto add-to-cart" data-product="METALICO ECONÓMICO" data-price="19428">
-                                <i class="fa fa-shopping-cart me-1"></i> Agregar al carrito
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-4 col-lg-3 product-card" data-name="MADERA CAOBA TP" data-price="39588">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="overflow-hidden" style="height:200px;">
-                            <img src="../img/MADERA CAOBA TP.webp" class="card-img-top w-100 h-100" style="object-fit:cover;" alt="MADERA CAOBA TP" loading="lazy">
-                        </div>
-                        <div class="card-body d-flex flex-column p-3">
-                            <p class="card-title fw-bold mb-1 small">MADERA CAOBA TP</p>
-                            <p class="text-primary fw-bold mb-3">$39,588.00</p>
-                            <button class="btn btn-primary btn-sm mt-auto add-to-cart" data-product="MADERA CAOBA TP" data-price="39588">
-                                <i class="fa fa-shopping-cart me-1"></i> Agregar al carrito
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-4 col-lg-3 product-card" data-name="METALICO DE LUJO" data-price="48228">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="overflow-hidden" style="height:200px;">
-                            <img src="../img/placeholder_thumbnail.png" class="card-img-top w-100 h-100" style="object-fit:cover;" alt="METALICO DE LUJO" loading="lazy">
-                        </div>
-                        <div class="card-body d-flex flex-column p-3">
-                            <p class="card-title fw-bold mb-1 small">METALICO DE LUJO</p>
-                            <p class="text-primary fw-bold mb-3">$48,228.00</p>
-                            <button class="btn btn-primary btn-sm mt-auto add-to-cart" data-product="METALICO DE LUJO" data-price="48228">
-                                <i class="fa fa-shopping-cart me-1"></i> Agregar al carrito
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-4 col-lg-3 product-card" data-name="MADERA CONCAVO" data-price="48288">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="overflow-hidden" style="height:200px;">
-                            <img src="../img/placeholder_thumbnail(1).png" class="card-img-top w-100 h-100" style="object-fit:cover;" alt="MADERA CONCAVO" loading="lazy">
-                        </div>
-                        <div class="card-body d-flex flex-column p-3">
-                            <p class="card-title fw-bold mb-1 small">MADERA CONCAVO</p>
-                            <p class="text-primary fw-bold mb-3">$48,288.00</p>
-                            <button class="btn btn-primary btn-sm mt-auto add-to-cart" data-product="MADERA CONCAVO" data-price="48288">
-                                <i class="fa fa-shopping-cart me-1"></i> Agregar al carrito
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-4 col-lg-3 product-card" data-name="MADERA DE LUJO" data-price="53736">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="overflow-hidden" style="height:200px;">
-                            <img src="../img/placeholder_thumbnail(2).png" class="card-img-top w-100 h-100" style="object-fit:cover;" alt="MADERA DE LUJO" loading="lazy">
-                        </div>
-                        <div class="card-body d-flex flex-column p-3">
-                            <p class="card-title fw-bold mb-1 small">MADERA DE LUJO</p>
-                            <p class="text-primary fw-bold mb-3">$53,736.00</p>
-                            <button class="btn btn-primary btn-sm mt-auto add-to-cart" data-product="MADERA DE LUJO" data-price="53736">
-                                <i class="fa fa-shopping-cart me-1"></i> Agregar al carrito
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-4 col-lg-3 product-card" data-name="MADERA FINA TALLADA" data-price="64200">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="overflow-hidden" style="height:200px;">
-                            <img src="../img/placeholder_thumbnail(3).png" class="card-img-top w-100 h-100" style="object-fit:cover;" alt="MADERA FINA TALLADA" loading="lazy">
-                        </div>
-                        <div class="card-body d-flex flex-column p-3">
-                            <p class="card-title fw-bold mb-1 small">MADERA FINA TALLADA</p>
-                            <p class="text-primary fw-bold mb-3">$64,200.00</p>
-                            <button class="btn btn-primary btn-sm mt-auto add-to-cart" data-product="MADERA FINA TALLADA" data-price="64200">
-                                <i class="fa fa-shopping-cart me-1"></i> Agregar al carrito
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Urnas -->
-                <div class="col-6 col-md-4 col-lg-3 product-card" data-name="URNA DE JARRÓN" data-price="1000">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="overflow-hidden" style="height:200px;">
-                            <img src="../img/URNA DE JARRÓN.webp" class="card-img-top w-100 h-100" style="object-fit:cover;" alt="URNA DE JARRÓN" loading="lazy">
-                        </div>
-                        <div class="card-body d-flex flex-column p-3">
-                            <p class="card-title fw-bold mb-1 small">URNA DE JARRÓN</p>
-                            <p class="text-primary fw-bold mb-3">$1,000.00</p>
-                            <button class="btn btn-primary btn-sm mt-auto add-to-cart" data-product="URNA DE JARRÓN" data-price="1000">
-                                <i class="fa fa-shopping-cart me-1"></i> Agregar al carrito
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-4 col-lg-3 product-card" data-name="URNA DE MADERA DE LUJO" data-price="1000">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="overflow-hidden" style="height:200px;">
-                            <img src="../img/URNA DE MADERA DE LUJO .webp" class="card-img-top w-100 h-100" style="object-fit:cover;" alt="URNA DE MADERA DE LUJO" loading="lazy">
-                        </div>
-                        <div class="card-body d-flex flex-column p-3">
-                            <p class="card-title fw-bold mb-1 small">URNA DE MADERA DE LUJO</p>
-                            <p class="text-primary fw-bold mb-3">$1,000.00</p>
-                            <button class="btn btn-primary btn-sm mt-auto add-to-cart" data-product="URNA DE MADERA DE LUJO" data-price="1000">
-                                <i class="fa fa-shopping-cart me-1"></i> Agregar al carrito
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-4 col-lg-3 product-card" data-name="URNA INFANTIL DE MADERA" data-price="1000">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="overflow-hidden" style="height:200px;">
-                            <img src="../img/URNA INFANTIL DE MADERA .webp" class="card-img-top w-100 h-100" style="object-fit:cover;" alt="URNA INFANTIL DE MADERA" loading="lazy">
-                        </div>
-                        <div class="card-body d-flex flex-column p-3">
-                            <p class="card-title fw-bold mb-1 small">URNA INFANTIL DE MADERA</p>
-                            <p class="text-primary fw-bold mb-3">$1,000.00</p>
-                            <button class="btn btn-primary btn-sm mt-auto add-to-cart" data-product="URNA INFANTIL DE MADERA" data-price="1000">
-                                <i class="fa fa-shopping-cart me-1"></i> Agregar al carrito
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-4 col-lg-3 product-card" data-name="URNA DE MÁRMOL ROSA" data-price="1000">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="overflow-hidden" style="height:200px;">
-                            <img src="../img/URNA DE MÁRMOL ROSA.webp" class="card-img-top w-100 h-100" style="object-fit:cover;" alt="URNA DE MÁRMOL ROSA" loading="lazy">
-                        </div>
-                        <div class="card-body d-flex flex-column p-3">
-                            <p class="card-title fw-bold mb-1 small">URNA DE MÁRMOL ROSA</p>
-                            <p class="text-primary fw-bold mb-3">$1,000.00</p>
-                            <button class="btn btn-primary btn-sm mt-auto add-to-cart" data-product="URNA DE MÁRMOL ROSA" data-price="1000">
-                                <i class="fa fa-shopping-cart me-1"></i> Agregar al carrito
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-4 col-lg-3 product-card" data-name="URNA DE MÁRMOL MARFIL" data-price="1000">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="overflow-hidden" style="height:200px;">
-                            <img src="../img/URNA DE MÁRMOL MARFIL.webp" class="card-img-top w-100 h-100" style="object-fit:cover;" alt="URNA DE MÁRMOL MARFIL" loading="lazy">
-                        </div>
-                        <div class="card-body d-flex flex-column p-3">
-                            <p class="card-title fw-bold mb-1 small">URNA DE MÁRMOL MARFIL</p>
-                            <p class="text-primary fw-bold mb-3">$1,000.00</p>
-                            <button class="btn btn-primary btn-sm mt-auto add-to-cart" data-product="URNA DE MÁRMOL MARFIL" data-price="1000">
-                                <i class="fa fa-shopping-cart me-1"></i> Agregar al carrito
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-4 col-lg-3 product-card" data-name="URNA DE ÓNIX BLANCO TORRE" data-price="1000">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="overflow-hidden" style="height:200px;">
-                            <img src="../img/URNA DE ÓNIX BLANCO TORRE.webp" class="card-img-top w-100 h-100" style="object-fit:cover;" alt="URNA DE ÓNIX BLANCO TORRE" loading="lazy">
-                        </div>
-                        <div class="card-body d-flex flex-column p-3">
-                            <p class="card-title fw-bold mb-1 small">URNA DE ÓNIX BLANCO TORRE</p>
-                            <p class="text-primary fw-bold mb-3">$1,000.00</p>
-                            <button class="btn btn-primary btn-sm mt-auto add-to-cart" data-product="URNA DE ÓNIX BLANCO TORRE" data-price="1000">
-                                <i class="fa fa-shopping-cart me-1"></i> Agregar al carrito
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-4 col-lg-3 product-card" data-name="URNA DE ÓNIX ROSA CLÁSICA" data-price="1000">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="overflow-hidden" style="height:200px;">
-                            <img src="../img/URNA DE ÓNIX ROSA CLÁSICA.webp" class="card-img-top w-100 h-100" style="object-fit:cover;" alt="URNA DE ÓNIX ROSA CLÁSICA" loading="lazy">
-                        </div>
-                        <div class="card-body d-flex flex-column p-3">
-                            <p class="card-title fw-bold mb-1 small">URNA DE ÓNIX ROSA CLÁSICA</p>
-                            <p class="text-primary fw-bold mb-3">$1,000.00</p>
-                            <button class="btn btn-primary btn-sm mt-auto add-to-cart" data-product="URNA DE ÓNIX ROSA CLÁSICA" data-price="1000">
-                                <i class="fa fa-shopping-cart me-1"></i> Agregar al carrito
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-4 col-lg-3 product-card" data-name="URNA DE MADERA BÁSICA NEGRO" data-price="1000">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="overflow-hidden" style="height:200px;">
-                            <img src="../img/URNA DE MADERA BÁSICA NEGRO.webp" class="card-img-top w-100 h-100" style="object-fit:cover;" alt="URNA DE MADERA BÁSICA NEGRO" loading="lazy">
-                        </div>
-                        <div class="card-body d-flex flex-column p-3">
-                            <p class="card-title fw-bold mb-1 small">URNA DE MADERA BÁSICA NEGRO</p>
-                            <p class="text-primary fw-bold mb-3">$1,000.00</p>
-                            <button class="btn btn-primary btn-sm mt-auto add-to-cart" data-product="URNA DE MADERA BÁSICA NEGRO" data-price="1000">
-                                <i class="fa fa-shopping-cart me-1"></i> Agregar al carrito
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
             </div><!-- /row -->
         </div>
     </section>
@@ -406,57 +170,232 @@
     </div>
 </footer>
 
+<!-- ===== OFFCANVAS FILTROS ===== -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="filterOffcanvas" style="max-width:290px;">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title fw-bold">Filtros</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body px-0">
+
+        <!-- Categorías (se renderizan desde la API) -->
+        <div class="px-3 pt-2 pb-3 border-bottom">
+            <p class="text-uppercase fw-bold mb-2" style="font-size:.75rem;letter-spacing:.07em;color:#6c757d;">Categorías</p>
+            <div class="list-group list-group-flush" id="cat-list">
+                <button class="list-group-item list-group-item-action filter-cat active py-2"
+                    data-cat-id="" data-cat-slug="" style="font-size:.9rem;">
+                    Todos los productos
+                </button>
+            </div>
+        </div>
+
+        <!-- Rango de precio -->
+        <div class="px-3 pt-3 pb-2">
+            <p class="text-uppercase fw-bold mb-2" style="font-size:.75rem;letter-spacing:.07em;color:#6c757d;">Rango de precio</p>
+            <div class="d-flex gap-2 align-items-center mb-3">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">$</span>
+                    <input type="number" id="price-min" class="form-control" placeholder="Mín" min="0">
+                </div>
+                <span class="text-muted">—</span>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">$</span>
+                    <input type="number" id="price-max" class="form-control" placeholder="Máx" min="0">
+                </div>
+            </div>
+            <button class="btn btn-primary w-100 btn-sm" id="btn-apply-price">Aplicar precio</button>
+        </div>
+
+        <!-- Limpiar filtros -->
+        <div class="px-3 pt-2">
+            <button class="btn btn-link text-danger btn-sm p-0" id="btn-clear-filters">
+                <i class="fa fa-times me-1"></i>Eliminar filtros
+            </button>
+        </div>
+
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Filtro por búsqueda
-    document.getElementById('searchInput').addEventListener('input', function () {
-        const q = this.value.toLowerCase();
-        document.querySelectorAll('.product-card').forEach(function (card) {
-            card.style.display = card.dataset.name.toLowerCase().includes(q) ? '' : 'none';
+(function () {
+    'use strict';
+    var API = 'http://localhost:3000/api';
+    var allProducts = [];
+    // { type:'all' } | { type:'root', slug:'ataud'|'urna' } | { type:'sub', id:number }
+    var activeFilter = { type: 'all' };
+    var priceMin = 0, priceMax = 0;
+    var PLACEHOLDER = '../img/placeholder_thumbnail.png';
+
+    function fmt(n) {
+        return '$' + (+n).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function getImg(p) {
+        if (p.imagen_url && p.imagen_url.startsWith('http')) return p.imagen_url;
+        if (p.imagenes && p.imagenes.length > 0) return p.imagenes[0].url;
+        return PLACEHOLDER;
+    }
+
+    function renderProducts(products) {
+        var grid = document.getElementById('productGrid');
+        if (products.length === 0) {
+            grid.innerHTML = '<div class="col-12 text-center py-5 text-muted">No se encontraron productos.</div>';
+            return;
+        }
+        grid.innerHTML = products.map(function (p) {
+            var nombre = p.nombre.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+            return '<div class="col-6 col-md-4 col-lg-3 product-card">' +
+                '<div class="card h-100 border-0 shadow-sm" style="cursor:pointer;" onclick="location.href=\'sale-product-detail.html?id=' + p.id + '\'">' +
+                '<div class="overflow-hidden" style="height:200px;">' +
+                '<img src="' + getImg(p) + '" class="card-img-top w-100 h-100" style="object-fit:cover;" alt="' + nombre + '" loading="lazy" onerror="this.onerror=null;this.src=\'' + PLACEHOLDER + '\'">' +
+                '</div>' +
+                '<div class="card-body d-flex flex-column p-3">' +
+                '<p class="card-title fw-bold mb-1 small">' + p.nombre + '</p>' +
+                '<p class="text-primary fw-bold mb-3">' + fmt(p.precio) + '</p>' +
+                '<a href="sale-product-detail.html?id=' + p.id + '" class="btn btn-primary btn-sm mt-auto" onclick="event.stopPropagation();">' +
+                '<i class="fa fa-search me-1"></i> Ver detalles' +
+                '</a>' +
+                '</div></div></div>';
+        }).join('');
+    }
+
+    function matchesFilter(p) {
+        if (activeFilter.type === 'root') return p.categoria === activeFilter.slug;
+        if (activeFilter.type === 'sub')  return p.categoria_id === activeFilter.id;
+        return true;
+    }
+
+    function applyFilter() {
+        var q = document.getElementById('searchInput').value.toLowerCase();
+        var sort = document.getElementById('sortSelect').value;
+        var filtered = allProducts.filter(function (p) {
+            return p.nombre.toLowerCase().includes(q) &&
+                matchesFilter(p) &&
+                (!priceMin || +p.precio >= priceMin) &&
+                (!priceMax || +p.precio <= priceMax);
         });
-    });
-
-    // Ordenar
-    document.getElementById('sortSelect').addEventListener('change', function () {
-        const grid = document.getElementById('productGrid');
-        const cards = Array.from(grid.querySelectorAll('.product-card'));
-        cards.sort(function (a, b) {
-            if (this.value === 'name-asc') return a.dataset.name.localeCompare(b.dataset.name);
-            if (this.value === 'name-desc') return b.dataset.name.localeCompare(a.dataset.name);
-            if (this.value === 'price-asc') return +a.dataset.price - +b.dataset.price;
-            if (this.value === 'price-desc') return +b.dataset.price - +a.dataset.price;
+        filtered.sort(function (a, b) {
+            if (sort === 'name-asc')   return a.nombre.localeCompare(b.nombre);
+            if (sort === 'name-desc')  return b.nombre.localeCompare(a.nombre);
+            if (sort === 'price-asc')  return +a.precio - +b.precio;
+            if (sort === 'price-desc') return +b.precio - +a.precio;
             return 0;
-        }.bind(this));
-        cards.forEach(function (c) { grid.appendChild(c); });
+        });
+        renderProducts(filtered);
+        var hasFilter = activeFilter.type !== 'all' || priceMin || priceMax;
+        document.getElementById('btn-filter').classList.toggle('btn-primary', hasFilter);
+        document.getElementById('btn-filter').classList.toggle('btn-outline-secondary', !hasFilter);
+    }
+
+    // ── Construir panel de categorías ─────────────────────────────────────────
+    function buildCategoryFilter(cats) {
+        var roots = cats.filter(function (c) { return !c.parent_id; });
+        var list  = document.getElementById('cat-list');
+        roots.forEach(function (root) {
+            var children = cats.filter(function (c) { return c.parent_id === root.id; });
+            var collapseId = 'collapse-cat-' + root.id;
+
+            // Botón raíz (filtra por root + despliega hijos)
+            var rootBtn = document.createElement('button');
+            rootBtn.className = 'list-group-item list-group-item-action filter-cat d-flex justify-content-between align-items-center py-2 fw-semibold';
+            rootBtn.style.fontSize = '.9rem';
+            rootBtn.dataset.filterType = 'root';
+            rootBtn.dataset.filterSlug = root.slug;
+            if (children.length) {
+                rootBtn.setAttribute('data-bs-toggle', 'collapse');
+                rootBtn.setAttribute('data-bs-target', '#' + collapseId);
+            }
+            rootBtn.innerHTML = '<span>' + root.nombre + '</span>' +
+                (children.length ? '<i class="fa fa-chevron-down" style="font-size:.75rem;"></i>' : '');
+            list.appendChild(rootBtn);
+
+            if (children.length) {
+                var collapse = document.createElement('div');
+                collapse.className = 'collapse';
+                collapse.id = collapseId;
+                children.forEach(function (child) {
+                    var childBtn = document.createElement('button');
+                    childBtn.className = 'list-group-item list-group-item-action filter-cat py-1 ps-4';
+                    childBtn.style.fontSize = '.85rem';
+                    childBtn.dataset.filterType = 'sub';
+                    childBtn.dataset.filterId   = String(child.id);
+                    childBtn.textContent = child.nombre;
+                    collapse.appendChild(childBtn);
+                });
+                list.appendChild(collapse);
+            }
+        });
+    }
+
+    // Click en categoría
+    document.getElementById('filterOffcanvas').addEventListener('click', function (e) {
+        var btn = e.target.closest('.filter-cat');
+        if (!btn) return;
+        var type = btn.dataset.filterType || 'all';
+        if (type === 'root') {
+            activeFilter = { type: 'root', slug: btn.dataset.filterSlug };
+        } else if (type === 'sub') {
+            activeFilter = { type: 'sub', id: +btn.dataset.filterId };
+        } else {
+            activeFilter = { type: 'all' };
+        }
+        document.querySelectorAll('#filterOffcanvas .filter-cat').forEach(function (b) {
+            b.classList.toggle('active', b === btn);
+        });
+        applyFilter();
     });
 
-    // Carrito simple con localStorage
-    function getCart() { return JSON.parse(localStorage.getItem('moreh_cart') || '[]'); }
-    function saveCart(cart) { localStorage.setItem('moreh_cart', JSON.stringify(cart)); }
+    // Aplicar precio
+    document.getElementById('btn-apply-price').addEventListener('click', function () {
+        priceMin = +document.getElementById('price-min').value || 0;
+        priceMax = +document.getElementById('price-max').value || 0;
+        applyFilter();
+    });
+
+    // Limpiar filtros
+    document.getElementById('btn-clear-filters').addEventListener('click', function () {
+        activeFilter = { type: 'all' };
+        priceMin = 0; priceMax = 0;
+        document.getElementById('price-min').value = '';
+        document.getElementById('price-max').value = '';
+        document.querySelectorAll('#filterOffcanvas .filter-cat').forEach(function (b) {
+            b.classList.toggle('active', !b.dataset.filterType);
+        });
+        applyFilter();
+    });
+
     function updateCartBadge() {
-        const count = getCart().reduce(function (s, i) { return s + i.qty; }, 0);
+        var cart = [];
+        try { cart = JSON.parse(localStorage.getItem('moreh_cart') || '[]'); } catch (e) {}
+        var count = cart.reduce(function (s, i) { return s + +(i.cantidad != null ? i.cantidad : i.qty || 0); }, 0);
         ['cart-count', 'cart-count-m'].forEach(function (id) {
-            const el = document.getElementById(id);
+            var el = document.getElementById(id);
             if (el) el.textContent = count;
         });
     }
 
-    document.querySelectorAll('.add-to-cart').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            const cart = getCart();
-            const product = this.dataset.product;
-            const price = +this.dataset.price;
-            const idx = cart.findIndex(function (i) { return i.name === product; });
-            if (idx > -1) { cart[idx].qty++; } else { cart.push({ name: product, price: price, qty: 1 }); }
-            saveCart(cart);
-            updateCartBadge();
-            this.textContent = '✓ Agregado';
-            const b = this;
-            setTimeout(function () { b.innerHTML = '<i class="fa fa-shopping-cart me-1"></i> Agregar al carrito'; }, 1500);
-        });
+    document.getElementById('searchInput').addEventListener('input', applyFilter);
+    document.getElementById('sortSelect').addEventListener('change', applyFilter);
+
+    // Cargar categorías y productos en paralelo
+    Promise.all([
+        fetch(API + '/categorias').then(function (r) { return r.json(); }),
+        fetch(API + '/productos').then(function (r) { return r.json(); })
+    ]).then(function (results) {
+        buildCategoryFilter(results[0].data || []);
+        document.getElementById('grid-loading').style.display = 'none';
+        allProducts = results[1].data || [];
+        renderProducts(allProducts);
+    }).catch(function () {
+        document.getElementById('productGrid').innerHTML =
+            '<div class="col-12 text-center py-5 text-danger">' +
+            '<i class="fa fa-exclamation-triangle me-2"></i>Error al cargar. ' +
+            '<a href="#" onclick="location.reload()">Reintentar</a></div>';
     });
 
     updateCartBadge();
+})();
 </script>
 </body>
 </html>

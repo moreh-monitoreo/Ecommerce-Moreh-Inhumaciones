@@ -46,6 +46,8 @@ Branch.hasMany(Chapel, { as: 'chapels', foreignKey: 'branch_id', onDelete: 'CASC
 Chapel.belongsTo(Branch, { as: 'branch', foreignKey: 'branch_id' });
 
 // ── Productos e Imágenes ───────────────────────────────────────────────────────
+Producto.belongsTo(Category, { as: 'categoriaDetalle', foreignKey: 'categoria_id' });
+Category.hasMany(Producto, { foreignKey: 'categoria_id' });
 Producto.hasMany(ProductImage, { as: 'imagenes', foreignKey: 'producto_id', onDelete: 'CASCADE' });
 ProductImage.belongsTo(Producto, { foreignKey: 'producto_id' });
 

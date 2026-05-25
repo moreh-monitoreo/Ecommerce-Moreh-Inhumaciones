@@ -225,8 +225,22 @@
 (function () {
     'use strict';
 
+    function normalizeItem(i) {
+        return {
+            id: i.id != null ? i.id : null,
+            nombre: i.nombre != null ? i.nombre : (i.name || ''),
+            precio: +(i.precio != null ? i.precio : (i.price || 0)),
+            variante: i.variante != null ? i.variante : null,
+            cantidad: +(i.cantidad != null ? i.cantidad : (i.qty || 1)),
+            imagen: i.imagen != null ? i.imagen : (i.image || null),
+        };
+    }
+
     function getCart() {
-        try { return JSON.parse(localStorage.getItem('moreh_cart') || '[]'); } catch (e) { return []; }
+        try {
+            var raw = JSON.parse(localStorage.getItem('moreh_cart') || '[]');
+            return raw.map(normalizeItem);
+        } catch (e) { return []; }
     }
 
     function saveCart(cart) {
@@ -248,7 +262,7 @@
 
     function renderCart() {
         var cart = getCart();
-        var totalItems = cart.reduce(function (s, i) { return s + i.qty; }, 0);
+        var totalItems = cart.reduce(function (s, i) { return s + i.cantidad; }, 0);
         updateBadges(totalItems);
 
         if (cart.length === 0) {
@@ -265,19 +279,21 @@
 
         var subtotal = 0;
         cart.forEach(function (item, idx) {
-            var lineTotal = item.price * item.qty;
+            var lineTotal = item.precio * item.cantidad;
             subtotal += lineTotal;
             var tr = document.createElement('tr');
             tr.innerHTML =
                 '<td style="width:90px;">' +
-                    '<img src="' + (item.image || '../img/placeholder_thumbnail1.png') + '" class="item-img" alt="' + item.name + '">' +
+                    '<img src="' + (item.imagen || '../img/placeholder_thumbnail1.png') + '" class="item-img" alt="' + item.nombre + '">' +
                 '</td>' +
                 '<td>' +
-                    '<div class="fw-semibold" style="font-size:0.9rem;">' + item.name + '</div>' +
-                    '<div class="text-muted" style="font-size:0.8rem;">' + formatPrice(item.price) + ' c/u</div>' +
+                    '<div class="fw-semibold" style="font-size:0.9rem;">' + item.nombre + '</div>' +
+                    '<div class="text-muted" style="font-size:0.8rem;">' +
+                        (item.variante ? item.variante + ' &middot; ' : '') + formatPrice(item.precio) + ' c/u' +
+                    '</div>' +
                 '</td>' +
                 '<td class="text-center">' +
-                    '<input type="number" class="form-control qty-input" value="' + item.qty + '" min="1" max="99" data-idx="' + idx + '">' +
+                    '<input type="number" class="form-control qty-input" value="' + item.cantidad + '" min="1" max="99" data-idx="' + idx + '">' +
                 '</td>' +
                 '<td class="text-end fw-semibold">' + formatPrice(lineTotal) + '</td>' +
                 '<td class="text-center">' +
@@ -296,7 +312,7 @@
             var idx = parseInt(e.target.dataset.idx, 10);
             var val = parseInt(e.target.value, 10);
             if (!isNaN(val) && val >= 1) {
-                cart[idx].qty = val;
+                cart[idx].cantidad = val;
                 saveCart(cart);
                 renderCart();
             }
@@ -324,7 +340,11 @@
     document.getElementById('btn-request-quote').addEventListener('click', function () {
         var cart = getCart();
         if (cart.length === 0) return;
-        var lines = cart.map(function (i) { return i.qty + 'x ' + i.name; }).join(', ');
+        var lines = cart.map(function (i) {
+            var line = i.cantidad + 'x ' + i.nombre;
+            if (i.variante) line += ' (' + i.variante + ')';
+            return line;
+        }).join(', ');
         var msg = 'Hola, me gustaría cotizar los siguientes productos: ' + lines;
         window.open('https://wa.me/526677125030?text=' + encodeURIComponent(msg), '_blank');
     });

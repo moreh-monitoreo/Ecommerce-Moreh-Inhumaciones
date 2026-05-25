@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import path from 'path';
 import { env, isDev } from './config/env';
 import apiRouter from './routers';
 import healthRouter from './routers/health.router';
@@ -10,6 +11,12 @@ import { errorHandler } from './middlewares/errorHandler';
 import { morganStream } from './utils/logger';
 
 const app = express();
+
+// En dev __dirname = src/backend/, en prod = dist/backend/
+// '../frontend' y '../admin' apuntan correctamente en ambos entornos
+const staticRoot = path.join(__dirname, '..');
+app.use(express.static(path.join(staticRoot, 'frontend')));
+app.use('/admin', express.static(path.join(staticRoot, 'admin')));
 
 app.use(helmet());
 app.use(
