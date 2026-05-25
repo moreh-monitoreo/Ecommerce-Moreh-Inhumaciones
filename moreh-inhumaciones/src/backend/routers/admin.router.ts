@@ -167,7 +167,7 @@ router.delete('/banners/:id', requirePermission('cms', 'eliminar'), wrap(async (
 
 // ─── CMS — Settings ──────────────────────────────────────────────────────────
 router.get('/settings', wrap(async (_req, res) => ok(res, await cmsService.listSettings())));
-router.put('/settings/:clave', requirePermission('cms', 'editar'), wrap(async (req, res) => ok(res, await cmsService.upsertSetting(req.params.clave, req.body.valor, req.body.descripcion))));
+router.put('/settings/:clave', requirePermission('cms', 'editar'), wrap(async (req, res) => ok(res, await cmsService.upsertSetting(req.params.clave as string, req.body.valor, req.body.descripcion))));
 
 // ─── Auditoría (endpoint completo con filtros) ────────────────────────────────
 router.get('/auditoria/stats', requirePermission('auditoria', 'ver'), wrap(async (_req, res) => {

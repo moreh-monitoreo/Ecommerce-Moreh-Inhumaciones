@@ -26,7 +26,7 @@ export const productoController = {
 
   async getById(req: Request, res: Response, next: NextFunction) {
     try {
-      const id = parseInt(req.params.id, 10);
+      const id = parseInt(req.params.id as string, 10);
       if (Number.isNaN(id) || id <= 0) {
         throw HttpError.badRequest('ID de producto inválido');
       }

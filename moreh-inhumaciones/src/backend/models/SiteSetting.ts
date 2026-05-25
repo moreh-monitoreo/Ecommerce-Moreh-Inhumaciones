@@ -1,11 +1,11 @@
-import { DataTypes, InferAttributes, InferCreationAttributes, Model } from 'sequelize';
+import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model } from 'sequelize';
 import { sequelize } from '../config/database';
 
 export class SiteSetting extends Model<InferAttributes<SiteSetting>, InferCreationAttributes<SiteSetting>> {
   declare clave: string;
   declare valor: string | null;
   declare descripcion: string | null;
-  declare updatedAt: Date;
+  declare updatedAt: CreationOptional<Date>;
 }
 
 SiteSetting.init(
