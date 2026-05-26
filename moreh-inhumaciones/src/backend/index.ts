@@ -14,8 +14,8 @@ async function bootstrap() {
       await sequelize.sync();
     }
 
-    const server = app.listen(env.port, () => {
-      logger.info(`Servidor escuchando en http://localhost:${env.port}`);
+    const server = app.listen(env.port, '0.0.0.0', () => {
+      logger.info(`Servidor escuchando en http://0.0.0.0:${env.port}`);
       logger.info(`Entorno: ${env.nodeEnv}`);
     });
 
