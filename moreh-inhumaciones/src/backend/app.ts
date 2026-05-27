@@ -16,6 +16,7 @@ const app = express();
 // '../frontend' y '../admin' apuntan correctamente en ambos entornos
 const staticRoot = path.join(__dirname, '..');
 app.use(express.static(path.join(staticRoot, 'frontend')));
+app.get(['/admin', '/admin/'], (_req, res) => res.redirect('/admin/pages/login.html'));
 app.use('/admin', express.static(path.join(staticRoot, 'admin')));
 
 app.use(helmet());
