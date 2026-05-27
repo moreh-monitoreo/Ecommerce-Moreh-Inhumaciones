@@ -175,3 +175,28 @@ img { max-width: 100%; height: auto; }
     color: var(--color-primary) !important;
     font-weight: 700;
 }
+
+/* ===== RESPONSIVE GLOBAL — MÓVIL ===== */
+@media (max-width: 767px) {
+
+    /* Hero sections con min-height fijo */
+    section[style*="min-height: 770px"] {
+        min-height: 50vh !important;
+        background-attachment: scroll !important;
+    }
+    section[style*="min-height: 550px"] {
+        min-height: auto !important;
+        padding-top: 3rem !important;
+        padding-bottom: 3rem !important;
+    }
+
+    /* Títulos display grandes */
+    .display-2 { font-size: clamp(1.8rem, 8vw, 3rem) !important; }
+    .display-3 { font-size: clamp(1.5rem, 7vw, 2.5rem) !important; }
+    .display-4 { font-size: clamp(1.3rem, 6vw, 2rem) !important; }
+
+    /* Texto CTA hero alineado */
+    .col-lg-9.text-white h2 {
+        font-size: clamp(1.1rem, 5vw, 1.5rem);
+    }
+}

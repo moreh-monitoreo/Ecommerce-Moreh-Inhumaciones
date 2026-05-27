@@ -102,3 +102,25 @@
 }
 
 #no-results { font-size: 1rem; color: #888; }
+
+/* ===== RESPONSIVE MÓVIL ===== */
+@media (max-width: 575px) {
+    /* Toolbar: apilar búsqueda y orden */
+    .d-flex.gap-2.align-items-center {
+        flex-wrap: wrap;
+    }
+    .input-group[style*="max-width:260px"],
+    .input-group[style*="max-width: 260px"] {
+        max-width: 100% !important;
+        flex: 1 1 auto;
+    }
+    select.form-select[style*="max-width:160px"],
+    select.form-select[style*="max-width: 160px"] {
+        max-width: 100% !important;
+        flex: 1 1 auto;
+    }
+    /* Tarjetas: 2 columnas en móvil */
+    .product-card img {
+        height: 150px;
+    }
+}

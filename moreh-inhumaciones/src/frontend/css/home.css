@@ -20,8 +20,8 @@
 
 @media (max-width: 768px) {
     #myCarousel1742922476630 .carousel-item {
-        height: 55vw;
-        min-height: 220px;
+        height: 55vw !important;
+        min-height: 220px !important;
         background-size: cover;
         background-position: center center;
         background-repeat: no-repeat;
@@ -213,4 +213,52 @@ footer .fa-home {
 /* ===================== CAROUSEL INDICATORS ===================== */
 #myCarousel1742922476630 .carousel-indicators [data-bs-target] {
     background-color: #762252;
+}
+
+/* ===================== RESPONSIVE MÓVIL ===================== */
+@media (max-width: 767px) {
+
+    /* Sección misión: apila imagen arriba + cuadro de texto abajo */
+    .s_image_text_overlap {
+        min-height: auto !important;
+        overflow: visible !important;
+    }
+    .s_image_text_overlap > img {
+        position: relative !important;
+        top: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        left: auto !important;
+        width: 100% !important;
+        height: 220px !important;
+        display: block;
+        object-fit: cover;
+    }
+    .s_image_text_overlap > div {
+        min-height: auto !important;
+    }
+    .s_image_text_overlap > div > div {
+        max-width: 100% !important;
+        padding: 1.75rem 1.25rem !important;
+        margin: 0 !important;
+    }
+
+    /* CTA: reducir padding excesivo */
+    .s_call_to_action {
+        padding-top: 3rem !important;
+        padding-bottom: 3rem !important;
+        min-height: auto !important;
+    }
+
+    /* Título de sección */
+    .s_title h1 {
+        font-size: clamp(1.1rem, 5vw, 1.5rem);
+    }
+
+    /* Carousel de productos: evitar desborde lateral */
+    #productosCarouselWrap {
+        padding: 0 20px;
+    }
+    .prod-ctrl-prev { left: -20px; }
+    .prod-ctrl-next { right: -20px; }
 }

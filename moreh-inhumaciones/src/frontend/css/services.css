@@ -5,7 +5,7 @@
 /* Fallback para móviles donde fixed no funciona bien */
 @media (max-width: 768px) {
     section[style*="background-attachment: fixed"] {
-        background-attachment: scroll;
+        background-attachment: scroll !important;
         min-height: 50vh !important;
     }
 }
@@ -30,6 +30,14 @@
 
 /* Bullet highlights */
 .service-section ul li::marker { color: #762252; }
+
+/* Imágenes de urnas: altura responsiva en móvil */
+@media (max-width: 767px) {
+    .urnas-section img {
+        height: 55vw !important;
+        min-height: 180px;
+    }
+}
 
 /* ===== URNAS ===== */
 .urnas-section {

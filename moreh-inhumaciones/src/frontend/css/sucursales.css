@@ -1,5 +1,20 @@
 /* ===== SUCURSALES PAGE ===== */
 
+/* Hero responsivo */
+@media (max-width: 767px) {
+    main > section:first-child {
+        min-height: 50vh !important;
+        background-attachment: scroll !important;
+    }
+    /* Sucursales: 2 columnas en móvil ya es compacto,
+       reducir texto para que no se corten */
+    .col-6 p,
+    .col-6 a {
+        font-size: 0.82rem;
+    }
+}
+
+
 .branch-card {
     border: 1px solid #DDDADA;
     border-radius: 8px;

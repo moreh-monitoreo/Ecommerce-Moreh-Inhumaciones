@@ -1,5 +1,19 @@
 /* ===== ABOUT US PAGE ===== */
 
+/* Hero responsivo */
+@media (max-width: 767px) {
+    main > section:first-child {
+        min-height: 50vh !important;
+        background-attachment: scroll !important;
+    }
+    /* Imagen circular sucursales */
+    .col-lg-4 img[style*="border-radius"] {
+        width: 180px !important;
+        height: 180px !important;
+    }
+}
+
+
 #aboutCarousel { border-radius: 8px; overflow: hidden; }
 #aboutCarousel .carousel-item img {
     width: 100%;
