@@ -27,7 +27,7 @@ app.use(
       if (env.corsOrigin.includes('*') || env.corsOrigin.includes(origin)) {
         return callback(null, true);
       }
-      return callback(new Error(`Origen no permitido por CORS: ${origin}`));
+      return callback(null, false);
     },
     credentials: true,
   })
