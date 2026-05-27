@@ -410,7 +410,7 @@ let imgProductData = null;
 let mainFileSelected = null;  // File object seleccionado para imagen principal
 let newFileSelected  = null;  // File object seleccionado para galería
 
-const API_BASE = (window.MOREH_API ?? 'http://localhost:3000') + '/api';
+const API_BASE = (window.MOREH_API ?? '') + '/api';
 
 async function uploadFile(file) {
   const fd = new FormData();

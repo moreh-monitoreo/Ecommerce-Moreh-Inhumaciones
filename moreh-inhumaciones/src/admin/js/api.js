@@ -1,7 +1,7 @@
 /* ============================================================
    Moreh Admin — API Client
    ============================================================ */
-const BASE = (window.MOREH_API ?? 'http://localhost:3000') + '/api';
+const BASE = (window.MOREH_API ?? '') + '/api';
 
 const Api = {
   BASE,

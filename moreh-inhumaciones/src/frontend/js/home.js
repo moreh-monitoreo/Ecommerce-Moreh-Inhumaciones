@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    var API         = 'http://localhost:3000/api';
+    var API         = '/api';
     var PLACEHOLDER = '../img/placeholder_thumbnail.png';
     var PER_SLIDE   = 4; /* productos por slide en desktop (2 visibles en mobile) */
 

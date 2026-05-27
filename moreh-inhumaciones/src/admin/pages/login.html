@@ -45,7 +45,7 @@
 </div>
 
 <script>
-  const BASE = (window.MOREH_API ?? 'http://localhost:3000') + '/api';
+  const BASE = (window.MOREH_API ?? '') + '/api';
 
   document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
