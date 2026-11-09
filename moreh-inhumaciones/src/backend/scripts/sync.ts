@@ -3,7 +3,7 @@ import { logger } from '../utils/logger';
 
 async function main() {
   try {
-    logger.info('Autenticando conexión con SQL Server...');
+    logger.info('Autenticando conexión con MySQL...');
     await sequelize.authenticate();
     logger.info('Conexión OK. Sincronizando modelos (alter: true)...');
     await sequelize.sync({ alter: true });

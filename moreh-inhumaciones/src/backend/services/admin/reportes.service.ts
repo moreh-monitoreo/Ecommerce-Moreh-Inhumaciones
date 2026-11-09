@@ -57,10 +57,10 @@ export const reportesService = {
     if (hasta) { repl.hasta = new Date(hasta + 'T23:59:59'); dateClause += ' AND o.createdAt <= :hasta'; }
     const branchClause = branchId ? ` AND o.branch_id = ${Number(branchId)}` : '';
     const rows = await sequelize.query(
-      `SELECT FORMAT(o.createdAt, 'yyyy-MM') AS mes, SUM(o.total) AS total
+      `SELECT DATE_FORMAT(o.createdAt, '%Y-%m') AS mes, SUM(o.total) AS total
        FROM Orders o
        WHERE o.status != 'cancelada' ${dateClause} ${branchClause}
-       GROUP BY FORMAT(o.createdAt, 'yyyy-MM')
+       GROUP BY DATE_FORMAT(o.createdAt, '%Y-%m')
        ORDER BY mes ASC`,
       { type: QueryTypes.SELECT, replacements: repl }
     );
@@ -109,7 +109,7 @@ export const reportesService = {
        JOIN Orders o ON o.id = oi.order_id AND o.status != 'cancelada' ${dateClause} ${branchClause}
        GROUP BY p.id, p.nombre, p.categoria
        ORDER BY unidades DESC
-       OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY`,
+       LIMIT 20`,
       { type: QueryTypes.SELECT, replacements: repl }
     );
     return rows;

@@ -1,12 +1,12 @@
 # Moreh Inhumaciones — Backend API
 
-Backend REST para el sitio Moreh Inhumaciones construido con **Express + TypeScript + Sequelize + SQL Server**.
+Backend REST para el sitio Moreh Inhumaciones construido con **Express + TypeScript + Sequelize + MySQL**.
 
 ## Requisitos
 
 - Node.js 18+ y npm
-- SQL Server 2019+ accesible (local o remoto)
-- Usuario SQL con permisos para crear tablas
+- MySQL 8+ accesible (local, remoto o Railway)
+- Usuario MySQL con permisos para crear tablas
 
 ## Setup
 
@@ -29,45 +29,38 @@ PORT=3000
 NODE_ENV=development
 CORS_ORIGIN=http://localhost:5500,http://127.0.0.1:5500
 
+# Opción A: URL de conexión (recomendado con Railway)
+DATABASE_URL=mysql://root:PASSWORD@host:3306/railway
+
+# Opción B: variables sueltas (se ignoran si DATABASE_URL está definida)
 DB_HOST=localhost
-DB_PORT=1433
-DB_NAME=moreh_db
-DB_USER=sa
+DB_PORT=3306
+DB_NAME=railway
+DB_USER=root
 DB_PASSWORD=TU_PASSWORD
-DB_ENCRYPT=false
-DB_TRUST_SERVER_CERTIFICATE=true
-DB_INSTANCE=
+DB_SSL=false
 ```
 
-> Si usas una instancia con nombre (ej. `SQLEXPRESS`), pon `DB_INSTANCE=SQLEXPRESS`.
+> En Railway, en el servicio del backend define `DATABASE_URL` como referencia:
+> `${{ MySQL.MYSQL_URL }}` (red interna). Para conectarte desde tu máquina usa
+> `${{ MySQL.MYSQL_PUBLIC_URL }}` (proxy TCP público).
 
-### 3. Crear la base de datos
-
-Ejecuta el script SQL contra tu instancia:
-
-```bash
-sqlcmd -S localhost -U sa -P TU_PASSWORD -i src/backend/scripts/create-database.sql
-```
-
-O abre [src/backend/scripts/create-database.sql](src/backend/scripts/create-database.sql) en SSMS y ejecútalo.
-
-### 4. Sincronizar tablas
+### 3. Sincronizar tablas
 
 ```bash
 npm run db:sync
 ```
 
-Crea las tablas: `Productos`, `Contactos`, `Cotizaciones`, `CotizacionItems`.
+Crea todas las tablas a partir de los modelos Sequelize (`sequelize.sync({ alter: true })`).
 
-### 5. Poblar datos iniciales
+### 4. Poblar datos iniciales
 
 ```bash
-npm run db:seed
+npm run db:seed        # 16 productos del catálogo (ataúdes y urnas)
+npm run db:seed-admin  # roles, permisos, SuperAdmin y sucursales
 ```
 
-Inserta los 16 productos (ataúdes y urnas) del catálogo actual.
-
-### 6. Arrancar el servidor
+### 5. Arrancar el servidor
 
 Modo desarrollo (hot reload):
 

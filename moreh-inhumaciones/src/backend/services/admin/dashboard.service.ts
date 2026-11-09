@@ -76,7 +76,7 @@ export const dashboardService = {
        JOIN Orders o ON o.id = oi.order_id AND o.status != 'cancelada'
        GROUP BY p.id, p.nombre, p.categoria, p.imagen_url
        ORDER BY unidades_vendidas DESC
-       OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY`,
+       LIMIT 10`,
       { type: 'SELECT' as never }
     );
   },

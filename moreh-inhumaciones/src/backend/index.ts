@@ -5,7 +5,7 @@ import { logger } from './utils/logger';
 
 async function bootstrap() {
   try {
-    logger.info('Conectando a SQL Server...');
+    logger.info('Conectando a MySQL...');
     await sequelize.authenticate();
     logger.info('Conexión a base de datos OK.');
 
