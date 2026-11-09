@@ -346,7 +346,8 @@
 
         // Build image list: imagen_url primero, luego galería ordenada, sin duplicados
         images = [];
-        if (p.imagen_url && p.imagen_url.indexOf('http') === 0) images.push(p.imagen_url);
+        if (p.imagen_url && /^https?:\/\//.test(p.imagen_url)) images.push(p.imagen_url);
+        else if (p.imagen_url && p.imagen_url.charAt(0) === '/') images.push(encodeURI(p.imagen_url));
         if (p.imagenes) {
             p.imagenes.forEach(function (img) {
                 if (images.indexOf(img.url) === -1) images.push(img.url);

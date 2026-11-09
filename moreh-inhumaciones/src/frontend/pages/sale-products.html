@@ -234,7 +234,9 @@
     }
 
     function getImg(p) {
-        if (p.imagen_url && p.imagen_url.startsWith('http')) return p.imagen_url;
+        var u = p.imagen_url;
+        if (u && /^https?:\/\//.test(u)) return u;
+        if (u && u.charAt(0) === '/')   return encodeURI(u); /* rutas locales: /img/... (con espacios/acentos) */
         if (p.imagenes && p.imagenes.length > 0) return p.imagenes[0].url;
         return PLACEHOLDER;
     }
